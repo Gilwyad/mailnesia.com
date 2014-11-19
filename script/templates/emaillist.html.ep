@@ -1,0 +1,14 @@
+% foreach my $row ( @ {$emaillist} )
+%{
+%            my ($id, $date, $from, $to, $subject) = @{$row};
+
+<tr id="<%== $id %>" class="emailheader" onClick="openEmail('<%== $url_encoded_mailbox %>',<%== $id %>);">
+  <td><a class="email" onClick="return false;" href="/mailbox/<%== $url_encoded_mailbox %>/<%== $id %>" title="<%== $mailnesia->message("open_email") %>"><%== $date %></a></td>
+  <td><a class="email" onClick="return false;" href="/mailbox/<%== $url_encoded_mailbox %>/<%== $id %>" title="<%== $mailnesia->message("open_email") %>"><%== $from %></a></td>
+  <td><a class="email" onClick="return false;" href="/mailbox/<%== $url_encoded_mailbox %>/<%== $id %>" title="<%== $mailnesia->message("open_email") %>"><%== $to %></a></td>
+  <td><a class="email" onClick="return false;" href="/mailbox/<%== $url_encoded_mailbox %>/<%== $id %>" title="<%== $mailnesia->message("open_email") %>"><%== $subject %></a></td>
+  <td><a class="email" onClick="event.stopPropagation();" href="/mailbox/<%== $url_encoded_mailbox %>/<%== $id %>" title="<%== $mailnesia->message("open_email") %>">&#x2197;</a></td>
+</tr>
+
+%}
+

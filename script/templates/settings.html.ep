@@ -1,0 +1,81 @@
+% title "Settings for $mailbox";
+% layout 'default';
+
+<div id="main">
+  <p>Welcome to the preferences page of mailbox <%= $mailbox %>!</p>
+
+  <noscript><p><span class="alert-message error">JavaScript needs to be enabled in the browser for these
+  settings!</span></p></noscript>
+
+
+
+  <h2>Automatically visiting registration links</h2>
+  %== $clicker_html
+
+
+  %# <h2>Timezone for displaying times</h2>
+
+  <h2>Aliases set for this mailbox</h2>
+
+  %== $mailnesia->message('assign_alias');
+  
+  %# It's never fun to repeat yourself, that's why you can build reusable template blocks in ep that work very similar to normal Perl functions.
+
+  % my $alias_form_block = begin
+  % my $remove_alias = shift;
+  % if ($remove_alias) {
+  %# form to modify or delete alias
+
+  <form method="post" action="#" onsubmit="return false;">
+    <input type="text" name="alias" tabindex="10" size="20" maxlength="30"
+           class="xlarge" title="alias" value="<%= $remove_alias %>">
+    <input type="hidden" name="mailbox" value="<%= $mailbox %>">
+    <input type="hidden" name="remove_alias" value="<%= $remove_alias %>">
+    <input type="submit" name="ok" value="Ok" class="btn primary" >
+    <input type="submit" name="delete" value="Delete"
+           class="btn danger" >
+  </form>
+
+  % } else {
+
+  %# form to set new alias
+
+  <form method="post" action="#" onsubmit="return false;">
+    <input type="text" name="alias" tabindex="10" size="20" maxlength="30"
+           class="xlarge" title="alias">
+    <input type="hidden" name="mailbox" value="<%= $mailbox %>">
+    <input type="hidden" name="remove_alias" value="">
+    <input type="submit" name="ok" value="Ok" class="btn primary">
+    <input type="submit" name="delete" value="Delete"
+           class="btn danger" style="display: none;" >
+
+  </form>
+
+  % };
+  % end
+
+  <ol>
+    %# form(s) to modify or remove already set aliases
+    %# fetchall_arrayref returns a reference to an array that contains one reference per row.
+    % for my $alias (@$alias_list) {
+    <li class="form">
+      <div class="alias_result"></div>
+      <div class="alias_form">
+        %== $alias_form_block->($alias)
+      </div>
+    </li>
+    % }
+
+    %# last form to add new alias
+    <li class="form">
+      <div class="alias_result">&nbsp;</div>
+      <div class="alias_form">
+        %== $alias_form_block->()
+      </div>
+    </li>
+  </ol>
+
+  <button id="add_new_alias_form" class="btn">➕</button>
+
+</div>
+

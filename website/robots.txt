@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /rss/
+Disallow: /mailbox/
+Disallow: /settings/

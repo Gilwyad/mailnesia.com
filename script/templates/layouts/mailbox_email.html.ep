@@ -1,0 +1,8 @@
+%= include 'header'
+%= include 'email_header'
+%= include 'email_table'
+
+<%= content %>
+
+%= include 'footer'
+

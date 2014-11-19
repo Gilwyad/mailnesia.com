@@ -1,0 +1,22 @@
+<h1 class="emails"><%== $mailnesia->message('mail_for_emailaddress',$mailbox) %></h1>
+
+<span class="icons"><a href="/rss/<%= $url_encoded_mailbox %>" title="<%= $mailnesia->message('subscribe_to_rss') %>"><img src='data:image/svg+xml;utf8,<?xml version="1.0" encoding="utf-8"?><!-- The icon can be used freely in both personal and commercial projects with no attribution required, but always appreciated. You may NOT sub-license, resell, rent, redistribute or otherwise transfer the icon without express written permission from iconmonstr.com --><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+<path id="rss-icon" d="M161.757,406.249c0,30.791-24.96,55.751-55.75,55.751c-30.79,0-55.751-24.96-55.751-55.751
+s24.961-55.75,55.751-55.75C136.796,350.499,161.757,375.458,161.757,406.249z M50.256,190.424v82.593
+C153.994,274.083,238.172,358.261,239.238,462h82.593C320.764,312.48,199.774,191.491,50.256,190.424z M50.256,132.602
+c87.695,0.381,170.084,34.695,232.135,96.747c62.175,62.173,96.506,144.764,96.754,232.651h82.6
+C461.228,234.858,277.333,50.794,50.256,50V132.602z"/></svg>' height="20" width="20" alt="RSS"></a><a href="/settings/<%= $url_encoded_mailbox %>" title="Settings for <%= $mailbox %>"><img src='data:image/svg+xml;utf8,<?xml version="1.0" encoding="utf-8"?><!-- License Agreement at http://iconmonstr.com/license/ --><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+<path id="tools-2-icon" d="M426.316,379.918L236.256,189.856c-9.139-9.137-13.846-21.846-12.848-34.731
+c1.887-24.409-6.5-49.462-25.169-68.13c-24.3-24.3-59.417-31.182-89.851-20.658l55.254,55.254
+c1.268,21.557-32.062,54.885-53.617,53.617l-55.253-55.253c-10.524,30.433-3.643,65.551,20.657,89.851
+c18.668,18.669,43.722,27.054,68.131,25.167c12.896-0.998,25.584,3.701,34.731,12.847l190.062,190.062
+c16.006,16.007,41.955,16.007,57.963,0C442.322,421.875,442.322,395.924,426.316,379.918z M395.336,423.291
+c-9.328,0-16.893-7.562-16.893-16.893c0-9.328,7.564-16.892,16.893-16.892s16.893,7.563,16.893,16.892
+C412.229,415.729,404.664,423.291,395.336,423.291z M276.4,188.014l98.002-98.002c20.039-20.04,52.529-20.04,72.568,0
+s20.039,52.529,0,72.568l-98.002,98.002l-17.768-17.767l93.553-93.553c2.889-2.887,2.889-7.568,0-10.457
+c-2.887-2.886-7.568-2.886-10.457,0.001l-93.553,93.553l-15.211-15.211l93.551-93.554c2.889-2.887,2.889-7.568,0.002-10.456
+c-2.887-2.888-7.568-2.888-10.457,0l-93.553,93.552L276.4,188.014z M224.914,336.429l-72.324,72.325
+c-3.921,3.92-7.221,8.414-9.789,13.329l-5.197,9.95l-36.025,18.401l-14.253-14.253l17.624-36.805l9.949-5.196
+c4.915-2.566,9.41-5.868,13.329-9.789l72.325-72.324L224.914,336.429z"/></svg>' alt="Settings" height="20" width="20"></a>

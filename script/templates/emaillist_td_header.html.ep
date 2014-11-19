@@ -1,0 +1,11 @@
+<table width="100%" border="0" cellspacing="0" class="email">
+  <thead>
+    <tr>
+      <th align="left" width="10%"><%= $mailnesia->message('date') %></th>
+      <th align="left" width="30%"><%= $mailnesia->message('from') %></th>
+      <th align="left" width="29%"><%= $mailnesia->message('to') %></th>
+      <th align="left" width="30%"><%= $mailnesia->message('subject') %></th>
+      <th align="left" width="1%"></th>
+    </tr>
+  </thead>
+  <tbody>

@@ -1,0 +1,18 @@
+<table width="100%" border="0" cellspacing="0" class="header">
+  <thead>
+    <tr>
+      <th align="left" width="10%"><%= $mailnesia->message('date') %></th>
+      <th align="center" width="25%"><%= $mailnesia->message('from') %></th>
+      <th align="center" width="25%"><%= $mailnesia->message('to') %></th>
+      <th align="right" width="40%"><%= $mailnesia->message('subject') %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="odd"> 
+      <td align="left" width="10%"><%== $date %></td>
+      <td align="center" width="25%"><%== $from %></td>
+      <td align="center" width="25%"><%== $to %></td>
+      <td align="right" width="40%"><%== $subject %></td>
+    </tr>
+  </tbody>
+</table>

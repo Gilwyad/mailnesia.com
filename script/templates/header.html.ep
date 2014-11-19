@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= $mailbox %> @ Mailnesia - <%= $mailnesia->message("motto") %></title>
+    <meta name="language" content="<%= $mailnesia->{language} %>" />
+    <link rel="stylesheet" type="text/css" href="/css/style-min.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <div id="top-ad"></div>
+    <div id="fb-root"></div>
+    <div id="header">
+      <div id="logo">
+        <a href="<%= $index_url %>"><img width="119" height="119" src="/logo.png" /></a>
+        <div>
+          <a href="<%= $index_url %>">MAILNESIA</a>
+        </div>
+      </div>
+      <div class="right">
+        <div id="social">
+          %== $mailnesia->{devel} ? "" : q{<div class="g-plusone" data-size="medium" data-href="http://mailnesia.com"></div><iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fmailnesia.com%2F&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=false&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px;" allowTransparency="true"></iframe>};
+        </div>
+        <p><%= $mailnesia->message('check') %></p>
+        <div id="form">
+          <form method="post" action="/redirect/" enctype="application/x-www-form-urlencoded">
+            <input type="text" name="mailbox" tabindex="2"
+                   value="<%= $mailbox %>" size="20" maxlength="35" onfocus="this.value = this.value;"
+                   id="mailbox" title="Type mailbox and press ENTER" /> @mailnesia.com
+            <input type="submit" name="mailbox" id="sm" value="OK"/>
+          </form>
+        </div>
+        <a href="/random/"><%=  $mailnesia->message('random') %></a>
+      </div>
+    </div>

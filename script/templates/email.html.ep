@@ -1,0 +1,5 @@
+<div class="emails">
+%== $tabs
+<div class="body"><div class="boxcontent"><div class="pill-content">
+%== $email
+</div></div></div></div>

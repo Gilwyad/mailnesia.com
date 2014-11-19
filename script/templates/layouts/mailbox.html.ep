@@ -1,0 +1,16 @@
+%= include 'header'
+%= include 'emaillist_header'
+%= include 'emaillist_header_delete_all_mail_button'
+%= include 'emaillist_header_end'
+
+%== $pagination
+
+%= include 'emaillist_td_header'
+
+<%= content %>
+
+%= include 'emaillist_td_footer'
+
+%== $pagination
+%= include 'footer'
+

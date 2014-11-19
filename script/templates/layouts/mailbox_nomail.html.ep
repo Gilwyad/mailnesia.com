@@ -1,0 +1,10 @@
+%= include 'header'
+%= include 'emaillist_header'
+%= include 'emaillist_header_end'
+
+%= include 'emaillist_td_header'
+%= include 'emaillist_td_footer'
+<%= content %>
+
+%= include 'footer'
+
