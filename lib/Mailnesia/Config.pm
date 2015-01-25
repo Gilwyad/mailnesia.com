@@ -85,7 +85,7 @@ sub new {
                 siteurl_devel  => "mailnesia-devel", # URL in development
 
                 # email date format on website, postgresql setting
-                date_format         => 'Dy, Mon DD HH24:MI', #  Sun, May 13 07:11
+                date_format         => 'YYYY-MM-DD HH24:MI:SS+00:00',
 
                 # cookie expiration in seconds
                 cookie_expiration   => 60 * 60 * 24 * 30,
@@ -412,4 +412,3 @@ sub unban_ip
 }
 
 1;
-

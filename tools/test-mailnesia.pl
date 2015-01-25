@@ -100,7 +100,7 @@ my $project_directory = $mailnesia->get_project_directory();
 my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http://" . $config->{siteurl};
 my @languages = qw!/hu /it /lv /fi /pt /de /ru /pl /!;
 my $mech = Test::WWW::Mechanize->new(
-                                     autolint => HTML::Lint->new( only_types => HTML::Lint::Error::STRUCTURE ),
+                                     autolint => HTML::Lint->new( only_types => HTML::Lint::Error::STRUCTURE ), # FIXME: reports unknown element <time>
                                      cookie_jar => undef
                                     );
 

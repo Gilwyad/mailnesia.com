@@ -1136,6 +1136,7 @@ sub generate_footer {
                 qq%$separator%.
                 qq%<a href="/privacy-policy.html">Privacy policy</a></div></div>%.
                 qq%<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>%.
+                qq%<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js" type="text/javascript"></script>%.
                 qq%<script src="/js/javascript-min.js" type="text/javascript"></script>%;
 
                 $footer .= q%<script>(function(d, s, id) {

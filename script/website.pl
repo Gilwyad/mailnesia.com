@@ -187,9 +187,6 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
 
                 my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
 
-                my $timezone_offset = $self->cookie('tz') =~ m/(\-?\d{1-3})/ ?
-                $1 : 0;
-
                 my $emaillist_page = $self->param('p') =~ m/(\d+)/ ? $1 : 0;
 
                 # this is used for ajax queries: when scrolling down the mailbox view, to automatically load the next page, and to check for new mail
@@ -256,7 +253,6 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                 if ($newerthan)
                 {
                     $emaillist = $email->get_emaillist_newerthan(
-                            $timezone_offset,
                             $config->{date_format},
                             $mailbox,
                             $newerthan
@@ -265,7 +261,6 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                 else
                 {
                     $emaillist = $email->get_emaillist(
-                            $timezone_offset,
                             $config->{date_format},
                             $mailbox,
                             $config->{mail_per_page},
@@ -444,9 +439,6 @@ open an email
                 my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
 
                 my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
-
-                my $timezone_offset = $self->cookie('tz') =~ m/(\-?\d{1-3})/ ?
-                $1 : 0;
 
                 my $id = $1 if $self->param('id') =~ m/(\d+)/;
 

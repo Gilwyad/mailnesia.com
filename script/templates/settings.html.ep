@@ -13,8 +13,6 @@
   %== $clicker_html
 
 
-  %# <h2>Timezone for displaying times</h2>
-
   <h2>Aliases set for this mailbox</h2>
 
   %== $mailnesia->message('assign_alias');

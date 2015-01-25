@@ -134,9 +134,6 @@ if (/^http:\/\/[^\/]+(\/[a-z][a-z])?\/?$/.test(window.location.href) ) {
     }
 }
 
-var d=new Date();
-$.cookie('tz', d.getTimezoneOffset(), { path: '/mailbox' } );
-
 function confirmDeleteEmail() {
 
     $("#delete_email").html("<i>Are you sure you want to delete this email?</i><input type='button' class='btn danger' onclick=\'deleteEmail()\' value='YES delete it !'>");
@@ -208,8 +205,10 @@ if (/\/mailbox\/[^\/]+\/?$/.test(window.location.href) ) {
                                $(data).insertBefore(jquery_selector);
                            }
                        }
+                       // format dates every minute
+                       formatDates();
                    }
-                  );
+                 );
         }, 60000 );
     }
 }
@@ -289,6 +288,7 @@ if (/\/mailbox\/[^\/]+\/?(?:\?.*)*$/.test(window.location.href) && $( 'div.pagin
                     {
                         $( jquerySelector ).after(response);
                         nextPage++;
+                        formatDates();
                     }
                 },
                 error: function(xhr) {
@@ -370,6 +370,12 @@ $(document).ready(function () {
     // bind all delete buttons on page load to the delete alias javascript function
     bind_submit_delete('li>div>form');
 
+    
+    // format dates with Moment js
+    formatDates();
+    // and once a minute
+//    var formatDateInterval = setInterval ( function() { formatDates() }, 60000 );
+   
 });
 
 // bind alias forms submit button to ajax function
@@ -481,4 +487,28 @@ function get_error_message (x) {
     {
         return x.responseText || x.statusText;
     }
+}
+
+
+function formatDates () {
+
+    var now = moment();
+
+    // get preferred language from cookie or browser preference
+    var lang = $.cookie('language') || window.navigator.language;
+
+    // apply language specific locale
+    moment.locale(lang);
+
+    // loop through all <time> tags
+    $('time').each(function(i, e) {
+
+        // parse them
+        var time = moment($(e).attr('datetime'),"YYYY-MM-DD HH:mm:ssZ");
+
+        // modify to human readable format
+        $(e).html( time.from(now) );
+        $(e).attr( 'title', time.calendar(now) );
+    });
+
 }

@@ -291,7 +291,6 @@ sub new {
 
 fetch emails for a given mailbox from SQL: execute SELECT query and return fetchall_arrayref. Parameters:
 
-client timezone offset in minutes from UTC
 PSQL date format
 mailbox
 number of emails on one page
@@ -302,7 +301,6 @@ page number to get
 sub get_emaillist
 {
     my $self             = shift;
-    my $timezone_offset  = shift;
     my $date_format      = shift;
     my $mailbox          = shift;
     my $mail_per_page    = shift;
@@ -311,7 +309,7 @@ sub get_emaillist
     my $query = $self->{dbh}->prepare (
                 "SELECT
 id,
-to_char( arrival_date - ?::interval, ?),
+to_char( arrival_date, ?),
 email_from,
 email_to,
 email_subject
@@ -322,7 +320,6 @@ LIMIT ? OFFSET ?")
     or return undef;
 
     $query->execute(
-            "$timezone_offset MINUTE",
             $date_format,
             $mailbox,
             $mail_per_page,
@@ -341,7 +338,6 @@ fetch emails for a given mailbox from SQL which are newer than what is
 displayed on page: execute SELECT query and return
 fetchall_arrayref. Parameters:
 
-client timezone offset in minutes from UTC
 PSQL date format
 mailbox
 id of newest email currently on page
@@ -351,7 +347,6 @@ id of newest email currently on page
 sub get_emaillist_newerthan
 {
     my $self             = shift;
-    my $timezone_offset  = shift;
     my $date_format      = shift;
     my $mailbox          = shift;
     my $newerthan        = shift;
@@ -359,7 +354,7 @@ sub get_emaillist_newerthan
     my $query = $self->{dbh}->prepare (
                 "SELECT
 id,
-to_char( arrival_date - ?::interval, ?),
+to_char( arrival_date, ?),
 email_from,
 email_to,
 email_subject
@@ -370,7 +365,6 @@ ORDER BY arrival_date DESC")
     or return undef;
 
     $query->execute(
-            "$timezone_offset MINUTE",
             $date_format,
             $mailbox,
             $newerthan
