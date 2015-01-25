@@ -199,8 +199,7 @@ sub mailbox_tests {
                   fields  => {
                           mailbox => $mailbox
                       },
-                  form_number => 1,
-                  button  => 'mailbox'
+                  form_number => 1
               },
               'getting mailbox with form button'
           );
@@ -1000,4 +999,3 @@ done_testing(
 
         restoration()
     );
-

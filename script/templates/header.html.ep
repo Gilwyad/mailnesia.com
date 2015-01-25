@@ -25,8 +25,8 @@
           <form method="post" action="/redirect/" enctype="application/x-www-form-urlencoded">
             <input type="text" name="mailbox" tabindex="2"
                    value="<%= $mailbox %>" size="20" maxlength="35" onfocus="this.value = this.value;"
-                   id="mailbox" title="Type mailbox and press ENTER" /> @mailnesia.com
-            <input type="submit" name="mailbox" id="sm" value="OK"/>
+                   id="mailbox" placeholder="Type mailbox and press ENTER" /> @mailnesia.com
+            <input type="submit" id="sm" value="OK"/>
           </form>
         </div>
         <a href="/random/"><%=  $mailnesia->message('random') %></a>
