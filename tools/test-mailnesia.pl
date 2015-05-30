@@ -98,7 +98,9 @@ my $global_mailbox = $mailnesia->random_name_for_testing();
 my $sender_domain = q{gmail.com};
 my $project_directory = $mailnesia->get_project_directory();
 my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http://" . $config->{siteurl};
-my @languages = qw!/hu /it /lv /fi /pt /de /ru /pl /!;
+
+# language pages to test:
+my @languages = qw!/ /hu /it /lv /fi /pt /de /ru /pl /zh /fr /es /cs /es-ar /ms /id /pt-br!;
 my $mech = Test::WWW::Mechanize->new(
                                      autolint => HTML::Lint->new( only_types => HTML::Lint::Error::STRUCTURE ), # FIXME: reports unknown element <time>
                                      cookie_jar => undef
@@ -152,29 +154,41 @@ sub check_config {
 }
 
 sub webpage_tests {
-      $category = "webpage tests";
-      print_test_category_header($category);
+    $category = "webpage tests";
+    print_test_category_header($category);
+    my $numof_tests;
 
-      for (@languages)
-      {
+    for (@languages)
+    {
         $url = $baseurl.$_;
 
         print_testcase_header($category . " " . $_);
-        $mech->get_ok( $url, "GET $url" );
-        $mech->content_lacks( 'service down' );
-        $mech->text_contains( 'mailnesia' );
-        $mech->content_lacks ('<div class="alert-message', 'no alert message on page');
-        $mech->text_unlike ( qr/(\bnil\b)|�/, "Text does not contain 'nil' as separate word or an invalid utf8 character" );
+        $numof_tests = webpage_tests_internal($url);
 
-        $mech->stuff_inputs;    # this is not counted as a test
-
-        $mech->lacks_uncapped_inputs('forms have maxlength');
-
-      }
-      return scalar @languages * 6;
-
+        $url = $baseurl.$_."/features.html";
+        $numof_tests += webpage_tests_internal($url);
     }
+    return scalar @languages * $numof_tests;
 
+}
+
+sub webpage_tests_internal {
+    my $url = shift;
+
+    $mech->get_ok( $url, "GET $url" );
+    $mech->text_lacks( 'service down' );
+    $mech->text_contains( 'mailnesia' );
+    $mech->content_lacks ('<div class="alert-message', 'no alert message on page');
+    $mech->text_unlike ( qr"\bnil\b", "Text does not contain 'nil' as separate word" );
+    $mech->text_lacks ( "�", "Text does not contain a common invalid utf8 character");
+    $mech->text_lacks ( "*", "Text does not contain an asterisk" );
+
+    $mech->stuff_inputs;        # this is not counted as a test
+
+    $mech->lacks_uncapped_inputs('forms have maxlength');
+    return 8;
+
+}
 
 =head2 mailbox_tests
 
