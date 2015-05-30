@@ -10,6 +10,8 @@ important notes first:
    too long
  - They probably will not be renewed after a year, but new domains
    will be activated
+ - If you have an idea for a domain name please
+   [send me](/contact.html) the name so I can buy it
 
 So the rule of thumb is, if you plan to use an email for years, use
 @mailnesia.com, if you just need a quick address then forget about it,
