@@ -1090,7 +1090,7 @@ sub generate_language_selection_links {
 
                 my $n = scalar @ { $self->{text}->{lang_array} };
 
-                for (0 .. $n-1)
+                for (0 .. $n-2) # last element is "your language here", should be ignored
                 {
                     my $lang = $self->{text}->{lang_array}[$_];
 
@@ -1108,7 +1108,7 @@ sub generate_language_selection_links {
                     qq%" onClick="return setLanguage('$lang',$translation_complete);">% .
                     $self->{text}->{message}->{language_selection}->{$lang} .
                     qq%</a>%;
-                    $html .= $separator if $_ < $n-1; # dont insert separator after last flag
+                    $html .= $separator if $_ < $n-2; # dont insert separator after last flag
                 }
 
                 $html;
