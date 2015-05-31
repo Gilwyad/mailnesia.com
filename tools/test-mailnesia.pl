@@ -5,6 +5,7 @@ use Test::More ;
 use Test::WWW::Mechanize;
 use Sys::Hostname;
 use HTML::Lint;
+use HTML::Lint::Pluggable;
 use DBI;
 use XML::LibXML;
 use Redis;
@@ -16,78 +17,6 @@ use Mailnesia;
 use Mailnesia::SQL;
 use Mailnesia::Config;
 use utf8;
-
-########## redefine ##########################
-
-{
-  package HTML::Lint::Parser;
-
-  *HTML::Lint::Parser::_text = sub  {
-    my ($self,$text) = @_;
-
-    while ( $text =~ /&(?![#0-9a-z])/ig ) {
-      $self->gripe( 'text-use-entity', char => '&', entity => '&amp;' );
-    }
-
-    # while ( $text =~ /([^\x09\x0A\x0D -~])/g ) {
-    #   my $bad = $1;
-    #   $self->gripe(
-    #                'text-use-entity',
-    #                char => sprintf( '\x%02lX', ord($bad) ),
-    #                entity => $char2entity{ $bad },
-    #               );
-    # }
-
-    if ( not $self->{_unclosed_entities_regex} ) {
-      # Get Gisle's list
-      my @entities = sort keys %HTML::Entities::entity2char;
-
-      # Strip his semicolons
-      s/;$// for @entities;
-
-      # Build a regex
-      my $entities = join( '|', @entities );
-      $self->{_unclosed_entities_regex} = qr/&($entities)(?!;)/;
-
-      $self->{_entity_lookup} = { map { ($_,1) } @entities };
-    }
-
-    while ( $text =~ m/$self->{_unclosed_entities_regex}/g ) {
-      my $ent = $1;
-      $self->gripe( 'text-unclosed-entity', entity => "&$ent;" );
-    }
-
-    while ( $text =~ m/&([^;]+);/g ) {
-      my $ent = $1;
-
-      # Numeric entities are fine, if they're not too large.
-      if ( $ent =~ /^#(\d+)$/ ) {
-        if ( $1 > 65536 ) {
-          $self->gripe( 'text-invalid-entity', entity => "&$ent;" );
-        }
-        next;
-      }
-
-      # Hex entities are fine, if they're not too large.
-      if ( $ent =~ /^#x([\dA-F]+)$/i ) {
-        if ( length($1) > 4 ) {
-          $self->gripe( 'text-invalid-entity', entity => "&$ent;" );
-        }
-        next;
-      }
-
-      # If it's not a numeric entity, then check the lookup table.
-      if ( !exists $self->{_entity_lookup}{$ent} ) {
-        $self->gripe( 'text-unknown-entity', entity => "&$ent;" );
-      }
-    }
-
-    return;
-  }
-
-}
-
-########## /redefine ##########################
 
 my $number_of_aliases = 50;      # test this number of aliases
 my @aliases;
@@ -101,8 +30,12 @@ my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http
 
 # language pages to test:
 my @languages = qw!/ /hu /it /lv /fi /pt /de /ru /pl /zh /fr /es /cs /es-ar /ms /id /pt-br!;
+my $lint = HTML::Lint::Pluggable->new();       # plugin system for HTML::Lint
+$lint -> load_plugin("HTML5");                 # loads HTML::Lint::Pluggable::HTML5
+$lint -> load_plugin("TinyEntitesEscapeRule"); # loads HTML::Lint::Pluggable::TinyEntitesEscapeRule
+
 my $mech = Test::WWW::Mechanize->new(
-                                     autolint => HTML::Lint->new( only_types => HTML::Lint::Error::STRUCTURE ), # FIXME: reports unknown element <time>
+                                     autolint => $lint,
                                      cookie_jar => undef
                                     );
 

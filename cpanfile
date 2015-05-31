@@ -29,5 +29,6 @@ on 'test' => sub {
     requires 'Test::WWW::Mechanize' , '>= 1.42';
     requires 'XML::LibXML'          , '>= 2.0107';
     requires 'HTML::Lint'           , '>= 2.20';
+    requires 'HTML::Lint::Pluggable', '>= 0.03';
     requires 'WWW::Mechanize'       , '>= 1.71';
 };

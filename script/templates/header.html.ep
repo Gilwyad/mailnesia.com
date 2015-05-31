@@ -11,7 +11,8 @@
     <div id="fb-root"></div>
     <div id="header">
       <div id="logo">
-        <a href="<%= $index_url %>"><img width="119" height="119" src="/logo.png" /></a>
+        <a href="<%= $index_url %>"><img width="119" height="119"
+                                         src="/logo.png" alt="Mailnesia logo" /></a>
         <div>
           <a href="<%= $index_url %>">MAILNESIA</a>
         </div>
