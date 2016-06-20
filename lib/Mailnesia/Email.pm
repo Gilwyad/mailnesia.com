@@ -64,7 +64,7 @@ my $click = qr"confirm|
                signup|
                soundcloud.com/emails/|
                mail.google.com/mail/vf-|
-               \bcheck\b|
+               \b[Cc]heck\b|
                wqrw/podziekowania\?id=\d+&key=[a-z0-9]+|
                \bact\b|
                yify-torrents.com/[a-z0-9]+"ix;
