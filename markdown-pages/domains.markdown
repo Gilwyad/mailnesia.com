@@ -17,7 +17,5 @@ So the rule of thumb is, if you plan to use an email for years, use
 @mailnesia.com, if you just need a quick address then forget about it,
 use these alternate names.
 
- - myalias.pw
- - legitmail.club
- - bestemailaddress.net
+ - there are currently no alternative domain names available
  
