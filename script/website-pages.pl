@@ -177,7 +177,7 @@ all html pages other than english
 
 =cut
 
-get '/(:lang)/(:page).html' => [lang => [keys $mailnesia->{text}->{lang_hash}] ] => {page => 'main'} => sub {
+get '/(:lang)/(:page).html' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => {page => 'main'} => sub {
         my $self = shift;
         my $page = $self->param('page');
         my $lang = $self->param('lang');
@@ -193,7 +193,7 @@ main page other than english
 
 =cut
 
-get '/(:lang)/' => [lang => [keys $mailnesia->{text}->{lang_hash}] ] => sub {
+get '/(:lang)/' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
         my $self = shift;
 
         my $lang = $self->param('lang');
