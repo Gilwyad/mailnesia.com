@@ -49,7 +49,7 @@ Required Perl modules with versions are listed in the file 'cpanfile'.
 
 The required Perl modules can be installed with the `cpan` script: 
 
-    cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious
+    cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious
     
 Or using the Debian package management for those that are available:
 
