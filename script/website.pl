@@ -62,7 +62,7 @@ under sub {
             {
                 # save the mailbox in cookie so a redirect can be made after successful captcha verification
                 $self->cookie( mailbox => $mailbox, {path => '/', expires => time + $$cookie_expiration} ) if $mailbox;
-                $self->redirect_to('/captcha.html');
+                $self->redirect_to(Mojo::URL->new->path('/captcha.html'));
                 return undef;
             }
             else
@@ -1176,8 +1176,7 @@ get '/random/' => sub {
             }
 
         }
-
-        $self->redirect_to("/mailbox/$randomname");
+        $self->redirect_to(Mojo::URL->new->path("/mailbox/$randomname"));
 
     };
 
@@ -1213,7 +1212,7 @@ post '/redirect/' => sub {
         }
 
         $self->res->code(303);
-        return $self->redirect_to ( $url );
+        return $self->redirect_to ( Mojo::URL->new->path( $url ) );
 
     };
 

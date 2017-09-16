@@ -77,7 +77,7 @@ post '/captcha.html' => sub {
 
                 if ($mailbox)
                 {
-                    return $self->redirect_to("/mailbox/$mailbox");
+                    return $self->redirect_to(Mojo::URL->new->path("/mailbox/$mailbox"));
                 }
                 else
                 {
@@ -201,7 +201,7 @@ get '/(:lang)/' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
 
         if ($lang eq 'en')
         {
-            return $self->redirect_to ("/");
+            return $self->redirect_to (Mojo::URL->new->path("/"));
         }
         else
         {
