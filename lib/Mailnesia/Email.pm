@@ -752,9 +752,9 @@ sub store {
             unless ($query->execute
                     (
                         $self->date,
-                        encode("UTF-8", $self->from),
-                        encode("UTF-8", $self->to),
-                        encode("UTF-8", $self->subject),
+                        $self->from,
+                        $self->to,
+                        $self->subject,
                         $real_mailbox || $mailbox,
                         compress ($self->{raw_email})
                     )

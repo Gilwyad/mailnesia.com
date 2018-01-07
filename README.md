@@ -76,15 +76,16 @@ In /etc/redis/redis.conf:
 ## Setting up PostgreSQL
 
 ### Using password-less "trust" authentication for mailnesia PSQL user
-In pg_hba.conf:
+In pg_hba.conf, after "Put your actual configuration here" but before
+the local and host configurations:
 
     # TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
     local   mailnesia   mailnesia                         trust
 
 ### Create mailnesia user / database
   1. as root: su postgres
-     createuser mailnesia
-     (superuser: Y)
+     cd
+     createuser --superuser mailnesia
   2. createdb mailnesia
   3. as any user: psql -U mailnesia
 

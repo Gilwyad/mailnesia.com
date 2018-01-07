@@ -278,21 +278,21 @@ helper pages => sub {
                 mailbox   => $mailbox
             );
 
-        if ($mailnesia->{text}->{pages}->{$page}->{$lang || 'en'}->{body})
+        if (my $content = $mailnesia->{text}->{pages}->{$page}->{$lang || 'en'}->{body})
         {
+            $self->content(content => $content);
             return $self->render
             (
-                text   => $mailnesia->{text}->{pages}->{$page}->{$lang || 'en'}->{body},
-                layout => 'default'
+                template => 'pages'
             );
         }
         else
         {
+            $self->content(content => qq{<div class="alert-message warning">}.$mailnesia->message('page_does_not_exist',$page).q{</div>});
             return $self->render
             (
-                text=>qq{<div class="alert-message warning">}.$mailnesia->message('page_does_not_exist',$page).q{</div>},
                 status => 404,
-                layout => 'default'
+                template => 'pages'
             );
         }
         ;

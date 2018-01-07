@@ -13,8 +13,6 @@ You can contact me *in English*:
   ask anonymously but in this case the only way to answer is by
   publicly making a post on the blog unless you leave an email address
   to reply to.
-* By email: peter@gilwyad.com - but unfortunately this only works over
-  IPv6 so if your mail bounces try sending from Gmail...
 
 [AMA]: http://blog.mailnesia.com/ask
 [GH]: https://github.com/Gilwyad/mailnesia.com

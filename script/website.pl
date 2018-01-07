@@ -128,9 +128,9 @@ under sub {
                         "/".$mailnesia->{language}."/"
                     );
 
+                $self->content(content => qq{<div class="alert-message error">This mailbox has been banned due to violation of our terms and conditions of service.</div>});
                 $self->render(
-                        text   => qq{<div class="alert-message error">This mailbox has been banned due to violation of our terms and conditions of service.</div>},
-                        layout => $self->param('noheadernofooter') ? "" : "default",
+                        template => $self->param('noheadernofooter') ? "" : "pages",
                         status => 403
                     );
                 return undef;
@@ -153,9 +153,10 @@ under sub {
                     "/".$mailnesia->{language}."/"
                 );
 
+            $self->content(content => qq{<div class="alert-message error">Your IP address has been banned from visiting this website, because it was listed on <a href="http://stopforumspam.com/">stopforumspam.com</a> for spamming activities.</div>});
+
             $self->render(
-                    text => qq{<div class="alert-message error">Your IP address has been banned from visiting this website, because it was listed on <a href="http://stopforumspam.com/">stopforumspam.com</a> for spamming activities.</div>},
-                    layout => $self->param('noheadernofooter') ? "" : "default",
+                    template => $self->param('noheadernofooter') ? "" : "pages",
                     status => 403
                 );
             return undef;
@@ -209,12 +210,13 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                             "/".$mailnesia->{language}."/"
                         );
 
+                    $self->content(content => qq{<div class="alert-message warning">} .
+                        $mailnesia->message('mailbox_is_an_alias',$mailbox) .
+                        qq{</div>});
+
                     return $self->render
                     (
-                        text   => qq{<div class="alert-message warning">} .
-                        $mailnesia->message('mailbox_is_an_alias',$mailbox) .
-                        qq{</div>},
-                        layout => $noheadernofooter ? '' : 'default'
+                        template => $noheadernofooter ? '' : 'pages'
                     );
 
                 }
@@ -235,12 +237,13 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                                 "/".$mailnesia->{language}."/"
                             );
 
+                        $self->content(content => qq{<div class="alert-message warning">} .
+                            $mailnesia->message('invalid_characters',$mailbox) .
+                            qq{</div>});
+
                         return $self->render
                         (
-                            text   => qq{<div class="alert-message warning">} .
-                            $mailnesia->message('invalid_characters',$mailbox) .
-                            qq{</div>},
-                            layout => 'default'
+                            template => 'pages'
                         );
                     }
                 }
@@ -271,9 +274,18 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                 if (not defined $emaillist)
                 {
                     # error
-                    return $noheadernofooter ?
-                    $self->render(text=> 'Internal Server Error', status => 500, format => 'txt' ) :
-                    $self->render(text=> 'Internal Server Error', status => 500, layout => 'default' ) ;
+                    if ($noheadernofooter)
+                    {
+                        return $self->render(text=> 'Internal Server Error', status => 500, format => 'txt' );
+                    }
+                    else
+                    {
+                        $self->content(content => 'Internal Server Error');
+                        return $self->render(
+                                status => 500,
+                                template => 'pages'
+                            );
+                    }
                 }
 
                 elsif ((my $number_of_emails = scalar @{ $emaillist } ) == 0)
@@ -458,12 +470,13 @@ open an email
                             "/".$mailnesia->{language}."/"
                         );
 
+                    $self->content(content => qq{<div class="alert-message warning">} .
+                        $mailnesia->message('invalid_characters',$mailbox) .
+                        qq{</div>});
+
                     return $self->render
                     (
-                        text   => qq{<div class="alert-message warning">} .
-                        $mailnesia->message('invalid_characters',$mailbox) .
-                        qq{</div>},
-                        layout => 'default'
+                        template => 'pages'
                     );
 
                 }
@@ -484,12 +497,13 @@ open an email
                             "/".$mailnesia->{language}."/"
                         );
 
+                        $self->content(content => qq{<div class="alert-message warning">} .
+                            $mailnesia->message('invalid_characters',$mailbox) .
+                            qq{</div>});
+
                         return $self->render
                         (
-                            text   => qq{<div class="alert-message warning">} .
-                            $mailnesia->message('invalid_characters',$mailbox) .
-                            qq{</div>},
-                            layout => 'default'
+                            template => 'pages'
                         );
                     }
                 }
@@ -1093,12 +1107,13 @@ show the preferences for the requested mailbox
                         "/".$mailnesia->{language}."/"
                     );
 
+                $self->content(content => qq{<div class="alert-message warning">} .
+                    $mailnesia->message('invalid_characters',$mailbox) .
+                    qq{</div>});
+
                 return $self->render
                 (
-                    text   => qq{<div class="alert-message warning">} .
-                    $mailnesia->message('invalid_characters',$mailbox) .
-                    qq{</div>},
-                    layout => 'default'
+                    template => 'pages'
                 );
             }
 
@@ -1168,10 +1183,10 @@ get '/random/' => sub {
                         mailbox   => ''
                     );
 
+                $self->content(content => 'Internal Server Error');
                 return $self->render(
-                        text   => 'Internal Server Error',
                         status => 500,
-                        layout => 'default'
+                        template => 'page'
                     );
             }
 
@@ -1279,10 +1294,10 @@ ylabel: 'number of emails',
 y2label: 'bandwidth (bytes)'
 });</script>";
 
+        $self->content(content => $page);
         $self->render
         (
-            text   => $page,
-            layout => 'default'
+            template => 'pages'
         );
 
 

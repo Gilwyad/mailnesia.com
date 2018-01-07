@@ -276,6 +276,20 @@ sub alias_positive_tests {
             $tests+=2;
 
 
+            # ignore missing body|head|html|title tags
+            my $old_status = $mech->autolint (
+                $lint->load_plugins(
+                    WhiteList => +{
+                        rule => +{
+                            'doc-tag-required' => sub {
+                                my $param = shift;
+                                return $param->{tag} =~ /body|head|html|title/;
+                            },
+                        }
+                    }
+                )
+            );
+
             # assign aliases
             for ( my $n = 0; $n <= $number_of_aliases; $n++ )
             {
@@ -295,6 +309,10 @@ sub alias_positive_tests {
                 }
                 $tests++;
             }
+
+
+            # turn validation back on
+            $mech->autolint($old_status);
 
             $mech->get_ok( $url, "GET $url" );
             $tests++;
