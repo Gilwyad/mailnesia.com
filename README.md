@@ -41,6 +41,10 @@ email addresses and IP's and other settings.
  - Emails are stored in a PostgreSQL database
  - Hosted on a virtual private server with SSD storage
 
+The email server sends all received emails to several URL clicker
+processes using ZeroMQ to offload the email body processing which is
+somewhat CPU intensive.
+
 ## Requirements
 
 Required Perl modules with versions are listed in the file 'cpanfile'.
@@ -49,11 +53,11 @@ Required Perl modules with versions are listed in the file 'cpanfile'.
 
 The required Perl modules can be installed with the `cpan` script: 
 
-    cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious
+    cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious ZMQ::FFI
     
 Or using the Debian package management for those that are available:
 
-    apt-get install libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl
+    apt-get install libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl
 
 Or using cpanm:
 

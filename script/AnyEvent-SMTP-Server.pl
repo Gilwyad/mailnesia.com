@@ -10,13 +10,34 @@ use Mailnesia::Config;
 use Privileges::Drop;
 use AnyEvent::SMTP::Server;
 use AnyEvent::SMTP::Client 'sendmail';
-use AnyEvent::HTTP;
 use Carp qw(cluck);
 #use Mail::SPF;
+use ZMQ::FFI qw(ZMQ_PUSH);
 
 # just for logging:
 use open ':encoding(utf8)';
 binmode(STDOUT, ":utf8");
+
+my $tryAtMost = 4;
+my $startingPort = 5000;
+my @endpoints = map { "tcp://127.0.0.1:$_" } ($startingPort..$startingPort+$tryAtMost);
+my $next = 0;
+
+my $ctx  = ZMQ::FFI->new();
+my @push = ($ctx->socket(ZMQ_PUSH)) x $tryAtMost;
+
+for (my $i = 0; $i < $tryAtMost; $i++) {
+    $push[$i]->connect($endpoints[$i]);
+}
+
+# return the next connection to use, from 0 to $tryAtMost-1
+sub nextOne {
+    if ($next < $tryAtMost - 1) {
+        return ++$next;
+    } else {
+        return $next = 0;
+    }
+}
 
 my $email_count=0;
 my $email_bandwidth=0;
@@ -333,7 +354,7 @@ $server->reg_cb(
 $server->start;
 drop_privileges('nobody');
 
-print &display_time()." $0 started\n";
+print &display_time()." $0 started on port $server_port\n";
 open_log();
 
 AnyEvent->condvar->recv;
@@ -431,15 +452,12 @@ sub process_email (\%) {
         {
             if ($config->is_clicker_enabled($_))
             {
-                my ($click_links,$noclick_links) = $email->links;
-
-                if ( @$click_links )
-                {
-                    url_clicker(@$click_links);
-                }
+                # select the next clicker for use
+                my $next = nextOne();
+                # send the email body to the chosen clicker
+                $push[$next]->send($mail->{data});
 
                 last TO;
-
             }
         }
 
@@ -454,75 +472,6 @@ sub process_email (\%) {
 
         return 1;
 
-    }
-
-
-sub url_clicker (@) {
-        my $size;
-
-        foreach my $url ( @_ )
-        {
-            if ($mailnesia->{devel})
-            {
-                print CLICK_LOG "Skipping URL in devel mode: $url\n"
-            }
-            else
-            {
-                my $random_cookie_id = int(rand(65535));
-                $cookie_jar{$random_cookie_id} = {};
-
-                http_request GET => $url,
-                headers =>
-                {
-                    "user-agent"       => "Mozilla/5.0 (Windows NT 6.0; rv:6.0.2) Gecko/20100101 Firefox/6.0.2",
-                    "accept"           => 'text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1',
-                    "accept-language"  => 'en',
-                    "accept-encoding"  => 'gzip, deflate',
-                    "referer"          => 'http://mailnesia.com'
-                },
-                timeout        => 120,
-                handle_params  => { max_read_size => 4096 },
-                cookie_jar     => $cookie_jar{$random_cookie_id},
-                # TODO: error: Day too big - 26296 > 24853
-                #Cannot handle date (51, 25, 15, 30, 11, 2041) at /usr/local/share/perl/5.10.1/AnyEvent/HTTP.pm line 1333
-                # need to save cookies for redirects
-
-                persistent  => 0,
-                on_header   => sub { $_[0]{"content-type"} =~ /^text\/html\s*(?:;|$)/ },
-                on_body     => sub
-                {
-                    my $part = shift;
-                    $size +=  length $part;
-                    if ($size > $url_clicker_page_size_limit)
-                    {
-                        # warn "limit reached: $size\n";
-                        $size = 0;
-                        return 0;
-                    }
-                    else
-                    {
-                        return 1;
-                    }
-                },
-
-                sub
-                {
-                    print CLICK_LOG &display_time()." $url" ;
-                    if ( $_[1]->{Status} =~ /^2/ )
-                    {
-                        print CLICK_LOG "\n";
-                    }
-                    else
-                    {
-                        print CLICK_LOG " failed: " . $_[1]->{Reason} . qq{ header: $_[1]->{Status}, $_[1]->{"content-type"}\n};
-                    }
-
-                    delete $cookie_jar{$random_cookie_id};
-
-                }
-            }
-            ;
-        }
     }
 
 

@@ -34,6 +34,7 @@ requires 'Privileges::Drop'         , '>= 1.03';
 requires 'Redis'                    , '>= 1.967';
 requires 'Sys::Hostname'            , '>= 1.00';
 requires 'Text::MultiMarkdown'      , '>= 1.000034';
+requires 'ZMQ::FFI'                 , '>= 1.11';
 
 on 'test' => sub {
     requires 'HTML::Lint'           , '>= 2.20';
