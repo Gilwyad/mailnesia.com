@@ -16,7 +16,7 @@ new_partition_rows=300000;
 psqlArgs="--tuples-only --no-psqlrc --username=mailnesia --quiet";
 
 #number of partitions to keep
-partition_count=15
+partition_count=30
 
 # function to create current partition
 createCurrent()
