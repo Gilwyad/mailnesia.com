@@ -14,6 +14,36 @@ use Carp qw(cluck);
 #use Mail::SPF;
 use ZMQ::FFI qw(ZMQ_PUSH);
 
+{
+    package AnyEvent::SMTP::Server;
+
+    sub accept_connection {
+        my ($self,$fh,$host,$port) = @_;
+        warn "Client connected $host:$port \n" if $self->{debug};
+        my $con = AnyEvent::SMTP::Conn->new(
+            fh => $fh,
+            host => $host,
+            port => $port,
+            debug => $self->{debug},
+            timeout => 5
+        );
+        $self->{c}{int $con} = $con;
+        $con->reg_cb(
+            disconnect => sub {
+                delete $self->{c}{int $_[0]};
+                $self->event( disconnect => $_[0], $_[1] );
+            },
+            command => sub {
+                $self->event( command => @_ )
+            },
+        );
+        $self->eventif( client => $con );
+        $con->reply("220 $self->{hostname} AnyEvent::SMTP Ready.");
+        $con->want_command;
+    }
+}
+
+
 # just for logging:
 use open ':encoding(utf8)';
 binmode(STDOUT, ":utf8");
