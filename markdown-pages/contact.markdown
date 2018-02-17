@@ -14,5 +14,20 @@ You can contact me *in English*:
   publicly making a post on the blog unless you leave an email address
   to reply to.
 
+If you'd like to contribute to the development, maintenance and
+hosting costs, it is possible to donate in the following ways:
+
+* Paypal: donation@mailnesia.com
+* Bitcoin:
+  * Non-segwit address: 1biZjwBV3NdhehneNreQoZ9uEfNRQRJNc
+  * Segwit address: bc1q2q4ch5e3slhpwta65k494lskzrsmmzhjy6vnh7
+* Litecoin:
+  * Non-segwit address: LZAWtZeQShRCof9yijXQDJLRLGDdaSaznD
+  * Segwit address: ltc1qt43nsu4zmen93f4egz9rx0kkwnxv652hd4wxjv
+* Ethereum: 0x14b267C3eF60F63DD245cecC06C5BD6EF58409da
+
+Please consider a recurring donation since these are continuous
+costs. Thank you!
+
 [AMA]: http://blog.mailnesia.com/ask
 [GH]: https://github.com/Gilwyad/mailnesia.com
