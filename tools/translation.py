@@ -4,17 +4,14 @@
 import sys
 import os
 import gspread                  # https://github.com/burnash/gspread
-import json
-from oauth2client.client import SignedJwtAssertionCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 import codecs
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-
-json_key = json.load(open( script_dir + '/../lib/Mailnesia/mailnesia-private.json'))
 scope = ['https://spreadsheets.google.com/feeds']
 
 # Obtain OAuth2 credentials from Google Developers Console (http://gspread.readthedocs.io/en/latest/oauth2.html)
-credentials = SignedJwtAssertionCredentials(json_key['gspread']['client_email'], json_key['gspread']['private_key'], scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name(script_dir + '/../lib/Mailnesia/mailnesia-private.json', scope)
 
 gs = gspread.authorize(credentials)
 
