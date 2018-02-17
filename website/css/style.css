@@ -475,10 +475,6 @@ div.error dl, div.info dl, div.success dl{
                                            margin:0px;
 }
 
-div#header + div.success, div#header + div.error, div#header + div.info
-{ /* clear:both; */
-  }
-
 img {
   border: 0px solid white;
 }
