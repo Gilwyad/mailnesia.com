@@ -6,6 +6,9 @@ who contributed to the
 [translation document](https://docs.google.com/spreadsheet/ccc?key=0ArXaEexy-UBldGZyaGFyVVNzM3lwbDRJWTRHNmp1Ync).
 Thank you!
 
+## Θόδωρος Γ. Καρούνος
+for the complete Greek translation
+
 ## Anwar Darajat @ <http://www.hosthing.info>
 for the complete Indonesian translation
 

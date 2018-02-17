@@ -150,14 +150,15 @@ received each day and the combined size of them.
     bandwidth integer DEFAULT 0
     );
 
+## Translation
 
-How to contribute to a project without knowing a damn bit about it
-----------
+The script tools/translation.py is used to download the Google spreadsheet containing the translations.
+
+## How to contribute to a project without knowing a damn bit about it
 
 <http://domm.plix.at/perl/2013_09_open_source_plus_plus_contribute_without_knowing.html>
 
-Compressing CSS and JavaScript
-------------------------------
+## Compressing CSS and JavaScript
 
 Minifying is done with yui-compressor.  This code snippet will
 automatically compress .js and .css files in the project directory

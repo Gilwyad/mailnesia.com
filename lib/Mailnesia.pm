@@ -700,7 +700,6 @@ sub initialize_text {
                     {
 
                         my @string = split ($string_separator,$string);
-                        die qq{unable to split string "$string" at separator "$string_separator"!} if @string < 3;
 
                         $message{$key}{$lang} = {
                                 text       => $string[0],
@@ -719,8 +718,6 @@ sub initialize_text {
                     {
 
                         my @string = split ($string_separator,$string);
-                        die qq{unable to split string "$string" at separator "$string_separator"!} if @string < 2;
-
                         $message{$key}{$lang} = qq{<p><strong>$string[0]</strong> <a href="/features.html">$string[1]</a></p>};
 
                     }
@@ -728,8 +725,6 @@ sub initialize_text {
                     {
 
                         my @string = split ($string_separator,$string);
-                        die qq{unable to split string "$string" at separator "$string_separator"!} if @string < 3;
-
                         $message{$key}{$lang} = qq{<p><strong>$string[0]</strong> $string[1] <a href="/features.html">$string[2]</a></p>};
 
                     }
@@ -737,8 +732,6 @@ sub initialize_text {
                     {
 
                         my @string = split ($string_separator,$string);
-                        die qq{unable to split string "$string" at separator "$string_separator"!} if @string < 2;
-
                         $message{$key}{$lang} = qq{<strong>$string[0]</strong> $string[1]};
 
                     }
