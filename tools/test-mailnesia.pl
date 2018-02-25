@@ -152,13 +152,14 @@ sub mailbox_tests {
           );
       $tests += 1 + check_mailbox_header();
 
-      $url = $baseurl . "/mailbox/,a";
+      $url = $baseurl . "/mailbox/123,a";
 
       if ( $mech->get_ok( $url, "test invalid mailbox: $url" ) )
       {
-          $mech->title_like( qr{^@ mailnesia}i, "title does not contain the invalid mailbox");
-          $mech->content_unlike( qr{,a}, "page does not contain the invalid mailbox");
-          $tests+=2;
+          $mech->title_like( qr{^123 @ mailnesia}i, "title contains the valid part");
+          $mech->text_contains( q{Invalid characters entered! (valid: 123)}, "page contains the valid part and error message");
+          $mech->text_lacks( q{123,a}, "page does not contain the invalid mailbox");
+          $tests+=3;
       }
       $tests++;
 

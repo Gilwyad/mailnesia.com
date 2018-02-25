@@ -456,7 +456,7 @@ sub body {
                             my $charset = $1 if
                             $content_type =~ m"charset\s*=\s*[\"\']?([a-z0-9_-]+)"i;
 
-                            my $body = decode_charset ($part->body,$charset);
+                            my $body = $self->decode_charset ($part->body,$charset);
 
                             if ($content_type =~ m"^text/html"i)
                             {
@@ -470,8 +470,8 @@ sub body {
                             {
                                 $complete_decoded_body{"text_plain_$id"} .= $complete_decoded_body{"text_plain_$id"} ?
                                 qq{<div class="alert-message info">$content_type</div>} .
-                                &text2html($body) :
-                                &text2html($body) ;
+                                $self->text2html($body) :
+                                $self->text2html($body) ;
                             }
                         }
                         elsif ($content_type =~ m"^image/"i)
@@ -562,7 +562,7 @@ sub body_rss {
                             my $charset = $1 if
                             $content_type =~ m"charset\s*=\s*[\"\']?([a-z0-9_-]+)"i;
 
-                            my $body = decode_charset ($part->body,$charset);
+                            my $body = $self->decode_charset ($part->body,$charset);
 
                             if ($content_type =~ m"^text/html"i)
                             {
@@ -692,7 +692,7 @@ $email->subject
 
 sub subject {
         my $self = shift;
-        $self->{"subject"} ||= escHTML( $self->{email}->header("Subject") );
+        $self->{"subject"} ||= $self->escHTML( $self->{email}->header("Subject") );
     }
 
 =head2 to
@@ -706,7 +706,7 @@ $email->to
 
 sub to {
         my $self = shift;
-        $self->{"to"} ||= escHTML ( $self->{email}->header("To") );
+        $self->{"to"} ||= $self->escHTML ( $self->{email}->header("To") );
     }
 
 =head2 from
@@ -719,7 +719,7 @@ $email->from
 
 sub from {
         my $self = shift;
-        $self->{"from"} ||= escHTML ( $self->{email}->header("From") );
+        $self->{"from"} ||= $self->escHTML ( $self->{email}->header("From") );
     }
 
 =head2 store
@@ -778,7 +778,7 @@ return array references of links to click and not click
 sub links  {
 
         my $self=shift;
-        #  my %urls;
+        my $to_be_shown_on_website = shift; # if false, convert &amp; -> &, suitable for visiting ("clicking"), true should be used to show link on website
         my $body = $self->body_text_nodecode;
 
         my (%clicked,%not_clicked);
@@ -786,7 +786,14 @@ sub links  {
         # this caused an endless loop on the server with perl 5.10.1: while ($self->body =~ ...
         while ($body =~ m!(https?://(?:www\.)?[^\s\"\'<>/]+?/[^\s\"\'<>]+)!gi)
         {
-            ( my $url = $1 ) =~ s/&amp;/&/g;
+            my $url = $1;
+            if ($to_be_shown_on_website) {
+                $url =~ s/&/&#x26;/g;
+            }
+            else
+            {
+                $url =~ s/(&amp;|&#x26;)/&/g;
+            }
 
             if ($url =~ $noclick)
             {
@@ -806,11 +813,8 @@ sub links  {
 
     }
 
-
-### no more OOP methods, just plain subroutines
-
 sub escHTML {
-        my $text = shift;
+        my $text = $_[1];
 
         $text =~ s/&/&#x26;/g;
         $text =~ s/</&#x3c;/g;
@@ -823,46 +827,29 @@ sub escHTML {
 
 
 sub decode_charset {
+        my ($self, $text, $charset) = @_;
 
-        # not needed lol
-
-        # return $_[0] if ( utf8::decode($_[0]) ||
-        #          utf8::is_utf8($_[0]) );
-
-        #   if ( utf8::decode($_[0])) {
-        #     warn "utf8::decode ! \n";
-        # #    warn "$_[0]\n";
-        #     return $_[0];
-        #   }
-
-        #   if (utf8::is_utf8($_[0])) {
-        #     warn "utf8::is_utf8 ! \n";
-        # #    warn "$_[0]\n";
-        #     return $_[0];
-        #   }
-
-        my $charset = $_[1];
-
-        for ( $charset ||= detect($_[0]), detect($_[0]))
+        for ( $charset ||= detect($text), detect($text))
         {
             $_ ||= "ascii";     #default charset
             if (ref ( $encodings{$_} ||= Encode::find_encoding($_) ))
             {
-                return $encodings{$_}->decode($_[0],Encode::FB_XMLCREF);
+                return $encodings{$_}->decode($text,Encode::FB_XMLCREF);
             }
             else
             {
                 warn "decode() error: unsupported encoding: $_\n";
             }
         }
-        return $_[0];
+        return $text;
     }
 
 
 sub text2html {
-        return unless $_[0];
+        my ($self, $text) = @_;
+        return unless $text;
 
-        my $html = escHTML($_[0]);
+        my $html = $self->escHTML($text);
         $html =~ s{$url_regex}{<a href="$1">$1</a>$2}ig;
         return "<pre>$html</pre>";
     }

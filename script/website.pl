@@ -752,7 +752,7 @@ test URL clicker, show clicked and not clicked links
                     )
                 unless ref $email->{email};
 
-                my ($clicked,$not_clicked) = $email->links;
+                my ($clicked,$not_clicked) = $email->links(1);
 
                 my $html =  q{<div class="alert-message block-message info"><h2>Clicked links:</h2><ul>};
                 if (@$clicked)

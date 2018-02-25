@@ -5,6 +5,7 @@ use Test::Mojo;
 use Mailnesia;
 use Mailnesia::SQL;
 use Mailnesia::Config;
+use Mailnesia::Email;
 
 use FindBin;
 require "$FindBin::Bin/../script/website.pl";
@@ -14,9 +15,63 @@ use warnings;
 
 my $mailnesia = Mailnesia->new();
 my $config    = Mailnesia::Config->new();
+my $email     = Mailnesia::Email->new({
+    raw_email => q{
+        To: <test@mailnesia.com>
+        Date: Mon, 07 Jul 2014 21:50:55 +0900
+        From: <test@mailnesia.com>
+        Subject: test
 
+        http://example.com/a/?q=1&w=2
+        http://example.com/a/confirm.php
+        http://example.com/a/delete.php
+    }
+});
 
+#Mailnesia::Email tests
+is (
+    $email->escHTML("http://example.com/a/?q=1&w=2"),
+    "http://example.com/a/?q=1&#x26;w=2",
+    "escHTML OK"
+    );
 
+is (
+    $email->text2html(),
+    undef,
+    "text2html returns undef on no input"
+);
+
+is (
+    $email->text2html("http://example.com/a/?q=1&w=2"),
+    q{<pre><a href="http://example.com/a/?q=1&#x26;w=2">http://example.com/a/?q=1&#x26;w=2</a></pre>},
+    "text2html returns link with HTML escaped"
+);
+
+my ($clicked, $not_clicked) = $email->links;
+is_deeply (
+    $clicked,
+    ["http://example.com/a/confirm.php"],
+    "links to be clicked correctly identified"
+);
+
+is_deeply (
+    [sort @$not_clicked],
+    [sort ("http://example.com/a/?q=1&w=2", "http://example.com/a/delete.php")],
+    "links not to be clicked correctly identified"
+);
+
+($clicked, $not_clicked) = $email->links(1);
+is_deeply (
+    $clicked,
+    ["http://example.com/a/confirm.php"],
+    "links to be clicked correctly display"
+);
+
+is_deeply (
+    [sort @$not_clicked],
+    [sort ("http://example.com/a/?q=1&#x26;w=2", "http://example.com/a/delete.php")],
+    "links not to be clicked correctly displayed"
+);
 
 ok( $mailnesia->get_project_directory(), "get_project_directory" );
 
