@@ -2,7 +2,6 @@ package Mailnesia;
 
 use Sys::Hostname;
 use Text::MultiMarkdown;
-use HTML::Template;
 use Encode qw 'decode';
 use Mailnesia::SQL;
 
@@ -856,7 +855,6 @@ sub initialize_text {
         $main_html_template =~ s/>\s+</></g;
 
 
-        my $main_template = HTML::Template->new(scalarref => \$main_html_template);
         {
             my %param;
             my %main_body;
@@ -924,10 +922,7 @@ sub initialize_text {
                 $param{$_}{"LANGUAGE_CODE"} = $_ unless $_ eq 'en';
                 $param{$_}{"MOTTO"} = $message{'motto'}{$_};
 
-                $main_template->param($param{$_});
-
-                $pages{main}{$_}{body} = $main_template->output;
-
+                $pages{main}{$_}{param} = $param{$_};
             }
         }
 

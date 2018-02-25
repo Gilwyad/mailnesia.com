@@ -152,9 +152,23 @@ english main html page
 
 get '/' => sub {
         my $self = shift;
+        $self->common('main');
 
-        return $self->pages('main');
+        $self->stash(
+                mailnesia           => $mailnesia,
+                mailbox             => $mailnesia->{mailbox},
+                language            => $mailnesia->{language},
+                index_url           => $mailnesia->{language} eq "en" ?
+                "/" :
+                "/$mailnesia->{language}/",
+                param               => $mailnesia->{text}->{pages}->{'main'}->{'en'}->{param},
+            );
 
+        $self->render(
+                template  => 'main',
+                format    => 'html',
+                handler   => 'ep'
+            );
     };
 
 =head2 GET /page.html
@@ -205,31 +219,48 @@ get '/(:lang)/' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
         }
         else
         {
-            return $self->pages('main', $lang);
+            $self->common('main', $lang);
+
+            $self->stash(
+                    mailnesia           => $mailnesia,
+                    mailbox             => $mailnesia->{mailbox},
+                    language            => $lang,
+                    index_url           => $mailnesia->{language} eq "en" ?
+                    "/" :
+                    "/$mailnesia->{language}/",
+                    param               => $mailnesia->{text}->{pages}->{'main'}->{$lang}->{param},
+                );
+
+            $self->render(
+                    template  => 'main',
+                    format    => 'html',
+                    handler   => 'ep'
+                );
         }
 
     };
 
 
-=head2 pages
 
-helper function used in requests with and without a language (all pages).
+=head2 common
+
+helper function used in requests with and without a language (all pages), without the rendering.
 
 =cut
 
-helper pages => sub {
+helper common => sub {
         my $self = shift;
         my $page = shift;
         my $lang = shift;       # language of the requested page
 
         # language of phrases
         my $language = lc $1 if
-                (
-                    $lang ||
-                    $self->cookie('language') ||
-                    $self->req->headers->header('accept-language') ||
-                    "en"
-                ) =~ m/^([a-z-]{2,5})/i;
+        (
+            $lang ||
+            $self->cookie('language') ||
+            $self->req->headers->header('accept-language') ||
+            "en"
+        ) =~ m/^([a-z-]{2,5})/i;
 
         #language check:
         if ( not exists($mailnesia->{text}->{lang_hash}{$language}) )
@@ -270,12 +301,28 @@ helper pages => sub {
             $self->cookie( mailbox  => $mailbox, {path => '/', expires => time + $$cookie_expiration} );
         }
 
+        $mailnesia->{mailbox} = $mailbox;
+    };
+
+=head2 pages
+
+helper function used in requests with and without a language (all pages).
+
+=cut
+
+helper pages => sub {
+        my $self = shift;
+        my $page = shift;
+        my $lang = shift;       # language of the requested page
+
+        $self->common($page, $lang);
+
         $self->stash(
                 mailnesia => $mailnesia,
-                index_url => $language eq "en" ?
+                index_url => $mailnesia->{language} eq "en" ?
                 "/" :
-                "/$language/",
-                mailbox   => $mailbox
+                "/$mailnesia->{language}/",
+                mailbox   => $mailnesia->{mailbox}
             );
 
         if (my $content = $mailnesia->{text}->{pages}->{$page}->{$lang || 'en'}->{body})
