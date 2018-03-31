@@ -645,12 +645,12 @@ sub cid2dataurl {
                                            my ($part) = @_;
                                            return unless $part->header("Content-ID") eq "<$cid>";
 
-                                           my $type = $1 if $_->content_type =~ m!(\w+/\w+)!i;
+                                           my $type = $1 if $part->content_type =~ m!(\w+/\w+)!i;
 
                                            $dataurl = "data:$type;".
-                                           $_->header("Content-Transfer-Encoding").
+                                           $part->header("Content-Transfer-Encoding").
                                            ",".
-                                           $_->body_raw ;
+                                           $part->body_raw ;
                                        });
 
         return $dataurl || "content not found";
