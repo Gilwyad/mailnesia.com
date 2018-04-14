@@ -788,11 +788,13 @@ sub links  {
         {
             my $url = $1;
             if ($to_be_shown_on_website) {
-                $url =~ s/&/&#x26;/g;
+                # escape all ampersands and also the ones that are escaped using a different form
+                $url =~ s/&(#x0*26;|#0*38;|amp;)?/&#x26;/ig;
             }
             else
             {
-                $url =~ s/(&amp;|&#x26;)/&/g;
+                # unescape all ampersands
+                $url =~ s/(&amp;|&#x0*26;|&#0*38;)/&/ig;
             }
 
             if ($url =~ $noclick)
@@ -844,7 +846,7 @@ sub decode_charset {
         return $text;
     }
 
-
+# used on plain text emails to be able to show on website as HTML
 sub text2html {
         my ($self, $text) = @_;
         return unless $text;

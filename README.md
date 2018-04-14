@@ -181,4 +181,10 @@ upon save in Emacs.
        )
      )
 
+## Testing
 
+Test running website and mail server by sending test emails:
+    tools/test-mailnesia.pl
+
+Execute function tests under t/ (these don't require the website to be up):
+    prove

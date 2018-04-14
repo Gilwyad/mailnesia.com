@@ -23,8 +23,19 @@ my $email     = Mailnesia::Email->new({
         Subject: test
 
         http://example.com/a/?q=1&w=2
-        http://example.com/a/confirm.php
-        http://example.com/a/delete.php
+
+        http://example.com/a/confirm.php?q=1&w=2&e=3
+        http://example.com/a/confirm.php?q=1&amp;w=2&amp;e=3
+        http://example.com/a/confirm.php?q=1&AMP;w=2&AMP;e=3
+        http://example.com/a/confirm.php?q=1&#038;w=2&#038;e=3
+        http://example.com/a/confirm.php?q=1&#38;w=2&#38;e=3
+
+        http://example.com/a/delete.php?q=1&#x26;w=2
+        http://example.com/a/delete.php?q=1&#x026;w=2
+        http://example.com/a/delete.php?q=1&#x0026;w=2
+        http://example.com/a/delete.php?q=1&#x00026;w=2
+        http://example.com/a/delete.php?q=1&#38;w=2
+        http://example.com/a/delete.php?q=1&#038;w=2
     }
 });
 
@@ -50,26 +61,27 @@ is (
 my ($clicked, $not_clicked) = $email->links;
 is_deeply (
     $clicked,
-    ["http://example.com/a/confirm.php"],
+    ["http://example.com/a/confirm.php?q=1&w=2&e=3"],
     "links to be clicked correctly identified"
 );
 
+# arrays must be sorted to be able to compare
 is_deeply (
     [sort @$not_clicked],
-    [sort ("http://example.com/a/?q=1&w=2", "http://example.com/a/delete.php")],
+    [sort ("http://example.com/a/?q=1&w=2", "http://example.com/a/delete.php?q=1&w=2")],
     "links not to be clicked correctly identified"
 );
 
 ($clicked, $not_clicked) = $email->links(1);
 is_deeply (
     $clicked,
-    ["http://example.com/a/confirm.php"],
+    ["http://example.com/a/confirm.php?q=1&#x26;w=2&#x26;e=3"],
     "links to be clicked correctly display"
 );
 
 is_deeply (
     [sort @$not_clicked],
-    [sort ("http://example.com/a/?q=1&#x26;w=2", "http://example.com/a/delete.php")],
+    [sort ("http://example.com/a/?q=1&#x26;w=2", "http://example.com/a/delete.php?q=1&#x26;w=2")],
     "links not to be clicked correctly displayed"
 );
 
