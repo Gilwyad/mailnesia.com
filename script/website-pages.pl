@@ -52,8 +52,7 @@ post '/captcha.html' => sub {
 
         my $c = Captcha::reCAPTCHA->new;
         my $ip = $self->req->headers->header('X-Forwarded-For');
-        my $challenge = $self->param ('recaptcha_challenge_field');
-        my $response  = $self->param ('recaptcha_response_field' );
+        my $response  = $self->param ('g-recaptcha-response');
 
         my $mailbox = $mailnesia->check_mailbox_characters( lc $self->cookie('mailbox'), 1 );
 
@@ -63,12 +62,11 @@ post '/captcha.html' => sub {
                 mailbox   => $mailbox
             );
 
-        if ($challenge and $response)
+        if ($response)
         {
             # Verify submission
-            my $result = $c->check_answer(
-                    $$private_key, $ip,
-                    $challenge, $response
+            my $result = $c->check_answer_v2(
+                    $$private_key, $response, $ip
                 );
 
             if ( $result->{is_valid} )
@@ -134,7 +132,7 @@ get '/captcha.html' => sub {
         return $self->render(
                 text   => '<div class="alert-message error">It is forbidden to open a large number of mailboxes!  Please fill out the captcha if you insist.</div>
 <form action="/captcha.html" method="post">' .
-$c->get_html($$public_key) .
+$c->get_html_v2($$public_key) .
 '<input type="submit" value="submit" /></form>',
                 layout => 'default',
                 status => 403

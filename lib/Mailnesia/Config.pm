@@ -107,7 +107,7 @@ sub new {
 
                 # after this amount a captcha is displayed
                 recaptcha_private_key => $mailnesia_private{recaptcha_private_key},
-                recaptcha_public_key  => "6LdOEdoSAAAAAIz5Gxz_vw24biQ6TODZ95PXMMd_",
+                recaptcha_public_key  => "6LcRvY0UAAAAAH5W4VrIOyWqk_yLoxW7ss22C2r5",
 
                 # download limit for the url clicker in bytes
                 url_clicker_page_size_limit => 100_000,
