@@ -217,11 +217,11 @@ for (0..$number_of_aliases - 1 + scalar @alias_list)
     #save the current alias
     push @alias_list, $alias;
 
-
+    # sometimes the alias list is returned in a different order, therefore a sort is necessary.
     is_deeply (
-            $mailnesia->get_alias_list($random_name_for_testing),
-            \@alias_list,
-            "get_alias_list returns all aliases in \@alias_list for mailbox"
+            [ sort @{$mailnesia->get_alias_list($random_name_for_testing)} ],
+            [ sort @alias_list ],
+            "get_alias_list returns all aliases in \@alias_list for mailbox, iteration $_"
         );
 
 
@@ -240,9 +240,9 @@ for (0 .. scalar (@alias_list) - 1)
 
 
     is_deeply (
-            $mailnesia->get_alias_list($random_name_for_testing),
-            \@alias_list,
-            "get_alias_list returns all aliases in \@alias_list for mailbox"
+            [ sort @{$mailnesia->get_alias_list($random_name_for_testing)} ],
+            [ sort @alias_list ],
+            "get_alias_list returns all aliases in \@alias_list for mailbox, iteration $_"
         );
 
 
