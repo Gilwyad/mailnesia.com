@@ -63,12 +63,12 @@ under sub {
                 # save the mailbox in cookie so a redirect can be made after successful captcha verification
                 $self->cookie( mailbox => $mailbox, {path => '/', expires => time + $$cookie_expiration} ) if $mailbox;
                 $self->redirect_to(Mojo::URL->new->path('/captcha.html'));
-                return undef;
+                return;
             }
             else
             {
                 $self->render(text => '', status => 403);
-                return undef;
+                return;
             }
         }
 
@@ -133,12 +133,12 @@ under sub {
                         template => $self->param('noheadernofooter') ? "" : "pages",
                         status => 403
                     );
-                return undef;
+                return;
             }
             else
             {
                 $self->render(text => '', status => 403);
-                return undef;
+                return;
             }
         }
 
@@ -159,7 +159,7 @@ under sub {
                     template => $self->param('noheadernofooter') ? "" : "pages",
                     status => 403
                 );
-            return undef;
+            return;
         }
 
         # continue with request
@@ -271,7 +271,7 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                         );
                 }
 
-                if (not defined $emaillist)
+                if (not ref $emaillist)
                 {
                     # error
                     if ($noheadernofooter)

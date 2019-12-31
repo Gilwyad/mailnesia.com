@@ -433,7 +433,7 @@ sub process_email (\%) {
             if ( $reconnect_counter > 1 )
             {
                 #try to connect two times, then give up and return 500 internal server error to the client
-                return undef;
+                return;
             }
 
             $dbh = Mailnesia::SQL->connect($dbh);
@@ -454,7 +454,7 @@ sub process_email (\%) {
                 print $errorlog $mail->{data};
                 close $errorlog;
 
-                return undef;
+                return;
             };
 
         my @to;

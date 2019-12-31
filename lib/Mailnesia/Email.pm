@@ -274,12 +274,14 @@ sub new {
 
         if ( $options->{to}->[0] and $options->{id} )
         {
-            $self->{email} = Email::MIME->new(
-                    $self->get_email(
-                            $options->{to}->[0],
-                            $options->{id}
-                        )
-                )
+            if (my $fetched_email = $self->get_email(
+                $options->{to}->[0],
+                $options->{id}
+            )) {
+                $self->{email} = Email::MIME->new(
+                    $fetched_email
+                );
+            }
         }
         elsif ($options->{raw_email})
         {
@@ -321,7 +323,7 @@ FROM emails
 WHERE mailbox = ?
 ORDER BY arrival_date DESC
 LIMIT ? OFFSET ?")
-    or return undef;
+    or return $self->{dbh}->errstr;
 
     $query->execute(
             $date_format,
@@ -329,7 +331,7 @@ LIMIT ? OFFSET ?")
             $mail_per_page,
             $mail_per_page * $page
         )
-    or return undef;
+    or return $query->errstr;
 
     return $hashref ?
     $query->fetchall_hashref('id') :
@@ -368,14 +370,14 @@ FROM emails
 WHERE mailbox = ?
 AND id > ?
 ORDER BY arrival_date DESC")
-    or return undef;
+    or return;
 
     $query->execute(
             $date_format,
             $mailbox,
             $newerthan
         )
-    or return undef;
+    or return;
 
     return $query->fetchall_arrayref()
 
@@ -403,9 +405,9 @@ sub get_email
 
     my $query = $self->{dbh}->prepare (
             q{SELECT email FROM emails WHERE mailbox=? AND id=? }
-        ) or return undef;
+        ) or return;
 
-    $query->execute($mailbox,$id) or return undef;
+    $query->execute($mailbox,$id) or return;
     $query->bind_columns(\$raw_email);
     $query->fetch;
 
@@ -419,7 +421,7 @@ Return email suitable for printing on webpage.  Parameters: none.
 
 $body = $email->body
 
-returns array of which the first element is the email in html, consecutive elements are the email MIME part names
+returns hash ref
 
 =cut
 
@@ -428,6 +430,7 @@ sub body {
 
         my $active          = "text_plain";
         my %complete_decoded_body;
+        return unless $self->{"email"};
 
         $self->{"email"}->walk_parts(
                 sub {
@@ -526,7 +529,7 @@ sub body_rss {
         my %complete_decoded_body;
         my $complete_decoded_body;
 
-        $self->{"email"}->walk_parts(
+        $self->{"email"} && $self->{"email"}->walk_parts(
                 sub {
                         my $part = shift;
                         my $content_type = $part->content_type || "";
@@ -587,7 +590,7 @@ sub body_text_nodecode {
 
                 my $complete_body;
 
-                $self->{"email"}->walk_parts(
+                $self->{"email"} && $self->{"email"}->walk_parts(
                         sub {
                                 my $part = shift;
                                 my $content_type = $part->content_type || "";
@@ -737,7 +740,7 @@ sub store {
                 )
             {
                 # error storing email
-                return undef;
+                return;
             }
         }
 

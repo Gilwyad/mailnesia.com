@@ -159,7 +159,7 @@ Redis set named banned_mailboxes.
 
 sub is_mailbox_banned {
         my ($self, $mailbox) = @_;
-        return undef unless $mailbox;
+        return unless $mailbox;
 
         $self->{redis}->sismember(
                 $self->{redis_databases}->{banned_mailboxes},
@@ -178,7 +178,7 @@ the value is 1.
 
 sub is_ip_banned {
         my ($self, $ip) = @_;
-        return undef unless $ip;
+        return unless $ip;
 
         $self->{redis}->get(
                 $self->{redis_databases}->{banned_ips}->($ip)
