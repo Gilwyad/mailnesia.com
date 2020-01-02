@@ -175,7 +175,7 @@ all english html pages
 
 =cut
 
-get '/(:page).html' => [page => qr/[0-9a-z-]+/i] => { page => 'main' } => sub {
+get '/#page' => [page => qr/[0-9a-z-]+\.html/i] => sub {
         my $self = shift;
         my $page = $self->param('page');
 
@@ -189,7 +189,7 @@ all html pages other than english
 
 =cut
 
-get '/(:lang)/(:page).html' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => {page => 'main'} => sub {
+get '/:lang/:page' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
         my $self = shift;
         my $page = $self->param('page');
         my $lang = $self->param('lang');
@@ -205,7 +205,7 @@ main page other than english
 
 =cut
 
-get '/(:lang)/' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
+get '/:lang/' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
         my $self = shift;
 
         my $lang = $self->param('lang');
@@ -310,7 +310,7 @@ helper function used in requests with and without a language (all pages).
 
 helper pages => sub {
         my $self = shift;
-        my $page = shift;
+        (my $page = shift) =~ s/\.html$//;
         my $lang = shift;       # language of the requested page
 
         $self->common($page, $lang);

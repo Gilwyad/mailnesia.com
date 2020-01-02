@@ -51,13 +51,14 @@ Required Perl modules with versions are listed in the file 'cpanfile'.
 
 ## Installation
 
-The required Perl modules can be installed with the `cpan` script: 
+The required Perl modules can be installed with the `cpan` script:
 
     cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious ZMQ::FFI
-    
+
 Or using the Debian package management for those that are available:
 
     apt-get install libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl
+    libencode-detect-perl libanyevent-fcgi-perl libtest-www-mechanize-perl
 
 Or using cpanm:
 
@@ -163,9 +164,9 @@ The script tools/translation.py is used to download the Google spreadsheet conta
 Minifying is done with yui-compressor.  This code snippet will
 automatically compress .js and .css files in the project directory
 upon save in Emacs.
-    
-    (add-hook 
-     'after-save-hook 
+
+    (add-hook
+     'after-save-hook
      (lambda ()
        (dolist (element '(
                           "/directory/containing/project/mailnesia.com/website/js/javascript.js"

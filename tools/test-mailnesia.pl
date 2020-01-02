@@ -29,7 +29,7 @@ my $project_directory = $mailnesia->get_project_directory();
 my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http://" . $config->{siteurl};
 
 # language pages to test:
-my @languages = qw!/ /hu /it /lv /fi /pt /de /ru /pl /zh /fr /es /cs /es-ar /ms /id /pt-br!;
+my @languages = qw!/ /hu/ /it/ /lv/ /fi/ /pt/ /de/ /ru/ /pl/ /zh/ /fr/ /es/ /cs/ /es-ar/ /ms/ /id/ /pt-br/!;
 my $lint = HTML::Lint::Pluggable->new();       # plugin system for HTML::Lint
 $lint -> load_plugin("HTML5");                 # loads HTML::Lint::Pluggable::HTML5
 $lint -> load_plugin("TinyEntitesEscapeRule"); # loads HTML::Lint::Pluggable::TinyEntitesEscapeRule
@@ -98,7 +98,7 @@ sub webpage_tests {
         print_testcase_header($category . " " . $_);
         $numof_tests = webpage_tests_internal($url);
 
-        $url = $baseurl.$_."/features.html";
+        $url = $baseurl.$_."features.html";
         $numof_tests += webpage_tests_internal($url);
     }
     return scalar @languages * $numof_tests;
