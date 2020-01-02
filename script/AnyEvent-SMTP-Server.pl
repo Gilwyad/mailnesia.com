@@ -48,7 +48,7 @@ use ZMQ::FFI qw(ZMQ_PUSH);
 use open ':encoding(utf8)';
 binmode(STDOUT, ":utf8");
 
-my $tryAtMost = 4;
+my $tryAtMost = 1;
 my $startingPort = 5000;
 my @endpoints = map { "tcp://127.0.0.1:$_" } ($startingPort..$startingPort+$tryAtMost);
 my $next = 0;
