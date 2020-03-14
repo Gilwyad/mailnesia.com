@@ -82,7 +82,7 @@ sub new {
 
                 sitename       => "MailNesia",
                 siteurl        => "mailnesia.com",   # URL in production
-                siteurl_devel  => "mailnesia-devel", # URL in development
+                siteurl_devel  => "mailnesia.test", # URL in development
 
                 # email date format on website, postgresql setting
                 date_format         => 'YYYY-MM-DD HH24:MI:SS+00:00',
