@@ -489,6 +489,22 @@ sub api_check_mailbox {
     return 3;
 }
 
+=head1 check empty response using the API
+
+Parameter: full URL. Should return empty page with 204 status.
+
+=cut
+
+sub api_check_mailbox_204 {
+    print_test_category_header( );
+    my $url = shift;
+    $mech->get_ok( $url, "GET $url" );
+    is ( $mech->status(), 204, "Status is 204");
+    ok ( $mech->content() eq "", "Content is empty" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
+}
+
 =head1 check email using the API
 
 Parameter: full URL. Should return email.
@@ -753,6 +769,10 @@ sub send_mail_test {
           my $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
           ok ($email_id, "Found ID of first email on page");
           $tests += 1 + api_check_email($baseurl. "/api/mailbox/$check_here_url_encoded/$email_id");
+
+          $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=1");
+          $tests += api_check_mailbox_204($baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=9999999");
+          $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded?page=5");
       }
 
       $tests += 3 + rss_tests($check_here);

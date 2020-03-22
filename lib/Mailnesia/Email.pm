@@ -349,6 +349,7 @@ fetchall_arrayref. Parameters:
 PSQL date format
 mailbox
 id of newest email currently on page
+true => get results using fetchall_hashref, else fetchall_arrayref
 
 =cut
 
@@ -358,6 +359,7 @@ sub get_emaillist_newerthan
     my $date_format      = shift;
     my $mailbox          = shift;
     my $newerthan        = shift;
+    my $hashref          = shift;
 
     my $query = $self->{dbh}->prepare (
                 "SELECT
@@ -379,7 +381,9 @@ ORDER BY arrival_date DESC")
         )
     or return;
 
-    return $query->fetchall_arrayref()
+    return $hashref ?
+    $query->fetchall_hashref('id') :
+    $query->fetchall_arrayref();
 
 }
 

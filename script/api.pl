@@ -97,7 +97,7 @@ bad request
 
 =head2 GET /api/mailbox/#mailboxname
 
-list emails in a mailbox in JSON format as:
+Return all emails in a mailbox in JSON format as:
 
 [
     {
@@ -118,6 +118,13 @@ list emails in a mailbox in JSON format as:
 
 Returns empty JSON list [] if there are no emails.
 
+URL parameters:
+
+ - newerthan
+   only emails newer than the specified id are returned. Returns 204 no content if none found.
+ - page
+   Returns the specified page number only. One page equals 40 items, starting from 0.
+
 =cut
 
 
@@ -129,7 +136,7 @@ Returns empty JSON list [] if there are no emails.
         my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
 
         my $emaillist_page = 0;
-        if (my $page = $self->param('p')) {
+        if (my $page = $self->param('page')) {
             $emaillist_page = $1 if $page =~ m/(\d+)/;
         }
 
@@ -144,24 +151,33 @@ Returns empty JSON list [] if there are no emails.
         my $email = Mailnesia::Email->new({dbh => $mailnesia->{dbh}});
         my $emaillist;
 
-        if ($newerthan) {       # FIXME: needed?
+        if ($newerthan) {
             $emaillist = $email->get_emaillist_newerthan(
                 $config->{date_format},
                 $mailbox,
-                $newerthan
+                $newerthan,
+                1
             );
         } else {
+            my $mail_per_page = $config->{mail_per_page} if ($emaillist_page);
+
             $emaillist = $email->get_emaillist(
                 $config->{date_format},
                 $mailbox,
-                $config->{mail_per_page}, # FIXME: needed?
+                $mail_per_page,
                 $emaillist_page,
                 1
             );
         }
 
         if (ref $emaillist) {
-            return $self->render(json => [values %$emaillist]);
+            my @result = sort { $b->{id} <=> $a->{id} } values %$emaillist;
+            if ($newerthan and not scalar @result) {
+                # return 204 if no email for newerthan requests
+                return $self->render(text => '', status => 204);
+            } else {
+                return $self->render(json => \@result);
+            }
         } else {
             # error
             return $self->render(text=> "Internal Server Error - $emaillist", status => 500, format => 'txt' );
