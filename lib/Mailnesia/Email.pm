@@ -364,10 +364,10 @@ sub get_emaillist_newerthan
     my $query = $self->{dbh}->prepare (
                 "SELECT
 id,
-to_char( arrival_date, ?),
-email_from,
-email_to,
-email_subject
+to_char( arrival_date, ?) AS date,
+email_from AS from,
+email_to AS to,
+email_subject AS subject
 FROM emails
 WHERE mailbox = ?
 AND id > ?
