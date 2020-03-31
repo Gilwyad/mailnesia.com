@@ -422,6 +422,28 @@ sub rss_forbidden_tests {
   return 3;
 }
 
+=head1 check if API request for mailbox is forbidden
+
+parameters: mailbox name
+
+=cut
+
+sub api_forbidden_tests {
+    my $mailbox = shift;
+    print "Checking forbidden API request for $mailbox\n";
+    my $url = $baseurl . "/api/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
+
+    ok ( $mech->get( $url ), "GET $url" );
+    is ( $mech->status(), 403, "Status is 403 Forbidden");
+    unless ( ok ( ! $mech->content, "got empty response")) {
+        warn "#   got unexpected output: " . $mech->content;
+    }
+
+    $mech->back();
+
+    return 3;
+}
+
 =head1 check if mailbox is empty
 
 =cut
@@ -433,6 +455,102 @@ sub check_empty_mailbox {
       $mech->text_contains( 'No e-mail message for' ) or warn $mech->content(format=>'text');
       return 2;
 
+}
+
+=head1 check if mailbox is empty using the API
+
+Parameter: full URL. Should return empty array in JSON.
+
+=cut
+
+sub api_check_empty_mailbox {
+    print_test_category_header( );
+    my $url = shift;
+    $mech->get_ok( $url, "GET $url" );
+    is ( $mech->status(), 200, "Status is 200");
+    $mech->content_is( "[]", "Content is an empty array!" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
+}
+
+=head1 check if mailbox is not empty using the API
+
+Parameter: full URL. Should return JSON array.
+
+=cut
+
+sub api_check_mailbox {
+    print_test_category_header( );
+    my $url = shift;
+    $mech->get_ok( $url, "GET $url" );
+    is ( $mech->status(), 200, "Status is 200");
+    ok ( $mech->content() ne "", "Content is not empty!" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
+}
+
+=head1 check empty response using the API
+
+Parameter: full URL. Should return empty page with 204 status.
+
+=cut
+
+sub api_check_mailbox_204 {
+    print_test_category_header( );
+    my $url = shift;
+    $mech->get_ok( $url, "GET $url" );
+    is ( $mech->status(), 204, "Status is 204");
+    ok ( $mech->content() eq "", "Content is empty" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
+}
+
+=head1 check email using the API
+
+Parameter: full URL. Should return email.
+
+=cut
+
+sub api_check_email {
+    print_test_category_header( );
+    my $url = shift;
+    $mech->get_ok( $url, "GET $url" );
+    is ( $mech->status(), 200, "Status is 200");
+    ok ( $mech->content() ne "", "Content is not empty!" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
+}
+
+=head1 check if API returns error 400 bad request
+
+Parameter: full URL. Should return empty response and HTTP error 400.
+
+=cut
+
+sub api_check_bad_request {
+    print_test_category_header( );
+    my $url = shift;
+    ok ( $mech->get( $url ), "GET $url" );
+    is ( $mech->status(), 400, "Status is 400");
+    $mech->content_is( "", "Content is empty!" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
+}
+
+=head1 check if API returns error 403 forbidden
+
+Parameter: full URL. Should return empty response and HTTP error 403.
+
+=cut
+
+sub api_check_forbidden {
+    print_test_category_header( );
+    my $url = shift;
+    ok ( $mech->get( $url ), "GET $url" );
+    is ( $mech->status(), 403, "Status is 403");
+    $mech->content_is( "", "Content is empty!" ) or warn $mech->content(format=>'text');
+    $mech->back();
+    return 3;
 }
 
 sub negative_delete_test {
@@ -462,13 +580,12 @@ sub email_sending_and_deleting {
       print "waiting for SMTP server to start...\n";
       sleep 2;
       my $tests;
+      my $wipeTest = scalar @aliases;
 
       while (my $alias = shift @aliases)
       {
           $tests += send_mail_test($alias,$global_mailbox,$mailnesia->random_name_for_testing())
       };
-
-
 
       # test disabled, feature not enabled
       #      invalid_sender_test() +
@@ -478,8 +595,10 @@ sub email_sending_and_deleting {
       banned_recipient_test() +
       send_complete_email_test() ;
 
-      # wipe $global_mailbox
-      $tests += wipe_mailbox_test($global_mailbox) ;
+      # wipe $global_mailbox if there were alias tests
+      if ($wipeTest) {
+        $tests += wipe_mailbox_test($global_mailbox) ;
+      }
 
       $tests += check_empty_mailbox("$baseurl/mailbox/$global_mailbox");
 
@@ -508,7 +627,7 @@ sub email_sending_and_deleting {
 sub banned_recipient_test {
   print_test_category_header( );
   my $iterations = 2;
-  my $tests;
+  my $tests = 0;
 
   for (1..$iterations)
     {
@@ -523,7 +642,8 @@ sub banned_recipient_test {
       $mech->content_contains ('<div class="alert-message error">This mailbox has been banned',
                                "page contains the banned mailbox warning" );
 
-      $tests = rss_forbidden_tests($banned_mailbox);
+      $tests = rss_forbidden_tests($banned_mailbox)
+        + api_forbidden_tests($banned_mailbox);
     }
   return (4 + $tests) * $iterations;
 
@@ -545,8 +665,8 @@ sub invalid_recipient_test {
   $mech->text_contains( q{Invalid characters entered! (valid: asd)} );
   $mech->text_unlike ( qr/\bnil\b/, "Text does not contain 'nil' as separate word" );
   $mech->text_unlike ( qr/�/, "Text does not contain an invalid utf8 character" );
-  return 5;
-
+  my $api_tests = api_check_bad_request($baseurl. "/api/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $invalid_mailbox ));
+  return 5 + $api_tests;
 }
 
 
@@ -633,7 +753,8 @@ sub send_mail_test {
       my $lc_check_here_url_encoded = $mailnesia->get_url_encoded_mailbox (lc $check_here);
       my $mail_link_regex = qr{/mailbox/$lc_check_here_url_encoded/\d+};
       $mech->content_like ($mail_link_regex, "mailbox view contains a link to open email");
-
+      # also get mailbox using API
+      $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded");
       if ( ok ( my $first_email = $mech->find_link ( url_regex => $mail_link_regex ),
                 'find first email' ) )
       {
@@ -644,6 +765,14 @@ sub send_mail_test {
           }
 
           $tests++;
+          # also get email using API
+          my $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
+          ok ($email_id, "Found ID of first email on page");
+          $tests += 1 + api_check_email($baseurl. "/api/mailbox/$check_here_url_encoded/$email_id");
+
+          $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=1");
+          $tests += api_check_mailbox_204($baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=9999999");
+          $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded?page=5");
       }
 
       $tests += 3 + rss_tests($check_here);
@@ -695,8 +824,10 @@ sub send_complete_email_test {
             $mech->text_lacks( 'No e-mail message for' );
             $mech->content_lacks( '<div class="alias_form"' );
             $mech->text_contains( "Mail for ". lc $send_to );
-
+            # TODO: also get mailbox using API
             $tests += rss_tests($send_to);
+            $tests += api_check_email($baseurl. "/api/mailbox/$check_here_url_encoded");
+
 
             my $lc_check_here_url_encoded = $mailnesia->get_url_encoded_mailbox ( lc $send_to );
             my $mail_link_regex = qr{/mailbox/$lc_check_here_url_encoded/\d+};
@@ -712,8 +843,13 @@ sub send_complete_email_test {
                 $mech->content_lacks( '<div class="alias_form"' );
                 $tests += 2;
 
-                # turn validation back on
+                # turn validation back on (this only works if the whitelist is set up in alias_positive_tests)
                 $mech->autolint($old_status);
+                # also get email using API
+                my $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
+                ok ($email_id, "Found ID of first email on page");
+                $tests += 1 + api_check_email($baseurl. "/api/mailbox/$lc_check_here_url_encoded/$email_id");
+
 
                 #test original email view (raw)
                 if ( $mech->follow_link_ok( {text_regex => qr/view original/i }, "open 'view original' link on current page" ) )
@@ -722,6 +858,9 @@ sub send_complete_email_test {
                     $tests++;
                     $mech->back();
                 }
+
+                # also get raw email using API
+                $tests += api_check_email($baseurl. "/api/mailbox/$lc_check_here_url_encoded/$email_id/raw");
 
                 #test URL clicker button
                 if ( $mech->follow_link_ok( {text_regex => qr/test URL clicker/i }, "open 'test URL clicker' link on current page" ) )
@@ -746,6 +885,8 @@ sub send_complete_email_test {
                 }
 
                 $tests += 4;
+
+                $tests += api_check_empty_mailbox($baseurl. "/api/mailbox/$lc_check_here_url_encoded");
             }
 
             $tests += 7;

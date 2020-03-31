@@ -63,12 +63,12 @@ under sub {
                 # save the mailbox in cookie so a redirect can be made after successful captcha verification
                 $self->cookie( mailbox => $mailbox, {path => '/', expires => time + $$cookie_expiration} ) if $mailbox;
                 $self->redirect_to(Mojo::URL->new->path('/captcha.html'));
-                return undef;
+                return;
             }
             else
             {
                 $self->render(text => '', status => 403);
-                return undef;
+                return;
             }
         }
 
@@ -133,12 +133,12 @@ under sub {
                         template => $self->param('noheadernofooter') ? "" : "pages",
                         status => 403
                     );
-                return undef;
+                return;
             }
             else
             {
                 $self->render(text => '', status => 403);
-                return undef;
+                return;
             }
         }
 
@@ -159,7 +159,7 @@ under sub {
                     template => $self->param('noheadernofooter') ? "" : "pages",
                     status => 403
                 );
-            return undef;
+            return;
         }
 
         # continue with request
@@ -271,7 +271,7 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                         );
                 }
 
-                if (not defined $emaillist)
+                if (not ref $emaillist)
                 {
                     # error
                     if ($noheadernofooter)
@@ -517,13 +517,13 @@ open an email
                         }
                     );
 
-                my ($email_body, @tabs) = $email->body($id) ;
-
-
+                my $email_body = $email->body($id) ;
                 if ( $email_body )
                 {
 
+                    my @tabs = keys %$email_body;
                     my $tabs = '';
+                    my $active_tab = $tabs[0]; # show first part or HTML part by default
 
                     # if the email has more than one parts display selector tabs
                     if (scalar @tabs > 1)
@@ -532,14 +532,15 @@ open an email
 
                         foreach ( @tabs )
                         {
-                            my $type_without_number = m,([a-z_]+)_\d+,i ? $1 : $_ ;
+                            my $tab_name = $_;
+                            $active_tab = $tab_name if m/text_html/i; # save HTML part as active
 
                             $tabs .= '<li';
                             $tabs .= ' class="active"' if m'text_html';
-                            $tabs .= qq{><a href="#$_" title="} .
+                            $tabs .= qq{><a href="#${tab_name}_${id}" title="} .
                             $mailnesia->message('prefer_html')->{'text'} .
-                            $mailnesia->message('prefer_html')->{$type_without_number} .
-                            qq{">$type_without_number</a></li>};
+                            $mailnesia->message('prefer_html')->{$tab_name} .
+                            qq{">$tab_name</a></li>};
                         }
 
                         $tabs .= q{</ul>};
@@ -550,6 +551,8 @@ open an email
                     $self->stash(
                             mailnesia => $mailnesia,
                             tabs      => $tabs,
+                            id        => $id,
+                            active_tab=> $active_tab,
                             email     => $email_body,
                             date      => $email->date(),
                             from      => $email->from(),

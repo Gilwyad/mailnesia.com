@@ -97,7 +97,7 @@ sub check_mailbox_characters {
                 # got invalid chars
                 if ($strict_mode)
                 {
-                    return undef
+                    return
                 }
                 else
                 {
@@ -111,7 +111,7 @@ sub check_mailbox_characters {
         }
         else
         {
-            return undef;
+            return;
         }
     }
 
@@ -1154,8 +1154,8 @@ sub get_alias_list
     my $self = shift;
     my $mailbox = shift;
 
-    my $query = $self->{dbh}->prepare ("SELECT alias FROM mailbox_alias WHERE mailbox=?") or return undef;
-    $query->execute($mailbox) or return undef;
+    my $query = $self->{dbh}->prepare ("SELECT alias FROM mailbox_alias WHERE mailbox=?") or return;
+    $query->execute($mailbox) or return;
 #    return $query->fetchall_arrayref();
     my @alias_list;
 
@@ -1202,7 +1202,7 @@ sub setAlias_check {
         or return [ 500, $self->message('internal_server_error') ];
 
         # $query->bind_columns(\$count);
-        # $query->fetch or return undef;
+        # $query->fetch or return;
 
         # return if alias OR mailbox already set
         if ( $query->fetchrow_array )
@@ -1226,7 +1226,7 @@ sub setAlias {
         my $mailbox = shift;
         my $alias = shift;
 
-        return undef unless ($mailbox and $alias);
+        return unless ($mailbox and $alias);
 
         my $query = $self->{dbh}->prepare ( "INSERT INTO mailbox_alias VALUES (?,?)" );
         return $query->execute($mailbox,$alias);
@@ -1245,7 +1245,7 @@ sub modifyAlias {
         my $remove_alias = shift;
         my $new_alias = shift;
 
-        return undef unless ($mailbox and $new_alias and $remove_alias);
+        return unless ($mailbox and $new_alias and $remove_alias);
 
         my $query = $self->{dbh}->prepare ( "UPDATE mailbox_alias SET alias=? WHERE mailbox=? AND alias=?");
         # return true only if number of affected rows == 1
@@ -1264,7 +1264,7 @@ sub removeAlias {
         my $mailbox = shift;
         my $remove_alias = shift;
 
-        return undef unless ($mailbox and $remove_alias);
+        return unless ($mailbox and $remove_alias);
 
         my $query = $self->{dbh}->prepare ( "DELETE FROM mailbox_alias WHERE mailbox=? AND alias=?");
         # return true only if number of affected rows == 1
@@ -1282,11 +1282,11 @@ sub emailcount {
 
         my $count;
         my $mailbox = shift;
-        my $query = $self->{dbh}->prepare ("SELECT count(*) FROM emails WHERE mailbox = ?") or return undef;
+        my $query = $self->{dbh}->prepare ("SELECT count(*) FROM emails WHERE mailbox = ?") or return;
 
         $query->execute($mailbox);
         $query->bind_columns(\$count);
-        $query->fetch or return undef;
+        $query->fetch or return;
         return $count;
     }
 
@@ -1302,9 +1302,9 @@ sub hasemail {
         my $self = shift;
         my $result = undef;
         my $mailbox = shift;
-        my $query = $self->{dbh}->prepare ("SELECT 1 FROM emails WHERE mailbox = ? LIMIT 1") or return undef;
+        my $query = $self->{dbh}->prepare ("SELECT 1 FROM emails WHERE mailbox = ? LIMIT 1") or return;
 
-        $query->execute($mailbox) or return undef;
+        $query->execute($mailbox) or return;
 
         $query->bind_columns(\$result);
         $query->fetch or return 0;
@@ -1332,12 +1332,12 @@ sub delete_mail
     my $mailbox = shift;
     my $id = shift;
 
-    return undef unless $mailbox and $id;
+    return unless $mailbox and $id;
 
     my $query = $self->{dbh}->prepare("DELETE FROM emails WHERE mailbox = ? AND id = ? ")
-    or return undef;
+    or return;
 
-    $query->execute($mailbox,$id) or return undef;
+    $query->execute($mailbox,$id) or return;
 
     if ( ( my $num_rows = $query->rows ) == 1 )
     {
@@ -1345,7 +1345,7 @@ sub delete_mail
     }
     else
     {
-        return undef
+        return
     }
 }
 
@@ -1365,12 +1365,12 @@ sub delete_mailbox
     my $self = shift;
     my $mailbox = shift;
 
-    return undef unless $mailbox ;
+    return unless $mailbox ;
 
     my $query = $self->{dbh}->prepare("DELETE FROM emails WHERE mailbox = ?")
-    or return undef;
+    or return;
 
-    $query->execute($mailbox) or return undef;
+    $query->execute($mailbox) or return;
 
     if ( ( my $num_rows = $query->rows ) > 0 )
     {
@@ -1378,7 +1378,7 @@ sub delete_mailbox
     }
     else
     {
-        return undef
+        return
     }
 }
 

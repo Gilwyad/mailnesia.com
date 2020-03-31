@@ -88,7 +88,7 @@ sub connect ($;\$$&) {
             else
             {
                 $error_handling_die_function->($DBI::errstr,@error_params) if $error_handling_die_function;
-                return undef;
+                return;
             }
         }
     }

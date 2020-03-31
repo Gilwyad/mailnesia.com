@@ -31,6 +31,8 @@ use Compress::Snappy;
 use POSIX qw(strftime);
 use DBD::Pg qw(:pg_types);
 
+use strict;
+
 # email encoding aliases
 define_alias(
         "CN-GB"           => "GB2312",
@@ -272,12 +274,14 @@ sub new {
 
         if ( $options->{to}->[0] and $options->{id} )
         {
-            $self->{email} = Email::MIME->new(
-                    $self->get_email(
-                            $options->{to}->[0],
-                            $options->{id}
-                        )
-                )
+            if (my $fetched_email = $self->get_email(
+                $options->{to}->[0],
+                $options->{id}
+            )) {
+                $self->{email} = Email::MIME->new(
+                    $fetched_email
+                );
+            }
         }
         elsif ($options->{raw_email})
         {
@@ -295,6 +299,7 @@ PSQL date format
 mailbox
 number of emails on one page
 page number to get
+true => get results using fetchall_hashref, else fetchall_arrayref
 
 =cut
 
@@ -305,19 +310,20 @@ sub get_emaillist
     my $mailbox          = shift;
     my $mail_per_page    = shift;
     my $page             = shift;
+    my $hashref          = shift;
 
     my $query = $self->{dbh}->prepare (
                 "SELECT
 id,
-to_char( arrival_date, ?),
-email_from,
-email_to,
-email_subject
+to_char( arrival_date, ?) AS date,
+email_from AS from,
+email_to AS to,
+email_subject AS subject
 FROM emails
 WHERE mailbox = ?
 ORDER BY arrival_date DESC
 LIMIT ? OFFSET ?")
-    or return undef;
+    or return $self->{dbh}->errstr;
 
     $query->execute(
             $date_format,
@@ -325,9 +331,11 @@ LIMIT ? OFFSET ?")
             $mail_per_page,
             $mail_per_page * $page
         )
-    or return undef;
+    or return $query->errstr;
 
-    return $query->fetchall_arrayref()
+    return $hashref ?
+    $query->fetchall_hashref('id') :
+    $query->fetchall_arrayref();
 
 }
 
@@ -341,6 +349,7 @@ fetchall_arrayref. Parameters:
 PSQL date format
 mailbox
 id of newest email currently on page
+true => get results using fetchall_hashref, else fetchall_arrayref
 
 =cut
 
@@ -350,28 +359,31 @@ sub get_emaillist_newerthan
     my $date_format      = shift;
     my $mailbox          = shift;
     my $newerthan        = shift;
+    my $hashref          = shift;
 
     my $query = $self->{dbh}->prepare (
                 "SELECT
 id,
-to_char( arrival_date, ?),
-email_from,
-email_to,
-email_subject
+to_char( arrival_date, ?) AS date,
+email_from AS from,
+email_to AS to,
+email_subject AS subject
 FROM emails
 WHERE mailbox = ?
 AND id > ?
 ORDER BY arrival_date DESC")
-    or return undef;
+    or return;
 
     $query->execute(
             $date_format,
             $mailbox,
             $newerthan
         )
-    or return undef;
+    or return;
 
-    return $query->fetchall_arrayref()
+    return $hashref ?
+    $query->fetchall_hashref('id') :
+    $query->fetchall_arrayref();
 
 }
 
@@ -397,9 +409,9 @@ sub get_email
 
     my $query = $self->{dbh}->prepare (
             q{SELECT email FROM emails WHERE mailbox=? AND id=? }
-        ) or return undef;
+        ) or return;
 
-    $query->execute($mailbox,$id) or return undef;
+    $query->execute($mailbox,$id) or return;
     $query->bind_columns(\$raw_email);
     $query->fetch;
 
@@ -409,27 +421,20 @@ sub get_email
 
 =head2 body
 
-Return email suitable for printing on webpage.  Parameters:
+Return email suitable for printing on webpage.  Parameters: none.
 
- - email ID
- - which part to return, "text_html" or "text_plain" etc, defaults to all
-
-$body = $email->body(15351354,"text_html")
 $body = $email->body
 
-returns array of which the first element is the email in html, consecutive elements are the email MIME part names
+returns hash ref
 
 =cut
 
 sub body {
         my $self            = shift;
-        my $id              = shift;
-        my $selected_part   = shift ;
+
         my $active          = "text_plain";
-
-
         my %complete_decoded_body;
-        my $complete_decoded_body = "";
+        return unless $self->{"email"};
 
         $self->{"email"}->walk_parts(
                 sub {
@@ -460,7 +465,7 @@ sub body {
 
                             if ($content_type =~ m"^text/html"i)
                             {
-                                $complete_decoded_body{"${key}_${id}"} .= $complete_decoded_body{"${key}_${id}"} ?
+                                $complete_decoded_body{${key}} .= $complete_decoded_body{${key}} ?
                                 qq{<div class="alert-message info">$content_type</div>}.
                                 $scrubber->scrub($body) :
                                 $scrubber->scrub($body);
@@ -468,7 +473,7 @@ sub body {
                             }
                             else
                             {
-                                $complete_decoded_body{"text_plain_$id"} .= $complete_decoded_body{"text_plain_$id"} ?
+                                $complete_decoded_body{"text_plain"} .= $complete_decoded_body{"text_plain"} ?
                                 qq{<div class="alert-message info">$content_type</div>} .
                                 $self->text2html($body) :
                                 $self->text2html($body) ;
@@ -480,7 +485,7 @@ sub body {
 
                             my $type = $1 if $content_type =~ m!(\w+/\w+)!;
 
-                            $complete_decoded_body{"$key\_$id"} .= qq{<div class="page-header"><h2>$filename<small>$type</small></h2></div>}.
+                            $complete_decoded_body{$key} .= qq{<div class="page-header"><h2>$filename<small>$type</small></h2></div>}.
                             qq{<img alt="$filename" src="data:$type;}.
                             $part->header("Content-Transfer-Encoding").
                             ",".
@@ -490,7 +495,7 @@ sub body {
                         {       # any other attachment
                             my $type = $1 if $content_type =~ m!(\w+/\w+)!;
 
-                            $complete_decoded_body{"$key\_$id"} .= qq{<div class="page-header"><h2>$filename<small>$type</small></h2></div>}.
+                            $complete_decoded_body{$key} .= qq{<div class="page-header"><h2>$filename<small>$type</small></h2></div>}.
                             qq{<a title="download $content_type" href="data:$type;}.
                             $part->header("Content-Transfer-Encoding").
                             ",".
@@ -499,33 +504,11 @@ sub body {
                     }
             );
 
-        $complete_decoded_body{"text_html_$id"} =~ s/(?<=src=\")cid:(.*?)(?=\")/$self->cid2dataurl($1)/eig if
-        $complete_decoded_body{"text_html_$id"};
-
-        if ($selected_part)     # return selected part
-        {
-            return
-                          qq{<div id="$selected_part" class="active">}.
-                          $complete_decoded_body{"${selected_part}_${id}"}.
-                          q{</div>}
-                          ;
-        }
-        else                    # return each part concatenated
-        {
-            while (my ($key,$value) = each %complete_decoded_body)
-            {
-                next unless $value;
-
-                $complete_decoded_body .= $complete_decoded_body{$key} = qq{<div id="$key"};
-                $complete_decoded_body .= qq{ class="active"} if $key =~ $active;
-                $complete_decoded_body .= ">" . $value . q{</div>};
-            }
-        }
+        $complete_decoded_body{"text_html"} =~ s/(?<=src=\")cid:(.*?)(?=\")/$self->cid2dataurl($1)/eig if
+        $complete_decoded_body{"text_html"};
 
 
-
-
-        return ( $complete_decoded_body, keys %complete_decoded_body );
+        return \%complete_decoded_body;
 
     }
 
@@ -550,7 +533,7 @@ sub body_rss {
         my %complete_decoded_body;
         my $complete_decoded_body;
 
-        $self->{"email"}->walk_parts(
+        $self->{"email"} && $self->{"email"}->walk_parts(
                 sub {
                         my $part = shift;
                         my $content_type = $part->content_type || "";
@@ -611,7 +594,7 @@ sub body_text_nodecode {
 
                 my $complete_body;
 
-                $self->{"email"}->walk_parts(
+                $self->{"email"} && $self->{"email"}->walk_parts(
                         sub {
                                 my $part = shift;
                                 my $content_type = $part->content_type || "";
@@ -761,7 +744,7 @@ sub store {
                 )
             {
                 # error storing email
-                return undef;
+                return;
             }
         }
 

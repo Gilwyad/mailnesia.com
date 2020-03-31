@@ -1,5 +1,9 @@
 <div class="emails">
 %== $tabs
 <div class="body"><div class="boxcontent"><div class="pill-content">
-%== $email
+% while (my ($key,$value) = each %$email) {
+%    next unless $value;
+%    my $active = $key eq $active_tab ? 'class="active"' : '';
+%==   qq{<div id="${key}_${id}" $active>$value</div>}
+% }
 </div></div></div></div>
