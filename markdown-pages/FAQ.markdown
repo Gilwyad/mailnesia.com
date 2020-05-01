@@ -3,6 +3,10 @@
 
 <contents>
 
+## For how long are emails available?
+
+Messages are automatically deleted in a short time, usually after a few days based on incoming mail rate. The current value can be found on the [statistics](/stats.html) page.
+
 ## What do I do if people are spamming my site ?
 
 You should report the offending IP's and email addresses to
@@ -41,7 +45,7 @@ To clear the last viewed mailbox <a href="/FAQ.html" onclick="$.cookie('mailbox'
 After an email is deleted, it is no longer listed in the RSS feed.
 However, some RSS readers (like Google Reader) store the contents of
 the feed, and display the previously saved items along with the
-current items.  
+current items.
 
 ## How do I create a mailbox?
 
@@ -86,7 +90,7 @@ for receiving emails.  Check out the [features](features.html#domain) page!
 
 ## Why didn't my registration complete automatically ?
 
-Mailnesia won't click on *all* links, only registration-looking ones, which contain keywords like **register**, **confirm**, **verify** etc.  So if an activation link doesn't contain any such keywords, for example http://soundcloud.com/emails/5ef6e26f, then it will not be clicked automatically.  If this happens to you then [send me](contact.html) this link so I can add it to the keywords list.  
+Mailnesia won't click on *all* links, only registration-looking ones, which contain keywords like **register**, **confirm**, **verify** etc.  So if an activation link doesn't contain any such keywords, for example http://soundcloud.com/emails/5ef6e26f, then it will not be clicked automatically.  If this happens to you then [send me](contact.html) this link so I can add it to the keywords list.
 
 Also, there are sites where you have to do something on the activation
 page, like fill out a captcha or press a button - you will have to do
