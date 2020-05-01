@@ -17,6 +17,5 @@ So the rule of thumb is, if you plan to use an email for years, use
 @mailnesia.com, if you just need a quick address then forget about it,
 use these alternate names.
 
- - volatile.site
- - ephemeral.fun
- 
+ - johndo.email
+ - myalias.club
