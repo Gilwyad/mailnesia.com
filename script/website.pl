@@ -54,22 +54,25 @@ under sub {
 
         my $ip = $self->req->headers->header('X-Forwarded-For');
 
-        # redirect to captcha if too many mailbox requests
-        if (  my $excess = $config->mailboxes_per_IP($ip,$mailbox,$config->{daily_mailbox_limit}) )
-        {
-            app->log->info("too many mailbox opened: $ip, $mailbox, $excess");
-            if ($self->req->method eq 'GET')
+        if ($ip) {
+            # redirect to captcha if too many mailbox requests
+            if (  my $excess = $config->mailboxes_per_IP($ip,$mailbox,$config->{daily_mailbox_limit}) )
             {
-                # save the mailbox in cookie so a redirect can be made after successful captcha verification
-                $self->cookie( mailbox => $mailbox, {path => '/', expires => time + $$cookie_expiration} ) if $mailbox;
-                $self->redirect_to(Mojo::URL->new->path('/captcha.html'));
-                return;
+                app->log->info("too many mailbox opened: $ip, $mailbox, $excess");
+                if ($self->req->method eq 'GET')
+                {
+                    # save the mailbox in cookie so a redirect can be made after successful captcha verification
+                    $self->cookie( mailbox => $mailbox, {path => '/', expires => time + $$cookie_expiration} ) if $mailbox;
+                    $self->redirect_to(Mojo::URL->new->path('/captcha.html'));
+                    return;
+                }
+                else
+                {
+                    $self->render(text => '', status => 403);
+                    return;
+                }
             }
-            else
-            {
-                $self->render(text => '', status => 403);
-                return;
-            }
+            $config->log_ip($ip, $mailbox, $self->req->headers->user_agent);
         }
 
         my $language = lc $1 if
