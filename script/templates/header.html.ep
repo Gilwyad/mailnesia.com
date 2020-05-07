@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    %== $mailnesia->{devel} ? "" : q!<script async src="//www.googletagmanager.com/gtag/js?id=UA-17894100-2"></script><script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-17894100-2');</script>!
     <title><%= "$mailbox @" if $mailbox %> Mailnesia - <%= $mailnesia->message("motto") %></title>
     <meta name="language" content="<%= $mailnesia->{language} %>" />
     <link rel="stylesheet" type="text/css" href="/css/style-min.css" />
@@ -8,7 +9,6 @@
   </head>
   <body>
     <div id="top-ad"></div>
-    <div id="fb-root"></div>
     <div id="header">
       <div id="logo">
         <a href="<%= $index_url %>"><img width="119" height="119"
@@ -18,9 +18,6 @@
         </div>
       </div>
       <div class="right">
-        <div id="social">
-          %== $mailnesia->{devel} ? "" : q{<div class="g-plusone" data-size="medium" data-href="http://mailnesia.com"></div><iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fmailnesia.com%2F&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=false&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px;" allowTransparency="true"></iframe>};
-        </div>
         <p><%= $mailnesia->message('check') %></p>
         <div id="form">
           <form method="post" action="/redirect/" enctype="application/x-www-form-urlencoded">

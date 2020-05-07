@@ -1127,14 +1127,6 @@ sub generate_footer {
                 qq%<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js" type="text/javascript"></script>%.
                 qq%<script src="/js/javascript-min.js" type="text/javascript"></script>%;
 
-                $footer .= q%<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.async=true;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>% unless $self->{devel};
                 $footer .= "</body></html>";
 
                 $footer;

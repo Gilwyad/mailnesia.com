@@ -103,32 +103,7 @@
 
 }( window.jQuery || window.ender );
 
-
-
-function asyncjsload__(src__) {
-        var element__ = document.createElement('script');
-        var first__ = document.getElementsByTagName('script')[0];
-        element__.type = 'text/javascript';
-        element__.async = true;
-        element__.src = src__;
-        first__.parentNode.insertBefore(element__, first__);
-};
-
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-17894100-2']);
-_gaq.push(['_trackPageview']);
-
-function jsloadertimeout__(){
-    asyncjsload__("http://c.supportchamp.com/core.js?d=d0f5fee4845a0d53");
-    asyncjsload__("http://www.google-analytics.com/ga.js");
-    asyncjsload__("https://apis.google.com/js/plusone.js");
-}
-
-if (window.location.host == "mailnesia.com") {
-    setTimeout(jsloadertimeout__, 1); // strictly advanced tech!
-}
-
-if (/^http:\/\/[^\/]+(\/[a-z][a-z])?\/?$/.test(window.location.href) ) {
+if (/^https?:\/\/[^\/]+(\/[a-z][a-z])?\/?$/.test(window.location.href) ) {
     window.onload = function() {
         $('#mailbox').focus();
     }
@@ -143,7 +118,6 @@ function confirmEmptyMailbox() {
 
     $("#empty_mailbox").html("<i>Are you sure you want to delete all emails in this mailbox?</i><input type='button' class='btn danger' onclick=\'wipeMailbox()\' value='YES delete them !'>");
 }
-
 
 function deleteEmail() {
 
@@ -160,7 +134,6 @@ function deleteEmail() {
     });
 
 }
-
 
 function wipeMailbox() {
 
@@ -250,7 +223,7 @@ function openEmail(mailbox,id) {
      }
     });
 
-    
+
 }
 
 
@@ -271,7 +244,7 @@ if (/\/mailbox\/[^\/]+\/?(?:\?.*)*$/.test(window.location.href) && $( 'div.pagin
             var mailbox = /\/mailbox\/([^\/\?]+)/.exec(window.location.href);
             if ( ! mailbox[1] )
             {
-                // error, stop 
+                // error, stop
                 clearInterval ( intervalID );
                 return;
             }
@@ -295,7 +268,7 @@ if (/\/mailbox\/[^\/]+\/?(?:\?.*)*$/.test(window.location.href) && $( 'div.pagin
                     $( jquerySelector ).after('<tr><td colspan="5"><div class="alert-message error">Error!  HTTP ' + xhr.status + ' ' + xhr.statusText + '</div></td></tr>');
                 }
             });
-            
+
         }
     }
 
@@ -370,12 +343,11 @@ $(document).ready(function () {
     // bind all delete buttons on page load to the delete alias javascript function
     bind_submit_delete('li>div>form');
 
-    
     // format dates with Moment js
     formatDates();
     // and once a minute
 //    var formatDateInterval = setInterval ( function() { formatDates() }, 60000 );
-   
+
 });
 
 // bind alias forms submit button to ajax function
