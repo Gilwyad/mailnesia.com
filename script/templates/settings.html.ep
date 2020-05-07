@@ -16,7 +16,7 @@
   <h2>Aliases set for this mailbox</h2>
 
   %== $mailnesia->message('assign_alias');
-  
+
   %# It's never fun to repeat yourself, that's why you can build reusable template blocks in ep that work very similar to normal Perl functions.
 
   % my $alias_form_block = begin
@@ -74,6 +74,35 @@
   </ol>
 
   <button id="add_new_alias_form" class="btn">➕</button>
+
+  <h2>Recent visitors of this mailbox</h2>
+  <p>Note that the times are in the UTC time zone.</p>
+  <table style="width: 100%;" class="email">
+    <thead>
+      <tr>
+        <th style="text-align: left;">Date</th>
+        <th style="text-align: left;">IP</th>
+        <th style="text-align: left;">User Agent</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      % for my $visitor (@$visitor_list) {
+      <tr>
+        <td>
+          <%= $visitor->{'timeStamp'} %>
+        </td>
+        <td>
+          <a href="https://whatismyipaddress.com/ip/<%= $visitor->{'ip'} %>"><%= $visitor->{'ip'} %></a>
+        </td>
+        <td>
+          %== $visitor->{'userAgent'}
+        </td>
+      </tr>
+      % }
+    </tbody>
+
+  </table>
 
 </div>
 

@@ -34,6 +34,7 @@ package Mailnesia::Config;
 use Redis;
 use Mailnesia;
 #use Net::DNS::Resolver;
+use POSIX qw(strftime);
 
 =head2 new
 
@@ -137,8 +138,13 @@ sub new {
                         banned_ips        => sub { "banned_IPs:" . +shift },
                         clicker_disabled  => "clicker_disabled",
                         mbox_per_ip       => sub { "mbox_per_IP:" . +shift },
-                        domain_exists     => sub { "domain_exists:" . +shift }
+                        domain_exists     => sub { "domain_exists:" . +shift },
+                        mailbox_visitors  => sub { "visitors:" . +shift }
                     },
+
+                # keep the visitor ips for this time period expressed in seconds
+                redis_mailbox_visitors_retention_period => 180 * 24 * 60 * 60,
+                redis_mailbox_visitors_field_separator => "\0",
 
                 smtp_port        => 25,                # mail server port in production
                 smtp_port_devel  => 2525,              # mail server port in development
@@ -409,6 +415,90 @@ sub unban_ip
     return  $self->{redis}->del(
             $self->{redis_databases}->{banned_ips}->($ip)
         )
+}
+
+=head1 log_ip
+
+Log unixtime, the ip, the mailbox & user agent specified in parameters.
+When getting a mailbox, add the unix timestamp, the visitor ip and
+useragent to its sorted set, e.g.:
+
+    zadd visitors:${mailbox} ${unixtime} "${unixtime}\0${ip}\0${useragent}"
+
+Then expire the sorted set after RETENTION_PERIOD:
+
+    expire visitors:${mailbox} ${RETENTION_PERIOD}
+
+=cut
+
+sub log_ip {
+    my $self = shift;
+    my $ip = shift;
+    my $mailbox = shift;
+    my $user_agent = shift;
+
+    my $current_timestamp = time();
+    my $key = $self->{redis_databases}->{mailbox_visitors}->($mailbox); # e.g. visitors:peter
+
+    $self->{redis}->zadd(
+        $key,
+        $current_timestamp,
+        join($self->{redis_mailbox_visitors_field_separator}, $current_timestamp, $ip, $user_agent)
+    );
+
+    return $self->{redis}->expire(
+        $key,
+        $self->{redis_mailbox_visitors_retention_period}
+    );
+}
+
+=head1 get_visitor_list
+
+Return the unixtime, the ip & user agent logged for the specified mailbox.
+It is the list produced by:
+
+    zrange visitors:${mailbox} 0 -1
+
+=cut
+
+sub get_visitor_list {
+    my $self = shift;
+    my $mailbox = shift;
+
+    my $key = $self->{redis_databases}->{mailbox_visitors}->($mailbox); # e.g. visitors:peter
+
+    return $self->{redis}->zrange($key, 0, -1);
+}
+
+sub transform_visitor {
+    my $self = shift;
+    my $visitor = shift;
+
+    my ($ts, $ip, $ua) = split /$self->{redis_mailbox_visitors_field_separator}/, $visitor;
+    return {
+        timeStamp => strftime("%Y-%m-%d %H:%M:%S+00:00", gmtime($ts)),
+        ip => $ip,
+        userAgent => $ua
+    };
+}
+
+=head1 get_formatted_visitor_list
+
+Return the unixtime, the ip & user agent logged for the specified mailbox.
+It is the list produced by:
+
+    zrange visitors:${mailbox} 0 -1
+
+=cut
+
+sub get_formatted_visitor_list {
+    my $self = shift;
+    my $mailbox = shift;
+
+    my @list = $self->get_visitor_list($mailbox);
+    my @formatted_list = map { $self->transform_visitor($_) } reverse @list;
+
+    return \@formatted_list;
 }
 
 1;

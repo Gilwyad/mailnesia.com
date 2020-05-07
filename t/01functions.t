@@ -121,6 +121,32 @@ ok ( $config->is_ip_banned($ip), "$ip is banned");
 ok ( $config->unban_ip($ip), "unban ip $ip");
 ok ( ! $config->is_ip_banned($ip), "$ip is not banned");
 
+# record visitor info
+my $user_agent = "Cool Browser 1.0";
+my $lc_random_name_for_testing = lc $random_name_for_testing;
+ok ( $config->log_ip($ip, $lc_random_name_for_testing, $user_agent));
+ok ( my @visitor_list = $config->get_visitor_list($lc_random_name_for_testing));
+my $regex = join("\0", "[0-9]+", $ip, $user_agent);
+is ( scalar(@visitor_list), 1, "visitor list has one item" );
+ok ( $visitor_list[0] =~ m/$regex/, "visitor list matches");
+
+my $ip2 = "1.2.3.4";
+my $user_agent2 = "Another Cool Browser 2.1";
+ok ( $config->log_ip($ip2, $lc_random_name_for_testing, $user_agent2));
+ok ( @visitor_list = $config->get_visitor_list($lc_random_name_for_testing));
+my $regex2 = join("\0", "[0-9]+", $ip2, $user_agent2);
+is ( scalar(@visitor_list), 2, "visitor list has two items" );
+ok ( $visitor_list[0] =~ m/$regex2/, "visitor list[0] matches");
+ok ( $visitor_list[1] =~ m/$regex/, "visitor list[1] matches");
+
+ok ( my $transformed = $config->transform_visitor("qwe\0asd\0zxc"));
+is_deeply(
+    $transformed, {
+        timeStamp => "qwe",
+        ip => "asd",
+        userAgent => "zxc"
+    }
+);
 
 # clicker is enabled by default
 ok ( $config->is_clicker_enabled($random_name), "clicker enabled by default for $random_name" );

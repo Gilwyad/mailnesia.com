@@ -73,6 +73,16 @@ under sub {
             return;
         }
 
+        if (my $ip = $self->req->headers->header('X-Forwarded-For')) {
+            # redirect to captcha if too many mailbox requests
+            if ( my $excess = $config->mailboxes_per_IP($ip, $mailbox, $config->{daily_mailbox_limit}) ) {
+                # save the mailbox in cookie so a redirect can be made after successful captcha verification
+                $self->cookie( mailbox => $mailbox, {path => '/', expires => time + $config->{cookie_expiration}} ) if $mailbox;
+                $self->redirect_to(Mojo::URL->new->path('/captcha.html'));
+                return;
+            }
+            $config->log_ip($ip, $mailbox, $self->req->headers->user_agent);
+        }
     }
 
     # continue with request
@@ -250,6 +260,23 @@ return an email in a mailbox in raw format, as received from a mail server
         } else {
             return $self->render(text => '', status => 404);
         }
+    };
+
+
+=head2 GET /api/visitors/#mailboxname
+
+return the recent visitors of a mailbox
+
+=cut
+
+    get '/visitors/#mailbox' => sub {
+        my $self = shift;
+        my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+        my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
+
+        my $visitors = $config->get_formatted_visitor_list($mailbox);
+
+        return $self->render (json => $visitors);
     };
 
 };

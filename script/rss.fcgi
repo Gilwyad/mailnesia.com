@@ -162,6 +162,7 @@ my $fcgi = new AnyEvent::FCGI
                     }
 
                 }
+                $config->log_ip($addr, $mailbox, $request->param('HTTP_USER_AGENT'));
 
                 my $cgirss = new CGI::RSS;
 
