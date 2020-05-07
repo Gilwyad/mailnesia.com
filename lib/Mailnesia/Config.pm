@@ -34,6 +34,7 @@ package Mailnesia::Config;
 use Redis;
 use Mailnesia;
 #use Net::DNS::Resolver;
+use POSIX qw(strftime);
 
 =head2 new
 
@@ -475,7 +476,7 @@ sub transform_visitor {
 
     my ($ts, $ip, $ua) = split /$self->{redis_mailbox_visitors_field_separator}/, $visitor;
     return {
-        timeStamp => $ts,
+        timeStamp => strftime("%Y-%m-%d %H:%M:%S+00:00", gmtime($ts)),
         ip => $ip,
         userAgent => $ua
     };
@@ -495,7 +496,7 @@ sub get_formatted_visitor_list {
     my $mailbox = shift;
 
     my @list = $self->get_visitor_list($mailbox);
-    my @formatted_list = map { $self->transform_visitor($_) } @list;
+    my @formatted_list = map { $self->transform_visitor($_) } reverse @list;
 
     return \@formatted_list;
 }

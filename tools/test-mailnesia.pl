@@ -151,14 +151,15 @@ sub mailbox_tests {
               'getting mailbox with form button'
           );
       $tests += 1 + check_mailbox_header();
-
-      $url = $baseurl . "/mailbox/123,a";
+      my $valid_part = "wfef8yudl8sylisgyhsldigalf8e";
+      my $invalid_part = ",1";
+      $url = $baseurl . "/mailbox/" . $valid_part . $invalid_part;
 
       if ( $mech->get_ok( $url, "test invalid mailbox: $url" ) )
       {
-          $mech->title_like( qr{^123 @ mailnesia}i, "title contains the valid part");
-          $mech->text_contains( q{Invalid characters entered! (valid: 123)}, "page contains the valid part and error message");
-          $mech->text_lacks( q{123,a}, "page does not contain the invalid mailbox");
+          $mech->title_like( qr{^$valid_part @ mailnesia}i, "title contains the valid part");
+          $mech->text_contains( qq{Invalid characters entered! (valid: $valid_part)}, "page contains the valid part and error message");
+          $mech->text_lacks( qq{$valid_part . $invalid_part}, "page does not contain the invalid mailbox");
           $tests+=3;
       }
       $tests++;
@@ -568,6 +569,25 @@ sub negative_delete_test {
       $mech->content_lacks( '<h1 class="emails">Mail for' );
       return 4;
 
+}
+
+sub visitor_test {
+    print_test_category_header();
+    my $mailbox = lc $mailnesia->random_name_for_testing();
+    my $visitor_list = $config->get_formatted_visitor_list($mailbox);
+    is(scalar @$visitor_list, 0, 'visitor list should be empty');
+
+    my $url = "$baseurl/mailbox/" . $mailbox;
+    $mech->get($url);
+    $visitor_list = $config->get_formatted_visitor_list($mailbox);
+    is(scalar @$visitor_list, 1, 'visitor list should contain 1 item');
+
+    sleep 1; # the key is the second in Redis so can't have multiple entries in the same second
+    $mech->get($url);
+    $visitor_list = $config->get_formatted_visitor_list($mailbox);
+    is(scalar @$visitor_list, 2, 'visitor list should contain 2 items');
+
+    return 3;
 }
 
 sub email_sending_and_deleting {
@@ -1095,7 +1115,7 @@ execute tests
 
 done_testing(
         check_config() +
-
+        visitor_test() +
         mailbox_tests() +
         alias_positive_tests() +
         alias_negative_tests() +

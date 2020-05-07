@@ -1148,6 +1148,7 @@ show the preferences for the requested mailbox
                     "/" :
                     "/".$mailnesia->{language}."/",
                     clicker_html        => $clicker_html,
+                    visitor_list        => $config->get_formatted_visitor_list($mailbox),
                 );
 
             $self->render(
