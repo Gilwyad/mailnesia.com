@@ -92,12 +92,7 @@ under sub {
 group {
     under '/api';
 
-=head2 GET /api
-
-bad request
-
-=cut
-
+    # bad request
     get '/' => sub {
         return shift->render(
             text => '',
@@ -105,180 +100,212 @@ bad request
         );
     };
 
-=head2 GET /api/mailbox/#mailboxname
+    group {
+        under '/mailbox';
+        # Return all emails in a mailbox in JSON format as:
 
-Return all emails in a mailbox in JSON format as:
+        # [
+        #     {
+        #         id:1,
+        #         date: 'timestamp',
+        #         from: 'sender',
+        #         to: 'recipient',
+        #         subject: 'subject'
+        #     },
+        #     {
+        #         id:2,
+        #         date: 'timestamp2',
+        #         from: 'sender2',
+        #         to: 'recipient2',
+        #         subject: 'subject2'
+        #     }
+        # ]
 
-[
-    {
-        id:1,
-        date: 'timestamp',
-        from: 'sender',
-        to: 'recipient',
-        subject: 'subject'
-    },
-    {
-        id:2,
-        date: 'timestamp2',
-        from: 'sender2',
-        to: 'recipient2',
-        subject: 'subject2'
-    }
-]
+        # Returns empty JSON list [] if there are no emails.
 
-Returns empty JSON list [] if there are no emails.
+        # URL parameters:
 
-URL parameters:
+        #  - newerthan
+        #    only emails newer than the specified id are returned. Returns 204 no content if none found.
+        #  - page
+        #    Returns the specified page number only. One page equals 40 items, starting from 0.
+        get '/#mailbox' => sub {
+            my $self = shift;
 
- - newerthan
-   only emails newer than the specified id are returned. Returns 204 no content if none found.
- - page
-   Returns the specified page number only. One page equals 40 items, starting from 0.
+            # parameters:
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
 
-=cut
+            my $emaillist_page = 0;
+            if (my $page = $self->param('page')) {
+                $emaillist_page = $1 if $page =~ m/(\d+)/;
+            }
 
+            # this is for polling for new mail
+            my $newerthan = 0;
+            if (my $newerthan_param = $self->param('newerthan')) {
+                $newerthan = $1 if $newerthan_param =~ m/(\d+)/;
+            }
 
-    get '/mailbox/#mailbox' => sub {
-        my $self = shift;
+            my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox ($mailbox);
 
-        # parameters:
-        my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
-        my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
+            my $email = Mailnesia::Email->new({dbh => $mailnesia->{dbh}});
+            my $emaillist;
 
-        my $emaillist_page = 0;
-        if (my $page = $self->param('page')) {
-            $emaillist_page = $1 if $page =~ m/(\d+)/;
-        }
-
-        # this is for polling for new mail
-        my $newerthan = 0;
-        if (my $newerthan_param = $self->param('newerthan')) {
-            $newerthan = $1 if $newerthan_param =~ m/(\d+)/;
-        }
-
-        my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox ($mailbox);
-
-        my $email = Mailnesia::Email->new({dbh => $mailnesia->{dbh}});
-        my $emaillist;
-
-        if ($newerthan) {
-            $emaillist = $email->get_emaillist_newerthan(
-                $config->{date_format},
-                $mailbox,
-                $newerthan,
-                1
-            );
-        } else {
-            my $mail_per_page = $config->{mail_per_page} if ($emaillist_page);
-
-            $emaillist = $email->get_emaillist(
-                $config->{date_format},
-                $mailbox,
-                $mail_per_page,
-                $emaillist_page,
-                1
-            );
-        }
-
-        if (ref $emaillist) {
-            my @result = sort { $b->{id} <=> $a->{id} } values %$emaillist;
-            if ($newerthan and not scalar @result) {
-                # return 204 if no email for newerthan requests
-                return $self->render(text => '', status => 204);
+            if ($newerthan) {
+                $emaillist = $email->get_emaillist_newerthan(
+                    $config->{date_format},
+                    $mailbox,
+                    $newerthan,
+                    1
+                );
             } else {
-                return $self->render(json => \@result);
+                my $mail_per_page = $config->{mail_per_page} if ($emaillist_page);
+
+                $emaillist = $email->get_emaillist(
+                    $config->{date_format},
+                    $mailbox,
+                    $mail_per_page,
+                    $emaillist_page,
+                    1
+                );
             }
-        } else {
-            # error
-            return $self->render(text=> "Internal Server Error - $emaillist", status => 500, format => 'txt' );
-        }
 
-    };
-
-
-
-
-=head2 GET /api/mailbox/#mailboxname/#id
-
-return an email in a mailbox suitable for displaying in JSON format,
-or 404 error if not found.
-
-=cut
-
-
-    get '/mailbox/#mailbox/#id' => sub {
-        my $self = shift;
-        my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
-        my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
-        my $id = $1 if $self->param('id') =~ m/(\d+)/;
-
-        my $email = Mailnesia::Email->new(
-            {
-                dbh => $mailnesia->{dbh},
-                to => [ $mailbox ],
-                id => $id
+            if (ref $emaillist) {
+                my @result = sort { $b->{id} <=> $a->{id} } values %$emaillist;
+                if ($newerthan and not scalar @result) {
+                    # return 204 if no email for newerthan requests
+                    return $self->render(text => '', status => 204);
+                } else {
+                    return $self->render(json => \@result);
+                }
+            } else {
+                # error
+                return $self->render(text=> "Internal Server Error - $emaillist", status => 500, format => 'txt' );
             }
-        );
 
-        my $email_body = $email->body($id) ;
-        if ( $email_body ) {
-            # base64?
-            # my %email_b64;
-            # for my $tab (keys %$email_body) {
-            #     $email_b64{$tab} = b64_encode $email_body->{$tab}
-            # }
-            return $self->render(
-                json => $email_body
+        };
+
+        # delete all emails of a mailbox
+        del '/#mailbox' => sub {
+            my $self = shift;
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $status = $mailnesia->delete_mailbox($mailbox) ? 204 : 500;
+            $self->res->headers->header('Content-Type' => 'text/plain;charset=UTF-8');
+            return $self->render(status=>$status, data=>'');
+        };
+
+        # return an email in a mailbox suitable for displaying in JSON format,
+        # or 404 error if not found.
+        get '/#mailbox/#id' => sub {
+            my $self = shift;
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $id = $1 if $self->param('id') =~ m/(\d+)/;
+
+            my $email = Mailnesia::Email->new(
+                {
+                    dbh => $mailnesia->{dbh},
+                    to => [ $mailbox ],
+                    id => $id
+                }
             );
-        } else {
-            return $self->render(text => '', status => 404);
-        }
+
+            my $email_body = $email->body($id) ;
+            if ( $email_body ) {
+                # base64?
+                # my %email_b64;
+                # for my $tab (keys %$email_body) {
+                #     $email_b64{$tab} = b64_encode $email_body->{$tab}
+                # }
+                return $self->render(
+                    json => $email_body
+                );
+            } else {
+                return $self->render(text => '', status => 404);
+            }
+        };
+
+        # delete an email
+        del '/#mailbox/#id' => sub {
+            my $self = shift;
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $id = $1 if $self->param('id') =~ m/(\d+)/;
+            $self->res->headers->header('Content-Type' => 'text/plain;charset=UTF-8');
+            my $status = $mailnesia->delete_mail($mailbox, $id) ? 204 : 500;
+            $self->res->headers->header('Content-Type' => 'text/plain;charset=UTF-8');
+            return $self->render(status=>$status, data=>'');
+        };
+
+        # return an email in a mailbox in raw format, as received from a mail server
+        get '/#mailbox/#id/raw' => sub {
+            my $self = shift;
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $id = $1 if $self->param('id') =~ m/(\d+)/;
+
+            # status 404 if no email
+            my $m = Mailnesia::Email->new({dbh => $mailnesia->{dbh}});
+            my $email = $m->get_email($mailbox, $id);
+            if ($email) {
+                return $self->render (
+                    text   => $email,
+                    format => 'txt'
+                );
+            } else {
+                return $self->render(text => '', status => 404);
+            }
+        };
+
     };
 
-
-=head2 GET /api/mailbox/#mailboxname/#id/raw
-
-return an email in a mailbox in raw format, as received from a mail server
-
-=cut
-
-
-    get '/mailbox/#mailbox/#id/raw' => sub {
-        my $self = shift;
-        my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
-        my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
-        my $id = $1 if $self->param('id') =~ m/(\d+)/;
-
-        # status 404 if no email
-        my $m = Mailnesia::Email->new({dbh => $mailnesia->{dbh}});
-        my $email = $m->get_email($mailbox, $id);
-        if ($email) {
-            return $self->render (
-                text   => $email,
-                format => 'txt'
-            );
-        } else {
-            return $self->render(text => '', status => 404);
-        }
-    };
-
-
-=head2 GET /api/visitors/#mailboxname
-
-return the recent visitors of a mailbox
-
-=cut
-
+    # return the recent visitors of a mailbox
     get '/visitors/#mailbox' => sub {
         my $self = shift;
-        my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
-        my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
-
+        my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
         my $visitors = $config->get_formatted_visitor_list($mailbox);
 
         return $self->render (json => $visitors);
     };
 
+    group {
+        under '/alias';
+
+        # get all aliases of a mailbox
+        get '/#mailbox' => sub {
+            my $self = shift;
+            my $mailbox =  lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $alias_list = $mailnesia->get_alias_list($mailbox);
+            return $self->render(json => $alias_list);
+        };
+
+        # add an alias to a mailbox
+        post '/#mailbox/#alias' => sub {
+            my $self = shift;
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $alias   = lc $mailnesia->get_url_decoded_mailbox ( $self->param( 'alias' ) );
+            my $status = $mailnesia->setAlias($mailbox, $alias) ? 201 : 500;
+            return $self->render(status=>$status, json=>$alias);
+        };
+
+        # modify an alias of a mailbox from alias to new_alias
+        put '/#mailbox/#alias/#new_alias' => sub {
+            my $self = shift;
+            my $mailbox   = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox'   ) );
+            my $alias     = lc $mailnesia->get_url_decoded_mailbox ( $self->param('alias'     ) );
+            my $new_alias = lc $mailnesia->get_url_decoded_mailbox ( $self->param('new_alias' ) );
+            my $status = $mailnesia->modifyAlias($mailbox, $alias, $new_alias) ? 200 : 500;
+            return $self->render(status=>$status, json=>$new_alias);
+        };
+
+        # remove an alias from a mailbox
+        del '/#mailbox/#alias' => sub {
+            my $self = shift;
+            my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $alias   = lc $mailnesia->get_url_decoded_mailbox ( $self->param( 'alias' ) );
+            my $status = $mailnesia->removeAlias($mailbox, $alias) ? 204 : 500;
+            $self->res->headers->header('Content-Type' => 'text/plain;charset=UTF-8');
+            return $self->render(status=>$status, data => '');
+        };
+
+    };
 };
 
 app->secrets([$mailnesia->random_name_for_testing()]);

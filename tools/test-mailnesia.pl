@@ -24,6 +24,8 @@ my @alias_restoration;
 my $config = Mailnesia::Config->new;
 my $mailnesia = Mailnesia->new();
 my $global_mailbox = $mailnesia->random_name_for_testing();
+my $mailbox_for_api_test = $mailnesia->random_name_for_testing();
+my $email_id;
 my $sender_domain = q{gmail.com};
 my $project_directory = $mailnesia->get_project_directory();
 my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http://" . $config->{siteurl};
@@ -607,6 +609,9 @@ sub email_sending_and_deleting {
           $tests += send_mail_test($alias,$global_mailbox,$mailnesia->random_name_for_testing())
       };
 
+      $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
+      $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
+
       # test disabled, feature not enabled
       #      invalid_sender_test() +
 
@@ -786,7 +791,7 @@ sub send_mail_test {
 
           $tests++;
           # also get email using API
-          my $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
+          $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
           ok ($email_id, "Found ID of first email on page");
           $tests += 1 + api_check_email($baseurl. "/api/mailbox/$check_here_url_encoded/$email_id");
 
@@ -1029,8 +1034,123 @@ sub restoration {
 
     }
 
+sub arrayref_to_json {
+    my $array = shift;
+    my $json = join '","', @$array;
 
+    return qq{["$json"]};
+}
 
+=head1 alias tests via the api
+
+set some aliases on a random mailbox, modify and delete them
+
+=cut
+
+sub api_alias_tests {
+    print_test_category_header( );
+    my $mailbox = $mailnesia->random_name_for_testing();
+    my $alias1 = $mailnesia->random_name_for_testing();
+    my $alias2 = $mailnesia->random_name_for_testing();
+    my $tests = 0;
+    $tests += test_empty_alias_list($mailbox);
+    $tests += add_alias_to_mailbox($mailbox, $alias1);
+    $tests += test_alias_list($mailbox, [$alias1]);
+    $tests += add_alias_to_mailbox($mailbox, $alias2);
+    $tests += test_alias_list($mailbox, [$alias1, $alias2]);
+
+    my $alias3 = $mailnesia->random_name_for_testing();
+    $tests += modify_alias($mailbox, $alias2, $alias3);
+    $tests += test_alias_list($mailbox, [$alias1, $alias3]);
+
+    $tests += delete_alias($mailbox, $alias3);
+    $tests += test_alias_list($mailbox, [$alias1]);
+
+    $tests += delete_alias($mailbox, $alias1);
+    $tests += test_empty_alias_list($mailbox);
+
+    return $tests;
+}
+
+sub test_empty_alias_list {
+    my $mailbox = shift;
+    my $url = $baseurl . "/api/alias/$mailbox";
+    $mech->get_ok( $url, "GET $url" );
+    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->content_is( '[]' ) or warn $mech->content();
+    return 3;
+}
+
+sub add_alias_to_mailbox {
+    my $mailbox = shift;
+    my $alias = shift;
+    my $url = $baseurl . "/api/alias/$mailbox/$alias";
+    $mech->post_ok( $url, "POST $url" );
+    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->content_is( lc "\"$alias\"" ) or warn $mech->content();
+    return 3;
+}
+
+sub test_alias_list {
+    my $mailbox = shift;
+    my $alias_list = shift;
+    my $url = $baseurl . "/api/alias/$mailbox";
+    $mech->get_ok( $url, "GET $url" );
+    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->content_is( lc arrayref_to_json($alias_list) ) or warn $mech->content();
+    return 3;
+}
+
+sub modify_alias {
+    my $mailbox = shift;
+    my $alias = shift;
+    my $new_alias = shift;
+    my $url = $baseurl . "/api/alias/$mailbox/$alias/$new_alias";
+    $mech->put_ok( $url, "PUT $url" );
+    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->content_is( lc "\"$new_alias\"" ) or warn $mech->content();
+    return 3;
+}
+
+sub delete_alias {
+    my $mailbox = shift;
+    my $alias = shift;
+    my $url = $baseurl . "/api/alias/$mailbox/$alias";
+    $mech->delete_ok( $url, "DELETE $url" );
+    $mech->header_is('Content-Type', 'text/plain;charset=UTF-8');
+    $mech->content_is( "" ) or warn $mech->content();
+    return 3;
+}
+
+=head1 mailbox delete tests via api
+Delete all mail that was sent to $mailbox_for_api_test
+=cut
+
+sub mailbox_delete_tests_via_api {
+    my $tests = 0;
+    $tests += delete_mail($mailbox_for_api_test, $email_id);
+    $tests += delete_mailbox($mailbox_for_api_test);
+    return $tests;
+}
+
+sub delete_mail {
+    my $mailbox = shift;
+    my $id = shift;
+    my $url = $baseurl . "/api/mailbox/$mailbox/$id";
+    $mech->delete_ok( $url, "DELETE $url" );
+    $mech->header_is('Content-Type', 'text/plain;charset=UTF-8');
+    $mech->content_is( "" ) or warn $mech->content();
+    return 3;
+}
+
+sub delete_mailbox {
+    my $mailbox = shift;
+    my $url = $baseurl . "/api/mailbox/$mailbox";
+    $mech->delete_ok( $url, "DELETE $url" );
+    $mech->header_is('Content-Type', 'text/plain;charset=UTF-8');
+    $mech->content_is( "" ) or warn $mech->content();
+    return 3;
+}
 
 ####### end tests ########
 
@@ -1123,6 +1243,7 @@ done_testing(
         random_mailbox() +
         webpage_tests() +
         negative_delete_test() +
-
+        api_alias_tests() +
+        mailbox_delete_tests_via_api() +
         restoration()
     );
