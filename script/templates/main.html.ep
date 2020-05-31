@@ -31,6 +31,7 @@
     </div>
     <div id="menu">
         <ul>
+            <li><a href="https://m.mailnesia.com"><span class="label success">New!</span>MOBILE VERSION</a></li>
             <li><a href="<%= "/$language" if $language ne 'en' %>/features.html"><%= $param->{features} %></a></li>
             <li><a href="http://blog.mailnesia.com"><%= $param->{blog} %></a></li>
             <li><a href="/translation.html"><%= $param->{translation} %></a></li>
