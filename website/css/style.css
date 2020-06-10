@@ -613,12 +613,10 @@ div.pagination {
                  text-align: center;
 }
 
-div#top-ad  { text-align: center;
-              font-size: 90%;
-              height: 0.9em;
-              }
-
-
+div#fm-top  {
+  width: 728px;
+  margin: 1em auto;
+}
 
 form input[type=submit]#sm {
                              background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAAUCAMAAABGQsb1AAAAAXNSR0IArs4c6QAAAvpQTFRFN7MRKqEDK6sANKkSPq4JObQTQbkGN7wLQLocT7UkRLsMVrgLQ70gSL4TS7sqV7ogYbkRR78jarkUZrgrUL8vWcEGUMQIWr4vV744X7w3TsQcYMAbZb4nebY+arwwY74xebklZr8oQcwVX8IpgLknkLcNiLgcVsgTWMUrb7xCU8giTssWS8skfLwpfr0fVckjW8RFVsolb8E1WcsYfr4scsItkbohW8wad8E2e8IjY8c5YconhL43Wc0ocsQ4cMRAdsUlecBOX88JXM4ce8MvbMc6Zck7Xc8eYMwzjr8wW88qSdQuVtIgg8MxWdMRgcM6X9AgXNAsgMFXYs41ksEpasw0Z88gfMY8hsUpgccqYdIjX9IuZ9AtdcwsiMREZdA3YtMkeMo+atEjXdYYj8NFWtYmfcstY9QmgMk/cNAva9MlZNUnesxAeMxIcdEwe81BZtYoaNcbXdkpa9Qzfs46fM5CcdI7hs0wYdodkck5m8ZBZ9gqd9Qpatkehs47qMQ7aNkrftBEcNcqY9whbtc1ddU1kc4pbNogbNc+sMQzmco8lMw9ZN0idNY/gtI+nMlMkM80ctZHctktcNk3mc4sd9c3Zt4kjc9GssY1gdNHiM9cetgtf9Y3eNg4bt0kcdo5htQ3lNEtfdZAdthBmM83idBdbd0xkdFActs6Zt1McNtDcN4mfNdJeNlCddwxo81AltMvmtE4dNw7ZuEzhNZKbdxUldM5b98zpc5Ch9dDo85Kn9BClNRDfNw8ps9DhthMntFLrM5DmdNLft0+i9Voh9lNeeA1beUteOA/jNZpqNJFceNBmNNwsNE+idtPhdtedOQ4guA3j9hrkdd4pdZIgOFKkN5Ck9xRk9pmiuFDlttgi99aq9k6qdlLvdU7u9VEndl1gec+vtNThuVGhOVOwNRNmNx2juJdottwm91xwtZPvdhOw9dQzNdBnuBzluZSmOJ0wdtKoOF1ydpDzdlLwN9Ey91FzN5Gxt9OyOBHxeVSwehL3uRf5OhcyyI5VwAAAAF0Uk5TAEDm2GYAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfcBhALEQVZl+y1AAABkElEQVQoz2NgQIC7drma9o5BsrsYsIE3Kbc+3HjxYGncI6zSVXZbDXW8T/fZvMIm+6dLJlRdSX3VUc/72KT/dobvtDY07L3u/xGr4eVprdnaARPPm0Glrxy4sm/Hvt27dwDBvn2HMuYkBSQHHH9u8RQk2T/r0qVLZy4/e/bs5ctPnz69X9SalJ5sHrD2nO8voKyJm4SIuKSBR3x8WfGmTZtONKWnt09LD4he+8T0NQODngYjEysLGxsvr5i6ublT9rRp05LbC9LNA1q3GB1k0LViZmVnFRQUlDI0jIrKTgbKTmsvKIgyz9xvd5ZBQZmTQ5BPRN/QMDo6vaBgWUF7++rVBVHpeYcdfjAwhMgJyysauSYm5uSXNs6cebNm3er29oD0uTstf4McvaRy24YpC9uAYMKSJUvq0i5ub2+PerjF5TOW0Fhecmxa8qTDa1S/Y5Gcsedaks/mC4dNsensLrkaY5j0eIHaFyyS9dNvF0dHn4hVeYtF8l5k78qazPmZET+xxc9XSwF+UWluoTtwEQBaVKQiL5k1PwAAAABJRU5ErkJggg==") ;
