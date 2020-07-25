@@ -18,7 +18,7 @@ use Mailnesia::SQL;
 use Mailnesia::Config;
 use utf8;
 
-my $number_of_aliases = 50;      # test this number of aliases
+my $number_of_aliases = 10;      # test this number of aliases
 my @aliases;
 my @alias_restoration;
 my $config = Mailnesia::Config->new;
@@ -123,6 +123,37 @@ sub webpage_tests_internal {
     $mech->lacks_uncapped_inputs('forms have maxlength');
     return 8;
 
+}
+
+=head2 mailbox_settings_page_tests
+
+open the settings page of a random mailbox via url
+
+=cut
+
+sub mailbox_settings_page_tests {
+    print_test_category_header( $category = "mailbox settings page tests" );
+    my $mailbox = $mailnesia->random_name_for_testing();
+    my $mailbox_lowercase = lc $mailbox;
+    my $mailbox_url_encoded = $mailnesia->get_url_encoded_mailbox ( $mailbox );
+    my $tests = 0;
+
+    $url = $baseurl. "/settings/$mailbox_url_encoded";
+
+    if ( $mech->get_ok( $url, "GET $url" ) ) {
+        $mech->text_contains( qq{Welcome to the preferences page of mailbox $mailbox_lowercase!}, "page contains the mailbox name");
+        $tests++;
+    }
+    $tests++;
+
+    if ( $mech->follow_link_ok( {text_regex => qr/Access here/i }, "open 'Recent visitors of this mailbox' link on current page" ) )
+    {
+        $tests += check_visitors_header();
+        $mech->back();
+    }
+    $tests++;
+
+    return $tests;
 }
 
 =head2 mailbox_tests
@@ -1226,6 +1257,21 @@ sub check_mailbox_header
     return 3;
 }
 
+=head1 check_visitors_header
+
+check presence of visitors header in visitors page: Date, IP, User Agent
+
+=cut
+
+sub check_visitors_header
+{
+    my $mailbox = shift;
+
+    $mech->content_like ( qr!<table .*class="email"!, "page contains visitors table");
+    $mech->text_like    ( qr{Date *IP *User Agent}, "page contains visitors table header: Date, IP, User Agent" );
+
+    return 2;
+}
 
 =head1 done_testing
 
@@ -1245,5 +1291,6 @@ done_testing(
         negative_delete_test() +
         api_alias_tests() +
         mailbox_delete_tests_via_api() +
+        mailbox_settings_page_tests() +
         restoration()
     );

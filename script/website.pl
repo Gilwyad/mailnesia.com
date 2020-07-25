@@ -1138,6 +1138,7 @@ show the preferences for the requested mailbox
 
 
             my $alias_list = $mailnesia->get_alias_list($mailbox);
+            my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox($mailbox);
 
             # The "stash" in Mojolicious::Controller is used to pass data to templates
             $self->stash(
@@ -1148,7 +1149,7 @@ show the preferences for the requested mailbox
                     "/" :
                     "/".$mailnesia->{language}."/",
                     clicker_html        => $clicker_html,
-                    visitor_list        => $config->get_formatted_visitor_list($mailbox),
+                    url_encoded_mailbox => $url_encoded_mailbox,
                 );
 
             $self->render(
@@ -1159,6 +1160,66 @@ show the preferences for the requested mailbox
 
 
         } => 'settings';
+
+=head2 GET /settings/mailboxname/visitors
+
+show the recent visitors of the requested mailbox
+
+=cut
+
+    get '/#mailbox/visitors' => {mailbox => 'default'} => sub {
+            my $self = shift;
+            my $original_url_decoded_mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
+            my $mailbox = $mailnesia->check_mailbox_characters( $original_url_decoded_mailbox );
+
+            # forbidden if alias
+            if ($mailnesia->check_mailbox_alias($mailbox)->{is_alias})
+            {
+                return $self->render
+                (
+                    text   => '',
+                    status => 403
+                );
+            }
+
+            if ($mailbox ne $original_url_decoded_mailbox)
+            {
+                $self->stash(
+                        mailbox   => $mailbox,
+                        mailnesia => $mailnesia,
+                        index_url => $mailnesia->{language} eq "en" ?
+                        "/" :
+                        "/".$mailnesia->{language}."/"
+                    );
+
+                $self->content(content => qq{<div class="alert-message warning">} .
+                    $mailnesia->message('invalid_characters',$mailbox) .
+                    qq{</div>});
+
+                return $self->render
+                (
+                    template => 'pages'
+                );
+            }
+
+            # The "stash" in Mojolicious::Controller is used to pass data to templates
+            $self->stash(
+                    mailnesia           => $mailnesia,
+                    mailbox             => $mailbox,
+                    index_url           => $mailnesia->{language} eq "en" ?
+                    "/" :
+                    "/".$mailnesia->{language}."/",
+                    visitor_list        => $config->get_formatted_visitor_list($mailbox),
+                );
+
+            $self->render(
+                    template  => 'visitors',
+                    format    => 'html',
+                    handler   => 'ep'
+                );
+
+
+        } => 'visitors';
 
 };
 

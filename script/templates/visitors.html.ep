@@ -1,0 +1,36 @@
+% title "Settings for $mailbox";
+% layout 'default';
+
+<div id="main">
+
+  <h2>Recent visitors of this mailbox</h2>
+  <p>Note that the times are in the UTC time zone.</p>
+
+    <table style="width: 100%;" class="email">
+      <thead>
+        <tr>
+          <th style="text-align: left;">Date</th>
+          <th style="text-align: left;">IP</th>
+          <th style="text-align: left;">User Agent</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        % for my $visitor (@$visitor_list) {
+        <tr>
+          <td>
+            <%= $visitor->{'timeStamp'} %>
+          </td>
+          <td>
+            <a href="https://whatismyipaddress.com/ip/<%= $visitor->{'ip'} %>"><%= $visitor->{'ip'} %></a>
+          </td>
+          <td>
+            %== $visitor->{'userAgent'}
+          </td>
+        </tr>
+        % }
+      </tbody>
+
+    </table>
+
+</div>

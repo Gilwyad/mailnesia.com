@@ -1,5 +1,4 @@
-% title "Settings for $mailbox";
-% layout 'default';
+% layout 'default', title => "Settings for $mailbox @ Mailnesia";
 
 <div id="main">
   <p>Welcome to the preferences page of mailbox <%= $mailbox %>!</p>
@@ -76,33 +75,7 @@
   <button id="add_new_alias_form" class="btn">➕</button>
 
   <h2>Recent visitors of this mailbox</h2>
-  <p>Note that the times are in the UTC time zone.</p>
-  <table style="width: 100%;" class="email">
-    <thead>
-      <tr>
-        <th style="text-align: left;">Date</th>
-        <th style="text-align: left;">IP</th>
-        <th style="text-align: left;">User Agent</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      % for my $visitor (@$visitor_list) {
-      <tr>
-        <td>
-          <%= $visitor->{'timeStamp'} %>
-        </td>
-        <td>
-          <a href="https://whatismyipaddress.com/ip/<%= $visitor->{'ip'} %>"><%= $visitor->{'ip'} %></a>
-        </td>
-        <td>
-          %== $visitor->{'userAgent'}
-        </td>
-      </tr>
-      % }
-    </tbody>
-
-  </table>
+  <a href="/settings/<%== $url_encoded_mailbox %>/visitors" title="Recent visitors of this mailbox">Access here</a>
 
 </div>
 
