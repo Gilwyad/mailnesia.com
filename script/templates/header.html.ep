@@ -18,16 +18,6 @@
   </head>
   <body>
     <div id="header">
-      <% my $fidelity_media = begin %>
-      <div id="fm-top">
-        <!-- FMX SSP Tag Start, Do Not Modify: WebsiteID 11087 > ZoneID 72092 > Size 728x90 -->
-        <script async type='text/javascript' src='https://x.fidelity-media.com/delivery/sjs.php?zoneid=72092&cb=&gdpr=&consent_str=&us_privacy=&click=&subid='></script><ins name="fmx-zoneid-72092"></ins>
-        <!-- FMX SSP Tag End -->
-      </div>
-      <% end %>
-
-      <%= $fidelity_media->() if !$mailnesia->{devel} %>
-
       <div id="logo">
         <a href="<%= $index_url %>"><img width="119" height="119"
                                          src="/logo.png" alt="Mailnesia logo" /></a>
