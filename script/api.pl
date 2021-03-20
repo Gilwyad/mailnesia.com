@@ -216,6 +216,13 @@ group {
                 # for my $tab (keys %$email_body) {
                 #     $email_b64{$tab} = b64_encode $email_body->{$tab}
                 # }
+
+                # convert json fields to camel case (text_html => textHtml, text_plain => textPlain)
+                my $text_html = delete $email_body->{'text_html'};
+                $email_body->{'textHtml'} = $text_html if $text_html;
+                my $text_plain = delete $email_body->{'text_plain'};
+                $email_body->{'textPlain'} = $text_plain if $text_plain;
+
                 return $self->render(
                     json => $email_body
                 );
