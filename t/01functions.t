@@ -2,6 +2,7 @@
 
 use Test::More;
 use Test::Mojo;
+use Test::MockTime qw( set_absolute_time restore_time );
 use Mailnesia;
 use Mailnesia::SQL;
 use Mailnesia::Config;
@@ -114,6 +115,9 @@ ok ( $config->is_mailbox_banned($random_name_for_testing), "$random_name_for_tes
 ok ( $config->unban_mailbox($random_name_for_testing), "unban mailbox $random_name_for_testing");
 ok ( ! $config->is_mailbox_banned($random_name_for_testing), "$random_name_for_testing is not banned");
 
+my $mock_time = 1637446547; # "2021-11-20 22:15:47"
+set_absolute_time($mock_time);
+
 my $ip = "192.168.10.166";
 
 ok ( $config->ban_ip($ip), "ban ip $ip");
@@ -126,27 +130,53 @@ my $user_agent = "Cool Browser 1.0";
 my $lc_random_name_for_testing = lc $random_name_for_testing;
 ok ( $config->log_ip($ip, $lc_random_name_for_testing, $user_agent));
 ok ( my @visitor_list = $config->get_visitor_list($lc_random_name_for_testing));
-my $regex = join("\0", "[0-9]+", $ip, $user_agent);
+my $visitor = join("\0", $mock_time, $ip, $user_agent);
 is ( scalar(@visitor_list), 1, "visitor list has one item" );
-ok ( $visitor_list[0] =~ m/$regex/, "visitor list matches");
+ok ( $visitor_list[0] = $visitor, "visitor list matches");
 
+# record second visitor
 my $ip2 = "1.2.3.4";
 my $user_agent2 = "Another Cool Browser 2.1";
 ok ( $config->log_ip($ip2, $lc_random_name_for_testing, $user_agent2));
 ok ( @visitor_list = $config->get_visitor_list($lc_random_name_for_testing));
-my $regex2 = join("\0", "[0-9]+", $ip2, $user_agent2);
+my $visitor2 = join("\0", $mock_time, $ip2, $user_agent2);
 is ( scalar(@visitor_list), 2, "visitor list has two items" );
-ok ( $visitor_list[0] =~ m/$regex2/, "visitor list[0] matches");
-ok ( $visitor_list[1] =~ m/$regex/, "visitor list[1] matches");
+ok ( $visitor_list[0] = $visitor2, "visitor list[0] matches");
+ok ( $visitor_list[1] = $visitor, "visitor list[1] matches");
 
-ok ( my $transformed = $config->transform_visitor("qwe\0asd\0zxc"));
+# same visitor would not be logged in same hour
+ok ( $config->log_ip($ip, $lc_random_name_for_testing, $user_agent));
+ok ( @visitor_list = $config->get_visitor_list($lc_random_name_for_testing));
+is ( scalar(@visitor_list), 2, "visitor list has two items" );
+ok ( $visitor_list[0] = $visitor2, "visitor list[0] matches");
+ok ( $visitor_list[1] = $visitor, "visitor list[1] matches");
+
+ok ( my $transformed = $config->transform_visitor("$mock_time\0$ip\0zxc"));
 is_deeply(
     $transformed, {
-        timeStamp => "qwe",
-        ip => "asd",
+        timeStamp => "2021-11-20 22:15:47+00:00",
+        ip => $ip,
         userAgent => "zxc"
     }
 );
+
+ok ( my $list = $config->get_formatted_visitor_list($lc_random_name_for_testing));
+is_deeply(
+    $list, [
+        {
+            timeStamp => "2021-11-20 22:00:00+00:00",
+            ip => $ip,
+            userAgent => $user_agent
+        },
+        {
+            timeStamp => "2021-11-20 22:00:00+00:00",
+            ip => $ip2,
+            userAgent => $user_agent2
+        },
+    ]
+);
+
+restore_time();
 
 # clicker is enabled by default
 ok ( $config->is_clicker_enabled($random_name), "clicker enabled by default for $random_name" );

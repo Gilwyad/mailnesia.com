@@ -615,10 +615,10 @@ sub visitor_test {
     $visitor_list = $config->get_formatted_visitor_list($mailbox);
     is(scalar @$visitor_list, 1, 'visitor list should contain 1 item');
 
-    sleep 1; # the key is the second in Redis so can't have multiple entries in the same second
+    # one visitor is only logged once in each hour
     $mech->get($url);
     $visitor_list = $config->get_formatted_visitor_list($mailbox);
-    is(scalar @$visitor_list, 2, 'visitor list should contain 2 items');
+    is(scalar @$visitor_list, 1, 'visitor list should contain 1 items');
 
     return 3;
 }

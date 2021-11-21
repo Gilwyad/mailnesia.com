@@ -4,7 +4,7 @@
 <div id="main">
 
   <h2>Recent visitors of this mailbox</h2>
-  <p>Note that the times are in the UTC time zone.</p>
+  <p>Note that the times are in the UTC time zone and are only accurate to the hour.</p>
 
     <table style="width: 100%;" class="email">
       <thead>

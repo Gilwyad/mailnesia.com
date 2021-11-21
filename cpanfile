@@ -43,6 +43,7 @@ on 'test' => sub {
     requires 'Test::WWW::Mechanize' , '>= 1.42';
     requires 'WWW::Mechanize'       , '>= 1.71';
     requires 'XML::LibXML'          , '>= 2.0107';
+    requires 'Test::MockTime'       , '>= 0.17.1';
 };
 
 on 'develop' => sub {

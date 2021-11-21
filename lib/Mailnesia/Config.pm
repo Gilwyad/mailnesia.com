@@ -437,7 +437,12 @@ sub log_ip {
     my $mailbox = shift;
     my $user_agent = shift;
 
-    my $current_timestamp = time();
+    my $current_timestamp = time(); # e.g. 1637446547
+    # only save visit once every hour: subtract seconds and minutes
+    my ($min, $sec) = (0, 0);
+    ($min, $sec) = ($1, $2) if (strftime "%M:%S", gmtime($current_timestamp)) =~ m/(\d+):(\d+)/;
+    $current_timestamp -= ($sec + $min * 60);
+
     my $key = $self->{redis_databases}->{mailbox_visitors}->($mailbox); # e.g. visitors:peter
 
     $self->{redis}->zadd(
