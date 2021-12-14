@@ -11,30 +11,12 @@ use Mailnesia::Email;
 use Mailnesia::Config;
 
 my $config = Mailnesia::Config->new;
-
-my $tryAtMost = 4;
-my $startingPort = 5000;
-my $endpoint;
-
 my $ctx  = ZMQ::FFI->new();
 my $pull = $ctx->socket(ZMQ_PULL);
 my $success;
 
-for my $i (0..$tryAtMost-1) {
-    my $port = $startingPort + $i;
-
-    eval {
-        $endpoint = "tcp://127.0.0.1:$port";
-        print "Trying to bind to $endpoint\n";
-        $pull->bind($endpoint);
-        1;
-    } and do {
-        $success = print "Success!\n";
-        last;
-    }
-}
-
-die "Unable to use any ports!\n" unless $success;
+my $endpoint = "tcp://127.0.0.1:5000";
+$pull->bind($endpoint);
 
 my $fd = $pull->get_fd();
 

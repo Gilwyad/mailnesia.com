@@ -48,25 +48,15 @@ use ZMQ::FFI qw(ZMQ_PUSH);
 use open ':encoding(utf8)';
 binmode(STDOUT, ":utf8");
 
-my $tryAtMost = 1;
-my $startingPort = 5000;
-my @endpoints = map { "tcp://127.0.0.1:$_" } ($startingPort..$startingPort+$tryAtMost);
-my $next = 0;
+my $zeromq_host = $ENV{zeromq_host};
+my $zeromq_endpoint = "tcp://$zeromq_host:5000";
+my $ctx;
+my $zeromq;
 
-my $ctx  = ZMQ::FFI->new();
-my @push = ($ctx->socket(ZMQ_PUSH)) x $tryAtMost;
-
-for (my $i = 0; $i < $tryAtMost; $i++) {
-    $push[$i]->connect($endpoints[$i]);
-}
-
-# return the next connection to use, from 0 to $tryAtMost-1
-sub nextOne {
-    if ($next < $tryAtMost - 1) {
-        return ++$next;
-    } else {
-        return $next = 0;
-    }
+if ($zeromq_host) {
+    $ctx = ZMQ::FFI->new();
+    $zeromq = $ctx->socket(ZMQ_PUSH);
+    $zeromq->connect($zeromq_endpoint);
 }
 
 my $email_count=0;
@@ -480,12 +470,10 @@ sub process_email (\%) {
         # if at least one recipient has the clicker enabled, click
       TO: foreach (@to)
         {
-            if ($config->is_clicker_enabled($_))
+            if ($zeromq_host and $config->is_clicker_enabled($_))
             {
-                # select the next clicker for use
-                my $next = nextOne();
-                # send the email body to the chosen clicker
-                $push[$next]->send($mail->{data});
+                # send the email body to the clicker
+                $zeromq->send($mail->{data});
 
                 last TO;
             }

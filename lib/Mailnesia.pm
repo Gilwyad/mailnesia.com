@@ -32,11 +32,14 @@ devel              : false on live server (based on hostname),
 dbh                : the SQL connection handle
 }
 
+Only connects to Postgres if the environment variable postgres_host is set to the hostname of the Postgres server to connect to.
 =cut
 
 sub new {
         my $package = shift;
         my $options = shift;
+
+        my $postgres_host = $ENV{postgres_host};
 
         my $self = bless {
                 weighted => generate(),
@@ -50,7 +53,7 @@ sub new {
 
                         #execute this anonymous sub:
                     }->(),
-                dbh => Mailnesia::SQL->connect()
+                dbh => $postgres_host ? Mailnesia::SQL->connect() : undef
             },$package;
 
         $self->{text} = $self->initialize_text($options->{decode_on_open});

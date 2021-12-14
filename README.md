@@ -191,23 +191,27 @@ Execute function tests under t/ (these don't require the website to be up):
 
 ## Executing using Docker
 
-### SMTP server
-To build the image:
+Build the images
 
-    docker build -f smtp-server.Dockerfile -t mailnesia-smtp-server .
+    docker build --file mailnesia-common.Dockerfile --tag common.mailnesia.com:1.0.0 .
+    docker build --file smtp-server.Dockerfile --tag smtp-server.mailnesia.com:1.0.0 .
+    docker build --file clicker.Dockerfile --tag clicker.mailnesia.com:1.0.0 .
 
 To execute:
 
-    docker run -it mailnesia-smtp-server
+    docker run --interactive --tty smtp-server.mailnesia.com:1.0.0
+    docker run --interactive --tty clicker.mailnesia.com:1.0.0
+
+Note that the Dockerfiles contain additional information about the execution, for example environment variables.
 
 Command to stop the container:
 
-    docker stop mailnesia-smtp-server
+    docker stop smtp-server.mailnesia.com:1.0.0
 
 Command to remove the stopped container:
 
-    docker rm mailnesia-smtp-server
+    docker rm smtp-server.mailnesia.com:1.0.0
 
 Enter the container and start a shell:
 
-    docker exec -it mailnesia-smtp-server bash
+    docker exec --interactive --tty smtp-server.mailnesia.com:1.0.0 bash

@@ -68,9 +68,10 @@ sub connect ($;\$$&) {
             my $db_table = "emails";
             my $user = "mailnesia";
             my $password = "";
+            my $host = $ENV{postgres_host};
 
             $dbh = DBI->connect_cached(
-                    "dbi:$db:dbname=$db_database",
+                    "dbi:$db:database=$db_database;host=$host;port=5432",
                     $user,
                     $password,
                     {

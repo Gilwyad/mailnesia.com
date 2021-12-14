@@ -76,8 +76,7 @@ sub new {
             }
         }
 
-
-
+        my $redis_host = $ENV{redis_host};
 
         my $self = bless {
 
@@ -127,10 +126,9 @@ sub new {
                         abuse     => 'peter@localhost'
                     },
 
-                redis      => Redis->new(
-                        encoding => undef,
-                        sock     => '/var/run/redis/redis.sock'
-                    ),
+                redis => $redis_host ? Redis->new(
+                    server => '$redis_host:6379'
+                ) : undef,
 
                 # name of used redis databases
                 redis_databases => {
