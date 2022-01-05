@@ -6,5 +6,3 @@ ENV postgres_host="127.0.0.1"
 EXPOSE 25
 
 CMD [ "perl", "script/AnyEvent-SMTP-Server.pl" ]
-
-# #2525

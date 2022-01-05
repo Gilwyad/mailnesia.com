@@ -10,10 +10,19 @@ ENV redis_host=""
 
 # Hostname where Postgres is listening. Example: postgres. Default port is appended. If empty, do not connect to Postgres.
 ENV postgres_host=""
+# Postgres database name
+ENV postgres_database="mailnesia"
+# Postgres username to use
+ENV postgres_user="mailnesia-user"
+# Postgres password to use
+ENV postgres_password=""
 
 # Hostname where the ZeroMQ host is listening, normally the clicker app. Example: clicker. Default port is appended. If empty,
 # do not connect to it.
 ENV zeromq_host=""
+
+# ReCaptcha private key
+ENV recaptcha_private_key=""
 
 # Some modules might require compilation of C source code; these packages will take care of that:
 RUN apt-get update && apt-get install -y libzmq5 openssl libssl-dev zlib1g-dev autotools-dev g++ gcc dpkg-dev libdpkg-perl libltdl-dev libltdl7 libsqlite3-0 m4 make patch g++-8 gcc-10 binutils cpp-10 libc6-dev libc-dev-bin libgomp1 linux-libc-dev libreadline8 cpanminus libpq-dev

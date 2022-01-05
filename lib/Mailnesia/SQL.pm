@@ -64,11 +64,11 @@ sub connect ($;\$$&) {
         {
             #    warn "connecting to SQL, warn: $warn\n";
             my $db = "Pg";
-            my $db_database = "mailnesia";
+            my $db_database = $ENV{postgres_database} || "mailnesia";
             my $db_table = "emails";
-            my $user = "mailnesia";
-            my $password = "";
-            my $host = $ENV{postgres_host};
+            my $user = $ENV{postgres_user} || "mailnesia";
+            my $password = $ENV{postgres_password} || undef;
+            my $host = $ENV{postgres_host} || "localhost";
 
             $dbh = DBI->connect_cached(
                     "dbi:$db:database=$db_database;host=$host;port=5432",

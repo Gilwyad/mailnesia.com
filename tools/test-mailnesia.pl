@@ -37,20 +37,16 @@ $lint -> load_plugin("HTML5");                 # loads HTML::Lint::Pluggable::HT
 $lint -> load_plugin("TinyEntitesEscapeRule"); # loads HTML::Lint::Pluggable::TinyEntitesEscapeRule
 
 my $mech = Test::WWW::Mechanize->new(
-                                     autolint => $lint,
+                                    #  autolint => $lint,
                                      cookie_jar => undef
                                     );
 
-my ($url,$category);
+my ($url,$category, $banned_mailbox);
 
 
 my $parser = XML::LibXML->new();
 
-my $redis = Redis->new(
-      encoding => undef,
-      sock     => '/var/run/redis/redis.sock'
-    );
-
+my $redis = $config->{redis};
 
 # tests:
 
@@ -78,9 +74,9 @@ sub check_config {
       ok( $config->{pidfile},
           "pidfile set:                     {$config->{pidfile}}");
 
-      my $banned_mailbox = $config->get_banned_mailbox();
-      ok( $banned_mailbox,
-          "Banned mailbox defined:          $banned_mailbox");
+      $banned_mailbox = $mailnesia->random_name_for_testing();
+      $config->ban_mailbox( $banned_mailbox );
+      ok( $config->is_mailbox_banned($banned_mailbox, "mailbox banned: $banned_mailbox"));
 
       ( my $piddir = $config->{pidfile} ) =~ s!/[^/]+$!!;
       ok( -d $piddir, "piddir exists: {$piddir}" );
@@ -423,7 +419,7 @@ sub rss_tests {
 
       ok (! $@, "RSS valid") ;
       my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox($mailbox);
-      $mech->content_contains ('</link><title>' . lc $mailbox, "RSS title contains " . lc $mailbox);
+      $mech->content_contains ('<title>' . lc $mailbox, "RSS title contains " . lc $mailbox);
       $mech->content_contains ("<link>$baseurl/mailbox/" . $url_encoded_mailbox, "RSS link contains " . $url_encoded_mailbox);
 
       $mech->back(); # going back to page so next test can operate on current page
@@ -688,7 +684,6 @@ sub banned_recipient_test {
   for (1..$iterations)
     {
       # send_mail to banned mailbox
-      my $banned_mailbox = $config->get_banned_mailbox();
       ok( send_mail ( $banned_mailbox, $mailnesia->random_name_for_testing() ."@". $sender_domain ) != 0, "sending email to banned mailbox $banned_mailbox fails" );
 
       $url = $baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $banned_mailbox );
@@ -1058,8 +1053,11 @@ sub restoration {
             $mech->content_unlike(qr{name="remove_alias" value="(.{1,30})"},"page contains no alias");
             $tests+=3;
 
-
         }
+
+        # unban mailbox
+        ok( $config->unban_mailbox($banned_mailbox), "unban mailbox $banned_mailbox" );
+        $tests++;
 
         return $tests;
 
@@ -1107,7 +1105,7 @@ sub test_empty_alias_list {
     my $mailbox = shift;
     my $url = $baseurl . "/api/alias/$mailbox";
     $mech->get_ok( $url, "GET $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( '[]' ) or warn $mech->content();
     return 3;
 }
@@ -1117,7 +1115,7 @@ sub add_alias_to_mailbox {
     my $alias = shift;
     my $url = $baseurl . "/api/alias/$mailbox/$alias";
     $mech->post_ok( $url, "POST $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc "\"$alias\"" ) or warn $mech->content();
     return 3;
 }
@@ -1127,7 +1125,7 @@ sub test_alias_list {
     my $alias_list = shift;
     my $url = $baseurl . "/api/alias/$mailbox";
     $mech->get_ok( $url, "GET $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc arrayref_to_json($alias_list) ) or warn $mech->content();
     return 3;
 }
@@ -1138,7 +1136,7 @@ sub modify_alias {
     my $new_alias = shift;
     my $url = $baseurl . "/api/alias/$mailbox/$alias/$new_alias";
     $mech->put_ok( $url, "PUT $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc "\"$new_alias\"" ) or warn $mech->content();
     return 3;
 }

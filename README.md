@@ -80,6 +80,7 @@ In /etc/redis/redis.conf:
 ## Setting up PostgreSQL
 
 ### Using password-less "trust" authentication for mailnesia PSQL user
+This applies only if clients connect locally on UNIX sockets.
 In pg_hba.conf, after "Put your actual configuration here" but before
 the local and host configurations:
 
@@ -97,14 +98,14 @@ the local and host configurations:
 #### emails
 
     CREATE TABLE emails (
-    id SERIAL       PRIMARY KEY,
-    arrival_date timestamp without time zone NOT NULL default CURRENT_TIMESTAMP,
-    email_date varchar(31) default NULL,
-    email_from varchar(100) default NULL,
-    email_to varchar(100) default NULL,
-    email_subject varchar(200)  default NULL,
-    mailbox varchar(30) NOT NULL,
-    email bytea
+        id SERIAL       PRIMARY KEY,
+        arrival_date timestamp without time zone NOT NULL default CURRENT_TIMESTAMP,
+        email_date varchar(31) default NULL,
+        email_from varchar(100) default NULL,
+        email_to varchar(100) default NULL,
+        email_subject varchar(200)  default NULL,
+        mailbox varchar(30) NOT NULL,
+        email bytea
     );
 
 Partitioning is used, the key being the id because that's the only
@@ -133,8 +134,8 @@ performance issues.
 This table holds the alias names for mailboxes.
 
     CREATE TABLE mailbox_alias (
-    mailbox varchar(30) NOT NULL,
-    alias varchar(30) NOT NULL UNIQUE
+        mailbox varchar(30) NOT NULL,
+        alias varchar(30) NOT NULL UNIQUE
     );
 
     ALTER TABLE mailbox_alias ADD CONSTRAINT lowercase_only CHECK (LOWER(alias) = alias);
@@ -145,9 +146,9 @@ This table is for statistics only, contains the number of emails
 received each day and the combined size of them.
 
     CREATE TABLE emailperday (
-    day date default current_date UNIQUE,
-    email integer DEFAULT 0,
-    bandwidth integer DEFAULT 0
+        day date default current_date UNIQUE,
+        email integer DEFAULT 0,
+        bandwidth integer DEFAULT 0
     );
 
 ## Translation
@@ -193,25 +194,73 @@ Execute function tests under t/ (these don't require the website to be up):
 
 Build the images
 
-    docker build --file mailnesia-common.Dockerfile --tag common.mailnesia.com:1.0.0 .
-    docker build --file smtp-server.Dockerfile --tag smtp-server.mailnesia.com:1.0.0 .
-    docker build --file clicker.Dockerfile --tag clicker.mailnesia.com:1.0.0 .
+    docker build --file common.Dockerfile --tag common.mailnesia.com:1.0.0 --tag denokera/common.mailnesia.com:1.0.0 .
+    docker build --file mail-server.Dockerfile --tag mail-server.mailnesia.com:1.0.0 --tag denokera/mail-server.mailnesia.com:1.0.0 .
+    docker build --file clicker.Dockerfile --tag clicker.mailnesia.com:1.0.0 --tag denokera/clicker.mailnesia.com:1.0.0 .
+    docker build --file website.Dockerfile --tag website.mailnesia.com:1.0.0 --tag denokera/website.mailnesia.com:1.0.0 .
+    docker build --file website-pages.Dockerfile --tag website-pages.mailnesia.com:1.0.0 --tag denokera/website-pages.mailnesia.com:1.0.0 .
+    docker build --file api.Dockerfile --tag api.mailnesia.com:1.0.0 --tag denokera/api.mailnesia.com:1.0.0 .
+    docker build --file rss.Dockerfile --tag rss.mailnesia.com:1.0.0 --tag denokera/rss.mailnesia.com:1.0.0 .
 
 To execute:
 
-    docker run --interactive --tty smtp-server.mailnesia.com:1.0.0
+    docker run --interactive --tty --env postgres_password="some-password" mail-server.mailnesia.com:1.0.0
     docker run --interactive --tty clicker.mailnesia.com:1.0.0
+    docker run --interactive --tty --env postgres_password="some-password" website.mailnesia.com:1.0.0
+    docker run --interactive --tty website-pages.mailnesia.com:1.0.0
+    docker run --interactive --tty --env postgres_password="some-password" api.mailnesia.com:1.0.0
+    docker run --interactive --tty --env postgres_password="some-password" rss.mailnesia.com:1.0.0
+
+To push the built image to the Docker hub registry:
+
+    docker login --username denokera
+
+    docker push denokera/common.mailnesia.com:1.0.0
+    docker push denokera/website-pages.mailnesia.com:1.0.0
 
 Note that the Dockerfiles contain additional information about the execution, for example environment variables.
 
 Command to stop the container:
 
-    docker stop smtp-server.mailnesia.com:1.0.0
+    docker stop mail-server.mailnesia.com:1.0.0
 
 Command to remove the stopped container:
 
-    docker rm smtp-server.mailnesia.com:1.0.0
+    docker rm mail-server.mailnesia.com:1.0.0
 
 Enter the container and start a shell:
 
-    docker exec --interactive --tty smtp-server.mailnesia.com:1.0.0 bash
+    docker exec --interactive --tty mail-server.mailnesia.com:1.0.0 bash
+
+## Executing for development
+    # PERL5LIB has to be set to the lib directory, example:
+    export PERL5LIB=/home/peter/projects/mailnesia.com/lib
+
+    # enable development mode:
+    export mailnesia_devel=true
+
+    # set the host where postgres is running
+    export postgres_host=localhost
+
+    # set the host where redis is running
+    export redis_host=localhost
+
+    # save postgres credentials in ~/.pgpass as hostname:port:database:username:password
+
+    # email link clicker
+    perl script/clicker.pl
+
+    # Email server
+    perl script/AnyEvent-SMTP-Server.pl
+
+    # website pages (TODO: js&css)
+    morbo --listen http://*:3000 ./script/website-pages.pl
+
+    # website (TODO: js&css)
+    morbo --listen http://*:3001 ./script/website.pl
+
+    # email api
+    morbo --listen http://*:3002 ./script/api.pl
+
+    # RSS
+    morbo --listen http://*:3003 ./script/rss.pl

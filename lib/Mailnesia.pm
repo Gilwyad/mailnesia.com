@@ -43,16 +43,7 @@ sub new {
 
         my $self = bless {
                 weighted => generate(),
-                devel    => sub {
-                        # if not running on "production" machine, use devel mode
-
-                        if ( ( my $hostname = hostname() ) ne 'azaleas' )
-                        {
-                            return $hostname;
-                        }
-
-                        #execute this anonymous sub:
-                    }->(),
+                devel    => $ENV{mailnesia_devel},
                 dbh => $postgres_host ? Mailnesia::SQL->connect() : undef
             },$package;
 

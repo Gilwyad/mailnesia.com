@@ -18,7 +18,6 @@ use utf8;                       # getting back data decoded, then concatenate wi
 
 
 # only root can write to /var/run, this is run as www-data so /tmp has to be used
-my $socket = '/tmp/mailnesia-rss.sock';
 my $pidfile = '/tmp/mailnesia-rss.pid';
 
 open FILE, ">", $pidfile or die "cannot open pidfile: $pidfile, $!\n";
@@ -94,7 +93,7 @@ my $sigkill = AnyEvent->signal (signal => "KILL", cb => sub {
 
 my $fcgi = new AnyEvent::FCGI
 (
-    socket => $socket,
+    port => 4000,
     on_request => sub {
             my $request = shift;
 

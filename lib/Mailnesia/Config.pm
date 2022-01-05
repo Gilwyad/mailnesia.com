@@ -45,44 +45,13 @@ my $config = Mailnesia::Config->new;
 sub new {
         my $package = shift;
 
-        # loading private configuration items
-        # ex: recaptcha private key - without the correct key every captcha solution will be invalid
-        my %mailnesia_private;
-
-        {
-            my $conf = Mailnesia->get_project_directory() . "/lib/Mailnesia/mailnesia-private.conf";
-            if ( open my $f, "<", $conf )
-            {
-                while (<$f>)
-                {
-                    chomp;
-                    next unless m/^([a-z_]+)\s*=\s*(.*)$/;
-                    $mailnesia_private{$1} = $2;
-                }
-                close $f;
-            }
-            else
-            {
-                if ( open my $f, ">", $conf )
-                {
-                    print $f "recaptcha_private_key = XXXXXXXXXXXXXXXXXXXXXXX\n";
-                    warn "The file lib/Mailnesia/mailnesia-private.conf has to be set up in the project directory containing the ReCaptcha private key!\n";
-                    close $f;
-                }
-                else
-                {
-                    warn "The file lib/Mailnesia/mailnesia-private.conf has to be set up in the project directory containing the ReCaptcha private key but creation of the file failed: $conf - $!\n"
-                }
-            }
-        }
-
         my $redis_host = $ENV{redis_host};
 
         my $self = bless {
 
                 sitename       => "MailNesia",
                 siteurl        => "mailnesia.com",   # URL in production
-                siteurl_devel  => "mailnesia.test", # URL in development
+                siteurl_devel  => "dev.mailnesia.test", # URL in development
 
                 # email date format on website, postgresql setting
                 date_format         => 'YYYY-MM-DD HH24:MI:SS+00:00',
@@ -106,7 +75,7 @@ sub new {
                 daily_mailbox_limit => 25, # per IP
 
                 # after this amount a captcha is displayed
-                recaptcha_private_key => $mailnesia_private{recaptcha_private_key},
+                recaptcha_private_key => $ENV{recaptcha_private_key},
                 recaptcha_public_key  => "6LcRvY0UAAAAAH5W4VrIOyWqk_yLoxW7ss22C2r5",
 
                 # download limit for the url clicker in bytes
@@ -127,7 +96,7 @@ sub new {
                     },
 
                 redis => $redis_host ? Redis->new(
-                    server => '$redis_host:6379'
+                    server => "$redis_host:6379"
                 ) : undef,
 
                 # name of used redis databases
@@ -167,7 +136,7 @@ sub is_mailbox_banned {
 
         $self->{redis}->sismember(
                 $self->{redis_databases}->{banned_mailboxes},
-                $mailbox
+                lc $mailbox
             );
     }
 
@@ -202,7 +171,7 @@ sub is_clicker_enabled {
         my ($self, $mailbox) = @_;
         ! $self->{redis}->sismember(
                 $self->{redis_databases}->{clicker_disabled},
-                $mailbox
+                lc $mailbox
             );
     }
 
@@ -216,7 +185,7 @@ sub enable_clicker {
         my ($self, $mailbox) = @_;
         $self->{redis}->srem(
                 $self->{redis_databases}->{clicker_disabled},
-                $mailbox
+                lc $mailbox
             );
     }
 
@@ -231,7 +200,7 @@ sub disable_clicker {
         my ($self, $mailbox) = @_;
         $self->{redis}->sadd(
                 $self->{redis_databases}->{clicker_disabled},
-                $mailbox
+                lc $mailbox
             );
     }
 
@@ -247,7 +216,7 @@ sub mailboxes_per_IP {
 
         my $self    = shift;
         my $addr    = shift;
-        my $mailbox = shift;
+        my $mailbox = lc shift;
         my $limit   = shift; #$Mailnesia::Config::daily_mailbox_limit;
 
         my $database = $self->{redis_databases}->{mbox_per_ip}->($addr);
@@ -351,7 +320,7 @@ ban the mailbox specified in parameter
 sub ban_mailbox
 {
     my $self = shift;
-    my $mailbox = shift;
+    my $mailbox = lc shift;
 
     return $self->{redis}->sadd(
             $self->{redis_databases}->{banned_mailboxes},
@@ -369,7 +338,7 @@ unban the mailbox specified in parameter
 sub unban_mailbox
 {
     my $self = shift;
-    my $mailbox = shift;
+    my $mailbox = lc shift;
 
     return $self->{redis}->srem(
             $self->{redis_databases}->{banned_mailboxes},
@@ -432,7 +401,7 @@ Then expire the sorted set after RETENTION_PERIOD:
 sub log_ip {
     my $self = shift;
     my $ip = shift;
-    my $mailbox = shift;
+    my $mailbox = lc shift;
     my $user_agent = shift;
 
     my $current_timestamp = time();
@@ -461,7 +430,7 @@ It is the list produced by:
 
 sub get_visitor_list {
     my $self = shift;
-    my $mailbox = shift;
+    my $mailbox = lc shift;
 
     my $key = $self->{redis_databases}->{mailbox_visitors}->($mailbox); # e.g. visitors:peter
 
@@ -491,7 +460,7 @@ It is the list produced by:
 
 sub get_formatted_visitor_list {
     my $self = shift;
-    my $mailbox = shift;
+    my $mailbox = lc shift;
 
     my @list = $self->get_visitor_list($mailbox);
     my @formatted_list = map { $self->transform_visitor($_) } reverse @list;

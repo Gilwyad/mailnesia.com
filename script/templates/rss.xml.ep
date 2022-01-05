@@ -1,0 +1,23 @@
+<rss version="2.0">
+  <channel>
+    <link>https://mailnesia.com</link>
+    <title><%== $mailbox %> @ Mailnesia</title>
+    <description>Anonymous Email in Seconds</description>
+
+% foreach my $row ( @ {$emaillist} )
+%{
+
+    <item>
+      <title><%== $row->{subject} %> – <%== $row->{from} %></title>
+      <link><%== $baseurl %>/mailbox/<%== $url_encoded_mailbox %>/<%== $row->{id} %></link>
+      <guid><%== $baseurl %>/mailbox/<%== $url_encoded_mailbox %>/<%== $row->{id} %></guid>
+      <description><![CDATA[ <%== $description %> ]]></description>
+      <pubDate><%== $row->{date} %></pubDate>
+    </item>
+
+%}
+
+
+
+  </channel>
+</rss>

@@ -111,6 +111,7 @@ unlike ( $random_url_encoded_name, qr/\+/, "random_url_encoded_name does not con
 ok ( $config->ban_mailbox($random_name_for_testing), "ban mailbox $random_name_for_testing");
 ok ( $config->get_banned_mailbox(), "get_banned_mailbox" );
 ok ( $config->is_mailbox_banned($random_name_for_testing), "$random_name_for_testing is banned");
+ok ( $config->is_mailbox_banned(lc $random_name_for_testing), lc "$random_name_for_testing is banned");
 ok ( $config->unban_mailbox($random_name_for_testing), "unban mailbox $random_name_for_testing");
 ok ( ! $config->is_mailbox_banned($random_name_for_testing), "$random_name_for_testing is not banned");
 
@@ -139,10 +140,10 @@ is ( scalar(@visitor_list), 2, "visitor list has two items" );
 ok ( $visitor_list[0] =~ m/$regex2/, "visitor list[0] matches");
 ok ( $visitor_list[1] =~ m/$regex/, "visitor list[1] matches");
 
-ok ( my $transformed = $config->transform_visitor("qwe\0asd\0zxc"));
+ok ( my $transformed = $config->transform_visitor("1641166690\0asd\0zxc"));
 is_deeply(
     $transformed, {
-        timeStamp => "qwe",
+        timeStamp => "2022-01-02 23:38:10+00:00",
         ip => "asd",
         userAgent => "zxc"
     }
