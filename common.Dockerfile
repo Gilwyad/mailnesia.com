@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y libzmq5 openssl libssl-dev zlib1g-dev a
 #libstdc++-8-dev ?
 
 # Install some Perl package requirements
-RUN apt-get install -y libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl libwww-mechanize-perl libtest-www-mechanize-perl
+RUN apt-get install -y libcommon-sense-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl libwww-mechanize-perl libtest-www-mechanize-perl
 
 WORKDIR /usr/src/mailnesia.com
 

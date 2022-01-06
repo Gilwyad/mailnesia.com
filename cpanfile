@@ -1,12 +1,9 @@
 # this file contains the module dependencies
 
 requires 'AnyEvent'                 , '>= 7.01, < 8.0';
-requires 'AnyEvent::DNS';
-requires 'AnyEvent::FCGI'           , '>= 0.04, < 1.0';
 requires 'AnyEvent::HTTP'           , '>= 2.15, < 3.0';
 requires 'AnyEvent::SMTP::Client'   , '>= 0.08, < 1.0';
 requires 'AnyEvent::SMTP::Server'   , '>= 0.08, < 1.0';
-requires 'CGI::RSS'                 , '>= 0.9655, < 1.0';
 requires 'Captcha::reCAPTCHA'       , '>= 0.93, < 1.0';
 requires 'Carp'                     , '>= 1.20, < 2.0';
 requires 'Compress::Snappy'         , '>= 0.22, < 1.0';
@@ -25,7 +22,6 @@ requires 'Encode::TW'               , '>= 2.03, < 3.0';
 requires 'FindBin'                  , '>= 1.50, < 2.0';
 requires 'HTML::Entities'           , '>= 3.69, < 4.0';
 requires 'HTML::Scrubber'           , '>= 0.09, < 1.0';
-requires 'HTML::Template'           , '>= 2.91, < 3.0';
 requires 'MIME::Base64'             , '>= 3.14, < 4.0';
 requires 'Mojolicious'              , '>= 4.63, < 5.0';
 requires 'Privileges::Drop'         , '>= 1.03, < 2.0';

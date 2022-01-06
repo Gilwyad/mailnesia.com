@@ -36,7 +36,7 @@ email addresses and IP's and other settings.
 
  - Custom SMTP server implemented in perl using AnyEvent::SMTP.  Event
    based, using only one thread.
- - Website implemented using AnyEvent::FCGI and Mojolicious, powered
+ - Website implemented using Mojolicious, powered
    by Nginx web server.
  - Emails are stored in a PostgreSQL database
  - Hosted on a virtual private server with SSD storage
@@ -45,37 +45,13 @@ The email server sends all received emails to several URL clicker
 processes using ZeroMQ to offload the email body processing which is
 somewhat CPU intensive.
 
-## Requirements
+## Requirements and installation
 
-Required Perl modules with versions are listed in the file 'cpanfile'.
-
-## Installation
-
-The required Perl modules can be installed with the `cpan` script:
-
-    cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious ZMQ::FFI
-
-Or using the Debian package management for those that are available:
-
-    apt-get install libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl
-
-Or using cpanm:
-
-    cpanm --installdeps /directory/where/you/cloned/mailnesia.com/
-
-Some modules might require compilation of C source code; these
-packages will take care of that:
-
-    apt-get install autotools-dev g++ gcc dpkg-dev cpp fakeroot gdbserver libalgorithm-merge-perl libalgorithm-diff-xs-perl libalgorithm-diff-perl libdpkg-perl libltdl-dev libltdl7 libpython2.6 python2.6 libreadline6 libsqlite3-0 m4 make manpages-dev patch python2.6-minimal g++-4.4 libstdc++6-4.4-dev gcc-4.4 binutils cpp-4.4 libc6-dev libc-dev-bin libmpfr4 libgmp3c2 libgomp1 linux-libc-dev
+See the common Docker file.
 
 ## Setting up Redis
 
-In /etc/redis/redis.conf:
-
-    Port 0
-    unixsocket /var/run/redis/redis.sock
-    unixsocketperm 777
-
+Nothing to configure, by default TCP connections are accepted on the Redis default port.
 
 ## Setting up PostgreSQL
 
