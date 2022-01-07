@@ -25,10 +25,21 @@ function verify_version() {
   [[ $VERSION =~ $semver_regex ]]
 }
 
+# return the highest version git tag that matches app_name,
+# example: 1.0.0-website.mailnesia.com
 function get_latest_tag() {
   git tag -l \*-${APP_NAME}.mailnesia.com --sort=-version:refname | head -1
 }
 
+# return the highest version from the git tag that matches app_name,
+# example: 1.0.0
+function get_latest_version() {
+  local LATEST_TAG=$(get_latest_tag)
+  [[ $LATEST_TAG =~ $semver_regex || true ]]
+  echo ${BASH_REMATCH[1]:-0}.${BASH_REMATCH[2]:-0}.${BASH_REMATCH[3]:-0}
+}
+
+# return the incremented version, example: 1.2.3
 function increment() {
   local LATEST_TAG=$(get_latest_tag)
   [[ $LATEST_TAG =~ $semver_regex || true ]]
@@ -54,6 +65,8 @@ function increment() {
   echo ${IMAGE_VERSION}
 }
 
+# set & return the git tag as: image_version-app_name.mailnesia.com,
+# example: 1.2.3-common.mailnesia.com
 function tag_new_version() {
   local VERSION="${1}"
   local IMAGE_VERSION="${IMAGE_VERSION}-${APP_NAME}.mailnesia.com"
@@ -81,8 +94,8 @@ function main() {
     RELEASE_TAG=$(tag_new_version $IMAGE_VERSION)
     echo "Release tag ${RELEASE_TAG} added to HEAD."
   else
-    local IMAGE_VERSION=$(get_latest_tag)
-    echo "Latest release tag: $IMAGE_VERSION"
+    local IMAGE_VERSION=$(get_latest_version)
+    echo "Latest version of $APP_NAME: $IMAGE_VERSION"
   fi
 
   if [[ $BUILD ]]
