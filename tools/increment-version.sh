@@ -117,7 +117,6 @@ function build_image() {
 
 function push_image() {
   IMAGE_VERSION="${1}"
-  docker login --username $dockerhub_username
   docker push ${dockerhub_username}/${APP_NAME}.mailnesia.com:${IMAGE_VERSION}
 }
 
