@@ -9,6 +9,7 @@ use lib "$FindBin::Bin/../lib/";
 use Mailnesia;
 use Mailnesia::Email;
 use Mailnesia::Config;
+use Compress::Snappy;
 
 =head1 rss.pl
 
@@ -116,21 +117,29 @@ group {
         my $email = Mailnesia::Email->new({dbh => $mailnesia->{dbh}});
         my $emaillist;
 
-        $emaillist = $email->get_emaillist(
-            $config->{date_format},
+        $emaillist = $email->get_full_emaillist(
             $mailbox,
             $config->{mail_per_page},
-            $mailcount,
-            1
         );
 
         if (ref $emaillist) {
-            my @result = sort { $b->{id} <=> $a->{id} } values %$emaillist;
+            my @result = map {
+                $_->{email} = substr(
+                    Mailnesia::Email->new(
+                        {
+                            raw_email => decompress $_->{email}
+                        }
+                    )->body_rss($format),
+                    0,
+                    $config->{max_rss_size}
+                );
+                $_;
+            } values %$emaillist;
+
             $self->stash(
                 mailbox             => $mailbox,
                 url_encoded_mailbox => $url_encoded_mailbox,
                 emaillist           => \@result,
-                description         => "TODO",
                 baseurl             => $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "https://" . $config->{siteurl},
             );
             return $self->render(

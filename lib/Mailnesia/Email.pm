@@ -339,6 +339,34 @@ LIMIT ? OFFSET ?")
 
 }
 
+=head2 get_full_emaillist
+
+Fetch emails (all fields, including the body) for a given mailbox from SQL:
+execute SELECT query and return the results using $query->fetchall_hashref('id'). Parameters:
+
+mailbox
+limit: number of items to fetch
+
+=cut
+
+sub get_full_emaillist
+{
+    my $self             = shift;
+    my $mailbox          = shift;
+    my $limit            = shift;
+
+    my $query = $self->{dbh}->prepare ("SELECT * from emails WHERE mailbox=? ORDER BY arrival_date DESC LIMIT ?")
+        or return $self->{dbh}->errstr;
+
+    $query->execute(
+        $mailbox,
+        $limit,
+    )
+        or return $query->errstr;
+
+    return $query->fetchall_hashref('id');
+
+}
 
 =head2 get_emaillist_newerthan
 

@@ -8,11 +8,11 @@
 %{
 
     <item>
-      <title><%== $row->{subject} %> – <%== $row->{from} %></title>
+      <title><%== $row->{email_subject} %> – <%== $row->{email_from} %></title>
       <link><%== $baseurl %>/mailbox/<%== $url_encoded_mailbox %>/<%== $row->{id} %></link>
       <guid><%== $baseurl %>/mailbox/<%== $url_encoded_mailbox %>/<%== $row->{id} %></guid>
-      <description><![CDATA[ <%== $description %> ]]></description>
-      <pubDate><%== $row->{date} %></pubDate>
+      <description><![CDATA[ <%== $row->{email} %> ]]></description>
+      <pubDate><%== $row->{email_date} || $row->{arrival_date} %></pubDate>
     </item>
 
 %}
