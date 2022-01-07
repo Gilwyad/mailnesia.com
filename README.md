@@ -64,11 +64,15 @@ the local and host configurations:
     local   mailnesia   mailnesia                         trust
 
 ### Create mailnesia user / database
-  1. as root: su postgres
-     cd
-     createuser --superuser mailnesia
+  1. as root:
+
+    su postgres
+    cd
+    createuser --superuser mailnesia
   2. createdb mailnesia
-  3. as any user: psql -U mailnesia
+  3. as any user:
+
+    psql -U mailnesia
 
 ### Create tables
 #### emails
@@ -161,24 +165,43 @@ upon save in Emacs.
 ## Testing
 
 Test running website and mail server by sending test emails:
+
     tools/test-mailnesia.pl
 
 Execute function tests under t/ (these don't require the website to be up):
+
     prove
 
 ## Executing using Docker
 
-Build the images
+Use `tools/increment-version.sh` to
+ - increment and set the version (tag) on the HEAD in the git repo,
+ - build the Docker images of the apps,
+ - push the Docker images to the Dockerhub registry.
 
-    docker build --file common.Dockerfile --tag common.mailnesia.com:1.0.0 --tag denokera/common.mailnesia.com:1.0.0 .
-    docker build --file mail-server.Dockerfile --tag mail-server.mailnesia.com:1.0.0 --tag denokera/mail-server.mailnesia.com:1.0.0 .
-    docker build --file clicker.Dockerfile --tag clicker.mailnesia.com:1.0.0 --tag denokera/clicker.mailnesia.com:1.0.0 .
-    docker build --file website.Dockerfile --tag website.mailnesia.com:1.0.0 --tag denokera/website.mailnesia.com:1.0.0 .
-    docker build --file website-pages.Dockerfile --tag website-pages.mailnesia.com:1.0.0 --tag denokera/website-pages.mailnesia.com:1.0.0 .
-    docker build --file api.Dockerfile --tag api.mailnesia.com:1.0.0 --tag denokera/api.mailnesia.com:1.0.0 .
-    docker build --file rss.Dockerfile --tag rss.mailnesia.com:1.0.0 --tag denokera/rss.mailnesia.com:1.0.0 .
+The app can be specified with option -a with the following values:
+ - common: the base image all apps depend on
+ - mail-server
+ - website (contains all website pages where database access is required, like /mailbox/, /settings/)
+ - website-pages (contains all website pages where database access is not required)
+ - rss
+ - clicker (script to "click" links in emails)
+ - api (HTTP API used by the Angular website)
+ - angular-website (modern mobile friendly alternative website)
 
-To execute:
+To increment and set new version based on autotag, which can be major|minor|patch:
+
+    tools/increment-version.sh -a api -i major
+
+To build the a Docker image:
+
+    tools/increment-version.sh -a common -b
+
+To push the latest version of an image to the registry:
+
+    tools/increment-version.sh -a rss -p
+
+Options can be combined.  To execute:
 
     docker run --interactive --tty --env postgres_password="some-password" mail-server.mailnesia.com:1.0.0
     docker run --interactive --tty clicker.mailnesia.com:1.0.0
@@ -186,13 +209,6 @@ To execute:
     docker run --interactive --tty website-pages.mailnesia.com:1.0.0
     docker run --interactive --tty --env postgres_password="some-password" api.mailnesia.com:1.0.0
     docker run --interactive --tty --env postgres_password="some-password" rss.mailnesia.com:1.0.0
-
-To push the built image to the Docker hub registry:
-
-    docker login --username denokera
-
-    docker push denokera/common.mailnesia.com:1.0.0
-    docker push denokera/website-pages.mailnesia.com:1.0.0
 
 Note that the Dockerfiles contain additional information about the execution, for example environment variables.
 
