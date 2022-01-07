@@ -41,5 +41,3 @@ ENV PERL5LIB=/usr/src/mailnesia.com/lib
 
 # install dependencies, which were not satisfied by apt-get install:
 RUN [ "cpanm", "--skip-satisfied", "--installdeps", "." ]
-
-COPY . .

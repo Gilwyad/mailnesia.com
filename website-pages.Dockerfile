@@ -1,6 +1,8 @@
-FROM common.mailnesia.com:1.0.0
+FROM common.mailnesia.com:1.0.2
 
 EXPOSE 3000
 
-CMD [ "morbo", "./script/website-pages.pl" ]
+COPY . .
+
+CMD [ "hypnotoad", "--foreground", "./script/website-pages.pl" ]
 # TODO: js & css, include nginx?

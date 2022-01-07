@@ -28,7 +28,7 @@ my $siteurl   = $config->{siteurl};
 
 app->mode  ( $mailnesia->{devel} ? "development" : "production");
 app->config(hypnotoad => {
-    listen    => ['http://127.0.0.1:8082'],
+    listen    => ['http://*:4000'],
     pid_file  => '/tmp/mailnesia-api.pid',
     workers   => 2,
     accepts   => 0

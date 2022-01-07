@@ -8,10 +8,13 @@ Function to increment the semantic version number based on the provided argument
   – -a app name: see README.md - example: common
 Optional flags:
   – -i autotag : increment version based on autotag, which can be major|minor|patch.
-  – -b         : build docker image of the app. If -i is used, build the incremented version,
-                 otherwise the latest one.
-  – -p         : push docker image to registry. If -i is used, push the incremented version,
-                 otherwise the latest one.
+  – -b         : build docker image of the app.
+  – -p         : push docker image to registry.
+  The version to be used is:
+   - if -i is used, the incremented version
+   - otherwise if the working directory is clean (no modified files):
+     the latest version
+   - otherwise: 'devel'
 
 Example ./increment-version.sh -a mail-server -bpi minor
 EOF
@@ -94,8 +97,13 @@ function main() {
     RELEASE_TAG=$(tag_new_version $IMAGE_VERSION)
     echo "Release tag ${RELEASE_TAG} added to HEAD."
   else
-    local IMAGE_VERSION=$(get_latest_version)
-    echo "Latest version of $APP_NAME: $IMAGE_VERSION"
+    if git diff --quiet
+      then
+      local IMAGE_VERSION=$(get_latest_version)
+      echo "Latest version of $APP_NAME: $IMAGE_VERSION"
+    else
+      local IMAGE_VERSION=devel
+    fi
   fi
 
   if [[ $BUILD ]]

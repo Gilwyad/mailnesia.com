@@ -1,5 +1,7 @@
-FROM common.mailnesia.com:1.0.0
+FROM common.mailnesia.com:1.0.2
 
-EXPOSE 3000
+EXPOSE 4000
 
-CMD [ "morbo", "./script/api.pl" ]
+COPY . .
+
+CMD [ "hypnotoad", "--foreground", "./script/api.pl" ]
