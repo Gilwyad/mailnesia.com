@@ -31,7 +31,7 @@ my $cookie_expiration = \$config->{cookie_expiration};
 
 app->mode  ( $mailnesia->{devel} ? "development" : "production");
 app->config(hypnotoad => {
-        listen    => ['http://127.0.0.1:8081'],
+        listen    => ['http://*:3000'],
         pid_file  => '/tmp/mailnesia-website-pages.pid',
         workers   => 2,
         accepts   => 0

@@ -13,10 +13,10 @@
 new_partition_rows=300000;
 
 #arguments to psql
-psqlArgs="--tuples-only --no-psqlrc --username=mailnesia --quiet";
+psqlArgs="--host postgres --user mailnesia-user --tuples-only --no-psqlrc --quiet mailnesia";
 
 #number of partitions to keep
-partition_count=30
+partition_count=60
 
 # function to create current partition
 createCurrent()
