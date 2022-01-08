@@ -111,7 +111,6 @@ else
 }
 
 my $server_port = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_port_devel} : $config->{smtp_port};
-my $server_ip   = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_host_devel} : $config->{smtp_host};
 my $dbh = Mailnesia::SQL->connect();
 #my $spf_server = Mail::SPF::Server->new();
 
@@ -207,7 +206,6 @@ sub display_time {
 
 my $server = AnyEvent::SMTP::Server->new(
         hostname => $config->{siteurl},
-        host => $server_ip,
         port => $server_port,
         mail_validate => sub {
                 my ($m,$addr) = @_;

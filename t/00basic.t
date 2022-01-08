@@ -36,10 +36,6 @@ ok( $config->{smtp_port},
     "smtp_port set:                   {$config->{smtp_port}}");
 ok( $config->{smtp_port_devel},
     "smtp_port_devel set:             {$config->{smtp_port_devel}}");
-ok( $config->{smtp_host},
-    "smtp_host set:                   {$config->{smtp_host}}");
-ok( $config->{smtp_host_devel},
-    "smtp_host_devel set:             {$config->{smtp_host_devel}}");
 
 ( my $piddir = $config->{pidfile} ) =~ s!/[^/]+$!!;
 ok( -d $piddir, "piddir exists: {$piddir}" );
