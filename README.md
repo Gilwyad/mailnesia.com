@@ -193,7 +193,7 @@ To increment and set new version based on autotag, which can be major|minor|patc
 
     tools/increment-version.sh -a api -i major
 
-To build the a Docker image:
+To build a Docker image:
 
     tools/increment-version.sh -a common -b
 

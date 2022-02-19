@@ -44,7 +44,7 @@ sub new {
         my $self = bless {
                 weighted => generate(),
                 devel    => $ENV{mailnesia_devel},
-                dbh => $postgres_host ? Mailnesia::SQL->connect() : undef
+                dbh => $postgres_host ? connect_or_die() : undef
             },$package;
 
         $self->{text} = $self->initialize_text($options->{decode_on_open});
@@ -62,6 +62,17 @@ sub connect_sql
 {
     my $self = shift;
     $self->{dbh} = Mailnesia::SQL->connect( $self->{dbh} );
+}
+
+=head2 connect_or_die
+
+Connect to SQL or die trying. Parameter: any earlier connection reference. Should be called as function, not method.
+
+=cut
+
+sub connect_or_die {
+    my $dbh = shift;
+    return Mailnesia::SQL->connect($dbh) or die $DBI::errstr;
 }
 
 =head1 check_mailbox_characters
