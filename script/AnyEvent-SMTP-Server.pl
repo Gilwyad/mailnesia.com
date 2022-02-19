@@ -123,7 +123,7 @@ else
 
 my $server_port = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_port_devel} : $config->{smtp_port};
 my $server_ip   = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_host_devel} : $config->{smtp_host};
-my $dbh = Mailnesia::SQL->connect();
+my $dbh = $mailnesia->{dbh};
 #my $spf_server = Mail::SPF::Server->new();
 
 my $daily_mailcount_saver = AnyEvent->timer
