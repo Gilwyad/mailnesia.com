@@ -208,6 +208,8 @@ Number of mailboxes opened by an IP.  Returns the number if it's
 higher than the limit ($Mailnesia::Config::daily_mailbox_limit), 0 if
 lower.
 
+Adds the mailbox to the IP's list, but only if it's not localhost.
+
 =cut
 
 sub mailboxes_per_IP {
@@ -219,7 +221,7 @@ sub mailboxes_per_IP {
 
         my $database = $self->{redis_databases}->{mbox_per_ip}->($addr);
 
-        return 0 if ! $addr || $addr eq '127.0.0.1' || ! $mailbox;
+        return 0 if ! $addr || $addr eq '127.0.0.1' || $addr eq '::1' || ! $mailbox;
 
         # add the mailbox to the list of the IP
         $self->{redis}->sadd($database, $mailbox);
@@ -449,10 +451,15 @@ sub transform_visitor {
 
 =head1 get_formatted_visitor_list
 
-Return the unixtime, the ip & user agent logged for the specified mailbox.
-It is the list produced by:
-
-    zrange visitors:${mailbox} 0 -1
+Return the unixtime, the ip & user agent logged for the specified mailbox,
+as a list reference produced by get_visitor_list, in the following format:
+[
+    {
+        timeStamp => "2022-01-02 23:38:10+00:00",
+        ip => "asd",
+        userAgent => "zxc"
+    }
+]
 
 =cut
 

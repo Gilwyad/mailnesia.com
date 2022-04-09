@@ -18,6 +18,25 @@ use Mailnesia::SQL;
 use Mailnesia::Config;
 use utf8;
 
+=head1 Mailnesia end to end tests
+
+Can be executed against a running local or remote Mailnesia site, whose domain name can be given as command line argument.
+The test script must connect to Redis so that has to be given as well. Remote execution example:
+
+redis_host=10.244.0.70 tools/test-mailnesia.pl k.mailnesia.test
+
+Do not specify a scheme, like http://, that will be added automatically.
+
+In absense of the parameter, the tests are run against the locally running site. The mail server is started during test and
+is assumed to save to the database associated with the site. The test must be started on the development machine or on the
+production server.
+
+If the remote URL is given as parameter, the mail server is not started but test emails are sent directly to the same address.
+
+Local execution example: `tools/test-mailnesia.pl`
+
+=cut
+
 my $number_of_aliases = 10;      # test this number of aliases
 my @aliases;
 my @alias_restoration;
@@ -28,7 +47,22 @@ my $mailbox_for_api_test = $mailnesia->random_name_for_testing();
 my $email_id;
 my $sender_domain = q{gmail.com};
 my $project_directory = $mailnesia->get_project_directory();
+
+# the URL of the locally running site to test
 my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http://" . $config->{siteurl};
+
+# Test a remotely deployed system. Does not start mail server but sends mail directly to the same address.
+my $remote_baseurl = $ARGV[0];
+
+print("\nStarting end to end tests against ");
+if ($remote_baseurl) {
+    $baseurl = "http://" . $remote_baseurl;
+    print("REMOTE");
+} else {
+    print("LOCAL");
+}
+print(" system $baseurl\n");
+
 
 # language pages to test:
 my @languages = qw!/ /hu /it /lv /fi /pt /de /ru /pl /zh /fr /es /cs /es-ar /ms /id /pt-br!;
@@ -57,31 +91,24 @@ my $redis = $config->{redis};
 sub check_config {
       print_test_category_header( );
 
-      ok( $config->{date_format},
-          "date_format set:                 {$config->{date_format}}" );
-      ok( $config->{mail_per_page},
-          "mail_per_page set:               {$config->{mail_per_page}}" );
-      ok( $config->{max_rss_size},
-          "max_rss_size set:                {$config->{max_rss_size}}" );
-      ok( $config->{max_email_size},
-          "max_email_size set:              {$config->{max_email_size}}" );
-      ok( $config->{daily_mailbox_limit},
-          "daily_mailbox_limit set:         {$config->{daily_mailbox_limit}}" );
-      ok( $config->{url_clicker_page_size_limit},
-          "url_clicker_page_size_limit set: {$config->{url_clicker_page_size_limit}}" );
-      ok( $config->{banned_sender_domain},
-          "banned_sender_domain set:        {$config->{banned_sender_domain}}" );
-      ok( $config->{pidfile},
-          "pidfile set:                     {$config->{pidfile}}");
+      ok( $config->{date_format},                   "date_format set:                 {$config->{date_format}}" );
+      ok( $config->{mail_per_page},                 "mail_per_page set:               {$config->{mail_per_page}}" );
+      ok( $config->{max_rss_size},                  "max_rss_size set:                {$config->{max_rss_size}}" );
+      ok( $config->{max_email_size},                "max_email_size set:              {$config->{max_email_size}}" );
+      ok( $config->{daily_mailbox_limit},           "daily_mailbox_limit set:         {$config->{daily_mailbox_limit}}" );
+      ok( $config->{url_clicker_page_size_limit},   "url_clicker_page_size_limit set: {$config->{url_clicker_page_size_limit}}" );
+      ok( $config->{banned_sender_domain},          "banned_sender_domain set:        {$config->{banned_sender_domain}}" );
+      ok( $config->{pidfile},                       "pidfile set:                     {$config->{pidfile}}");
+      ok( $config->{redis},                         "redis connected");
 
       $banned_mailbox = $mailnesia->random_name_for_testing();
       $config->ban_mailbox( $banned_mailbox );
-      ok( $config->is_mailbox_banned($banned_mailbox, "mailbox banned: $banned_mailbox"));
+      ok( $config->is_mailbox_banned($banned_mailbox), "mailbox banned: $banned_mailbox");
 
       ( my $piddir = $config->{pidfile} ) =~ s!/[^/]+$!!;
       ok( -d $piddir, "piddir exists: {$piddir}" );
 
-      return 10;
+      return 11;
 }
 
 sub webpage_tests {
@@ -620,56 +647,61 @@ sub visitor_test {
 }
 
 sub email_sending_and_deleting {
-  print_test_category_header( );
+    print_test_category_header( );
 
-  #starting smtp server
-  if (my $pid = fork())
+    if ($remote_baseurl) {
+        return test_email_sending_and_deleting();
+    } else {
+        #starting smtp server
+        if (my $pid = fork()) {
+            #parent, sending email
+            print "waiting for SMTP server to start...\n";
+            sleep 2;
+
+            my $tests = test_email_sending_and_deleting();
+
+            kill 15, $pid ;
+            waitpid ( $pid, 0 );
+
+            return $tests;
+        } elsif ($pid == 0) {
+            #child, start smtp server
+            my $server = "$project_directory/script/AnyEvent-SMTP-Server.pl";
+
+            exec ('/usr/bin/perl', $server, '-d');
+        } else {
+            die "error forking\n";
+        }
+    }
+}
+
+sub test_email_sending_and_deleting {
+    my $tests;
+    my $wipeTest = scalar @aliases;
+
+    while (my $alias = shift @aliases)
     {
-      #parent, sending email
-      print "waiting for SMTP server to start...\n";
-      sleep 2;
-      my $tests;
-      my $wipeTest = scalar @aliases;
+        $tests += send_mail_test($alias,$global_mailbox,$mailnesia->random_name_for_testing())
+    };
 
-      while (my $alias = shift @aliases)
-      {
-          $tests += send_mail_test($alias,$global_mailbox,$mailnesia->random_name_for_testing())
-      };
+    $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
+    $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
 
-      $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
-      $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
+    # test disabled, feature not enabled
+    #      invalid_sender_test() +
 
-      # test disabled, feature not enabled
-      #      invalid_sender_test() +
+    $tests += invalid_recipient_test() +
+    banned_sender_test() +
+    banned_recipient_test() +
+    send_complete_email_test() ;
 
-      $tests += invalid_recipient_test() +
-      banned_sender_test() +
-      banned_recipient_test() +
-      send_complete_email_test() ;
-
-      # wipe $global_mailbox if there were alias tests
-      if ($wipeTest) {
+    # wipe $global_mailbox if there were alias tests
+    if ($wipeTest) {
         $tests += wipe_mailbox_test($global_mailbox) ;
-      }
-
-      $tests += check_empty_mailbox("$baseurl/mailbox/$global_mailbox");
-
-      kill 15, $pid ;
-      waitpid ( $pid, 0 );
-
-      return $tests;
     }
-  elsif ($pid == 0)
-    {
-      #child, start smtp szerver
-      my $server = "$project_directory/script/AnyEvent-SMTP-Server.pl";
 
-      exec ('/usr/bin/perl', $server, '-d');
-    }
-  else
-    {
-      die "error forking\n";
-    }
+    $tests += check_empty_mailbox("$baseurl/mailbox/$global_mailbox");
+    return $tests;
 }
 
 =head1 banned recipient tests
@@ -960,8 +992,9 @@ sub send_mail {
       my ($send_to, $from, $data) = @_;
       my @from = ( "--from", $from ) if $from;
       my @data = ( "--data", $data ) if $data;
-
-      system ('swaks', '--suppress-data', '--server', 'localhost:2525', '--to', qq{$send_to} . '@a', @from, @data );
+      my $server = $remote_baseurl || '127.0.0.1';
+      my $port = $remote_baseurl ? 25 : 2525;
+      system ('swaks', '-4', '--suppress-data', '--server', $server, '--port', $port, '--to', qq{$send_to} . '@a', @from, @data );
 }
 
 sub delete_mail_test {
@@ -1280,15 +1313,15 @@ execute tests
 done_testing(
         check_config() +
         visitor_test() +
-        mailbox_tests() +
-        alias_positive_tests() +
-        alias_negative_tests() +
-        email_sending_and_deleting() +
-        random_mailbox() +
-        webpage_tests() +
-        negative_delete_test() +
-        api_alias_tests() +
-        mailbox_delete_tests_via_api() +
-        mailbox_settings_page_tests() +
+        # mailbox_tests() +
+        # alias_positive_tests() +
+        # alias_negative_tests() +
+        # email_sending_and_deleting() +
+        # random_mailbox() +
+        # webpage_tests() +
+        # negative_delete_test() +
+        # api_alias_tests() +
+        # mailbox_delete_tests_via_api() +
+        # mailbox_settings_page_tests() +
         restoration()
     );

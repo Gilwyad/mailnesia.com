@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+use POSIX qw(strftime);
+
 use Test::More;
 use Test::Mojo;
 use Mailnesia;
@@ -131,6 +133,15 @@ my $regex = join("\0", "[0-9]+", $ip, $user_agent);
 is ( scalar(@visitor_list), 1, "visitor list has one item" );
 ok ( $visitor_list[0] =~ m/$regex/, "visitor list matches");
 
+ok ( @visitor_list = $config->get_formatted_visitor_list($lc_random_name_for_testing));
+is ( scalar(@visitor_list), 1, "visitor list has one item" );
+is_deeply(@visitor_list, [{
+        timeStamp => strftime("%Y-%m-%d %H:%M:%S+00:00", gmtime()),
+        ip => $ip,
+        userAgent => $user_agent
+    }]);
+
+
 my $ip2 = "1.2.3.4";
 my $user_agent2 = "Another Cool Browser 2.1";
 ok ( $config->log_ip($ip2, $lc_random_name_for_testing, $user_agent2));
@@ -139,6 +150,22 @@ my $regex2 = join("\0", "[0-9]+", $ip2, $user_agent2);
 is ( scalar(@visitor_list), 2, "visitor list has two items" );
 ok ( $visitor_list[0] =~ m/$regex2/, "visitor list[0] matches");
 ok ( $visitor_list[1] =~ m/$regex/, "visitor list[1] matches");
+
+ok ( my $visitor_list = $config->get_formatted_visitor_list($lc_random_name_for_testing));
+is ( scalar(@$visitor_list), 2, "visitor list has two items" );
+
+is_deeply($visitor_list, [{
+            timeStamp => strftime("%Y-%m-%d %H:%M:%S+00:00", gmtime()),
+            ip => $ip,
+            userAgent => $user_agent
+        },
+        {
+            timeStamp => strftime("%Y-%m-%d %H:%M:%S+00:00", gmtime()),
+            ip => $ip2,
+            userAgent => $user_agent2
+        }
+    ]);
+
 
 ok ( my $transformed = $config->transform_visitor("1641166690\0asd\0zxc"));
 is_deeply(
