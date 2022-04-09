@@ -205,7 +205,6 @@ sub display_time {
 
 
 my $server = AnyEvent::SMTP::Server->new(
-        hostname => $config->{siteurl},
         port => $server_port,
         mail_validate => sub {
                 my ($m,$addr) = @_;

@@ -15,7 +15,7 @@ my $ctx  = ZMQ::FFI->new();
 my $pull = $ctx->socket(ZMQ_PULL);
 my $success;
 
-my $endpoint = "tcp://127.0.0.1:5000";
+my $endpoint = "tcp://0.0.0.0:5000";
 $pull->bind($endpoint);
 
 my $fd = $pull->get_fd();
