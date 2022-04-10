@@ -1313,15 +1313,15 @@ execute tests
 done_testing(
         check_config() +
         visitor_test() +
-        # mailbox_tests() +
-        # alias_positive_tests() +
-        # alias_negative_tests() +
-        # email_sending_and_deleting() +
-        # random_mailbox() +
-        # webpage_tests() +
-        # negative_delete_test() +
-        # api_alias_tests() +
-        # mailbox_delete_tests_via_api() +
-        # mailbox_settings_page_tests() +
+        mailbox_tests() +
+        alias_positive_tests() +
+        alias_negative_tests() +
+        email_sending_and_deleting() +
+        random_mailbox() +
+        webpage_tests() +
+        negative_delete_test() +
+        api_alias_tests() +
+        mailbox_delete_tests_via_api() +
+        mailbox_settings_page_tests() +
         restoration()
     );

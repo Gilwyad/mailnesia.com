@@ -10,6 +10,9 @@ ENV redis_host="127.0.0.1"
 # do not connect to it.
 ENV zeromq_host=""
 
+# Enable logging into files under /var/log. If disabled (the default), all logs are printed to standard output.
+ENV logging_enabled=""
+
 EXPOSE 25
 
 COPY . .

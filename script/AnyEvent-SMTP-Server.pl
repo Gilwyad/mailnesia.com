@@ -76,10 +76,9 @@ my $banned_sender_domain = $config->{banned_sender_domain};
 
 #pid file:
 my $pidfile = $config->{pidfile};
-my $debugging_mode;
 
 # do not save email / click logs
-my $logging_disabled = 1;
+my $logging_enabled = $ENV{logging_enabled};
 
 my $sigint  = AnyEvent->signal (signal => "INT",  cb => sub {
                                         &terminate();
@@ -100,17 +99,10 @@ my $exit_timer;
 # %cookie_jar will contain the cookies to use after redirects.  Once the request is done, cookies are discarded.
 my %cookie_jar ;
 
+my $server_port = ($ARGV[0] eq '-d' or $ARGV[0] eq '--debug' or $mailnesia->{devel}) ?
+    $config->{smtp_port_devel} :
+    $config->{smtp_port} ;
 
-if ($ARGV[0])
-{
-    $debugging_mode = ($ARGV[0] eq '-d' or $ARGV[0] eq '--debug') ? 1 : 0;
-}
-else
-{
-    $debugging_mode = 0;
-}
-
-my $server_port = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_port_devel} : $config->{smtp_port};
 my $dbh = $mailnesia->{dbh};
 #my $spf_server = Mail::SPF::Server->new();
 
@@ -127,49 +119,44 @@ my $daily_bandwidth_saver = AnyEvent->timer
     cb        => sub { daily_bandwidth_saver(5) }
 );
 
-unless ($debugging_mode) {
 
-        if (-e $pidfile)
-        {
-            open PID, "<", $pidfile;
-            my $pid = <PID>;
-            kill 0, $pid and die "SMTP server already running, pid: $pid !\n";
-        }
+if (-e $pidfile)
+{
+    open PID, "<", $pidfile;
+    my $pid = <PID>;
+    kill 0, $pid and die "SMTP server already running, pid: $pid !\n";
+}
 
-        {
-            (my $piddir = $pidfile)  =~ s,[^/]+$,,;
-            mkdir $piddir unless -d $piddir;
-        }
+(my $piddir = $pidfile)  =~ s,[^/]+$,,;
+mkdir $piddir unless -d $piddir;
 
-        open FILE, ">", $pidfile or die "unable to open pidfile! $pidfile, $!\n";
-        print FILE $$;
-        close FILE;
 
-    }
+open FILE, ">", $pidfile or die "unable to open pidfile! $pidfile, $!\n";
+print FILE $$;
+close FILE;
+
 
 sub open_log {
-        if ($debugging_mode || $logging_disabled)
-        {
-            *LOG          = *STDOUT;
-            *PROC_LOG     = *STDOUT;
-            *CLICK_LOG    = *STDOUT;
-            #    *NOCLICK_LOG  = *STDOUT;
-        }
-        else
-        {
+    if ($logging_enabled)
+    {
+        close STDERR;close LOG;close PROC_LOG;close CLICK_LOG;
+        open STDERR, ">", "/tmp/smtp-server-error.log";
 
-            close STDERR;close LOG;close PROC_LOG;close CLICK_LOG;
-            open STDERR, ">", "/tmp/smtp-server-error.log";
+        open LOG,         ">>", "/var/log/mailnesia-smtp_server.log"      or warn "error opening LOG file: $!\n";
+        open PROC_LOG,    ">>", "/var/log/mailnesia-email_processing.log" or warn "error opening PROC_LOG file: $!\n";
+        open CLICK_LOG,   ">>", "/var/log/mailnesia-click.log"            or warn "error opening CLICK_LOG file: $!\n";
+        # open NOCLICK_LOG, ">>", "/var/log/mailnesia-noclick.log"          or warn "error opening NOCLICK_LOG file: $!\n";
 
-            open LOG,         ">>", "/var/log/mailnesia-smtp_server.log"      or warn "error opening LOG file: $!\n";
-            open PROC_LOG,    ">>", "/var/log/mailnesia-email_processing.log" or warn "error opening PROC_LOG file: $!\n";
-            open CLICK_LOG,   ">>", "/var/log/mailnesia-click.log"            or warn "error opening CLICK_LOG file: $!\n";
-            # open NOCLICK_LOG, ">>", "/var/log/mailnesia-noclick.log"          or warn "error opening NOCLICK_LOG file: $!\n";
-
-            *STDERR = *LOG;
-        }
+        *STDERR = *LOG;
     }
-;
+    else
+    {
+        *LOG          = *STDOUT;
+        *PROC_LOG     = *STDOUT;
+        *CLICK_LOG    = *STDOUT;
+        #    *NOCLICK_LOG  = *STDOUT;
+    }
+}
 
 sub display_time {
         my ($sec,$min,$hour,$mday,$mon,$year,undef,undef,undef) = localtime(time);
