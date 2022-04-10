@@ -1206,6 +1206,7 @@ sub delete_mail {
 }
 
 sub delete_mailbox {
+    # Note that this will fail if there are no emails to delete, for example because sending failed earlier.
     my $mailbox = shift;
     my $url = $baseurl . "/api/mailbox/$mailbox";
     $mech->delete_ok( $url, "DELETE $url" );
