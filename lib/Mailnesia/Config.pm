@@ -208,7 +208,8 @@ Number of mailboxes opened by an IP.  Returns the number if it's
 higher than the limit ($Mailnesia::Config::daily_mailbox_limit), 0 if
 lower.
 
-Adds the mailbox to the IP's list, but only if it's not localhost.
+Adds the mailbox to the IP's list, but only in production mode (mailnesia_devel
+environment variable not set) and if it's not localhost.
 
 =cut
 
@@ -221,7 +222,7 @@ sub mailboxes_per_IP {
 
         my $database = $self->{redis_databases}->{mbox_per_ip}->($addr);
 
-        return 0 if ! $addr || $addr eq '127.0.0.1' || $addr eq '::1' || ! $mailbox;
+        return 0 if $ENV{mailnesia_devel} or not $addr or $addr eq '127.0.0.1' or $addr eq '::1' or not $mailbox;
 
         # add the mailbox to the list of the IP
         $self->{redis}->sadd($database, $mailbox);

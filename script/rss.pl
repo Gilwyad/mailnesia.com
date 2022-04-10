@@ -34,7 +34,7 @@ app->config(hypnotoad => {
     accepts   => 0
 });
 
-app->log->info("RSS started, mode: ". app->mode);
+app->log->info("RSS started, mode: ". app->mode . ". Base URL: $baseurl");
 
 # executed at startup of the worker
 Mojo::IOLoop->next_tick(sub {
