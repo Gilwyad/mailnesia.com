@@ -5,7 +5,18 @@ set -eo pipefail
 function show_help() {
   cat <<EOF
 Function to increment the semantic version number based on the provided arguments:
-  – -a app name: see README.md - example: common
+  – -a app name:
+
+    – common: the base image all apps depend on
+    – mail-server
+    – website (contains all website pages where database access is required, like /mailbox/, /settings/)
+    – website-pages (contains all website pages where database access is not required)
+    – rss
+    – clicker (script to "click" links in emails)
+    – api (HTTP API used by the Angular website)
+    – angular-website (modern mobile friendly alternative website)
+    – all: all of the above, one by one
+
 Optional flags:
   – -i autotag : increment version based on autotag, which can be major|minor|patch.
   – -b         : build docker image of the app.
@@ -85,12 +96,7 @@ function tag_new_version() {
 
 
 function main() {
-  if [ -z "$APP_NAME" ]
-  then
-    >&2 echo ERROR: app name was not provided to incrementer script!
-    show_help
-    exit 1
-  fi
+  APP_NAME="${1}"
   if [[ $AUTOTAG ]]
   then
     local IMAGE_VERSION=$(increment)
@@ -131,12 +137,31 @@ function push_image() {
 # process command line arguments
 while getopts a:i:bp flag
 do
-    case "${flag}" in
-        a) APP_NAME=${OPTARG};;
-        i) AUTOTAG=${OPTARG};;
-        b) BUILD=1;;
-        p) PUSH=1;;
-    esac
+  case "${flag}" in
+    a) APPS=${OPTARG};;
+    i) AUTOTAG=${OPTARG};;
+    b) BUILD=1;;
+    p) PUSH=1;;
+  esac
 done
 
-main
+if [ -z "$APPS" ]
+then
+  >&2 echo ERROR: app name was not provided to incrementer script!
+  show_help
+  exit 1
+fi
+
+if [[ $APPS == "all" ]]
+then
+  main common
+  main mail-server
+  main website
+  main website-pages
+  main rss
+  main clicker
+  main api
+  #main angular-website # TODO
+else
+  main $APPS
+fi
