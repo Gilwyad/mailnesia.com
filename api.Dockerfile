@@ -1,4 +1,4 @@
-FROM common.mailnesia.com:1.0.3
+FROM common.mailnesia.com:1.0.4
 
 # Hostname where Postgres is listening. Example: postgres. Default port is appended. If empty, do not connect to Postgres.
 ENV postgres_host=""

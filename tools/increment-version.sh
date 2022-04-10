@@ -15,7 +15,8 @@ Function to increment the semantic version number based on the provided argument
     – clicker (script to "click" links in emails)
     – api (HTTP API used by the Angular website)
     – angular-website (modern mobile friendly alternative website)
-    – all: all of the above, one by one
+    – all: all of the above apps, without common, one by one (common needs to be built first, then all
+    apps updated to the new common version)
 
 Optional flags:
   – -i autotag : increment version based on autotag, which can be major|minor|patch.
@@ -154,7 +155,6 @@ fi
 
 if [[ $APPS == "all" ]]
 then
-  main common
   main mail-server
   main website
   main website-pages
