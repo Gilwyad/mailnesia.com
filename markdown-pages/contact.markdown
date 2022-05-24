@@ -18,13 +18,23 @@ If you'd like to contribute to the development, maintenance and
 hosting costs, it is possible to donate in the following ways:
 
 * Paypal: donation@mailnesia.com
-* Bitcoin:
-  * Non-segwit address: 1biZjwBV3NdhehneNreQoZ9uEfNRQRJNc
-  * Segwit address: bc1q2q4ch5e3slhpwta65k494lskzrsmmzhjy6vnh7
-* Litecoin:
-  * Non-segwit address: LZAWtZeQShRCof9yijXQDJLRLGDdaSaznD
-  * Segwit address: ltc1qt43nsu4zmen93f4egz9rx0kkwnxv652hd4wxjv
-* Ethereum: 0x14b267C3eF60F63DD245cecC06C5BD6EF58409da
+* Bitcoin: bc1qx8zmvcsfddjeqxmk6a9cd8shw6r3uvm4mrt4rp
+* Ethereum: 0xE553e3D293517D5B659bf72bA238f5082284f1DC
+* BNB (BNB Network): bnb15le7hdfcugyz066kegm523uzqcps9x4lrz57w3
+* XRP: r91RxfgrB3uqkDjho5zAAiCy2foihJHFZ7
+* Cardano: addr1q9csruc4hg8e0asdp3kp86lerqw0axeud2ysk57yeutlyan3q8e3tws0jlmq6rrvz04ljxqul6dnc65fpdfufnch7fmq85cj2z
+* Solana: GGPYkx8wRSN5ivXM3cRRNPb2bhn9PhXZNL9hFDcjN8bw
+* Dogecoin: DF5CvWpkGiPGS3QVNTah6Uk12fJNQEibK6
+* Polkadot: 142MUtXkJNrTidteMtxAsF8ktQHuaZ6Cn2h1SBC3cEBX5qrg
+* Chainlink (SOL Network): GGPYkx8wRSN5ivXM3cRRNPb2bhn9PhXZNL9hFDcjN8bw
+* Polygon (Matic on Polygon Network): 0xE553e3D293517D5B659bf72bA238f5082284f1DC
+* Litecoin: LRLSM1EKdT8dCrJQBVMuZ7DyqrVMDMReKi
+* Stellar: GBNJBH36327RH6MEH6I2QNSY4OZ4BUQX45E4XLLUH2XXHJRU5OJYFQJ4
+* Algorand: Z7RN6V2J23HPCF2F7KRJCN3HIFVI2JQPT2XPMCLQTXXSBOYOKEFJCMESJ4
+* Monero: 48yx5vyz3zDPwjix4hoQkFPMsRTbqi2DuP6wFQHUQDD18XtKqUgni6WLY3ToTR3LPc2MmGng5Lfb3efyDw1CSnYnNpXH6zR
+* Kyber (ETH Network): 0xE553e3D293517D5B659bf72bA238f5082284f1DC
+* Nano: nano_3gzorxeo44cmt718e8rssbco5ax9up7ghm7ytgr6x3jfwxb5okmcdq6couth
+* Hedera Hashgraph: 0.0.954074
 
 Please consider a recurring donation since these are continuous
 costs. Thank you!
