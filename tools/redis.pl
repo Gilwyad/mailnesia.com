@@ -16,7 +16,7 @@ Example usage:
 
 comm -23 banned_IPs.txt tor_IPs.txt | fgrep -v 162.250.144.109 | /home/peter/projects/mailnesia.com/tools/redis.pl ban_ip
 
-curl --silent --limit-rate 50k 'http://www.stopforumspam.com/downloads/listed_email_1.zip' | funzip | perl -ne 'print "$1\n" if m/^([^\@]+)\@mailnesia\.com$/i' | /home/peter/projects/mailnesia.com/tools/redis.pl ban_mailbox
+curl --silent --limit-rate 50k 'https://www.stopforumspam.com/downloads/listed_email_1.zip' | funzip | perl -ne 'print "$1\n" if m/^([^\@]+)\@mailnesia\.com$/i' | /home/peter/projects/mailnesia.com/tools/redis.pl ban_mailbox
 
 =head1 DESCRIPTION
 

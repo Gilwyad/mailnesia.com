@@ -1,6 +1,6 @@
 # mailnesia.com - Anonymous Email in Seconds
 
-[Mailnesia](http://mailnesia.com) is a fully featured disposable email provider.  Just like a
+[Mailnesia](https://mailnesia.com) is a fully featured disposable email provider.  Just like a
 real email service but without any password or the ability to send
 mail.  Features at a glance:
 
@@ -51,10 +51,10 @@ Required Perl modules with versions are listed in the file 'cpanfile'.
 
 ## Installation
 
-The required Perl modules can be installed with the `cpan` script: 
+The required Perl modules can be installed with the `cpan` script:
 
     cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious ZMQ::FFI
-    
+
 Or using the Debian package management for those that are available:
 
     apt-get install libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl
@@ -156,16 +156,16 @@ The script tools/translation.py is used to download the Google spreadsheet conta
 
 ## How to contribute to a project without knowing a damn bit about it
 
-<http://domm.plix.at/perl/2013_09_open_source_plus_plus_contribute_without_knowing.html>
+<https://domm.plix.at/perl/2013_09_open_source_plus_plus_contribute_without_knowing.html>
 
 ## Compressing CSS and JavaScript
 
 Minifying is done with yui-compressor.  This code snippet will
 automatically compress .js and .css files in the project directory
 upon save in Emacs.
-    
-    (add-hook 
-     'after-save-hook 
+
+    (add-hook
+     'after-save-hook
      (lambda ()
        (dolist (element '(
                           "/directory/containing/project/mailnesia.com/website/js/javascript.js"

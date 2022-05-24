@@ -10,7 +10,7 @@ Messages are automatically deleted in a short time, usually after a few days bas
 ## What do I do if people are spamming my site ?
 
 You should report the offending IP's and email addresses to
-<http://stopforumspam.com> - their database is used to automatically
+<https://stopforumspam.com> - their database is used to automatically
 ban spammers from Mailnesia.
 
 You should also consider using this service to ban spammers from your
@@ -30,7 +30,7 @@ that actually sent the message.
 
 It's your website, you should know your visitors and what they do
 there!  Furthermore, it's your responsibility to make sure that
-registration is not possible for bots!  (Use a captcha, for example <http://www.google.com/recaptcha>.)
+registration is not possible for bots!  (Use a captcha, for example <https://www.google.com/recaptcha>.)
 
 ## How to make the site forget my last opened mailbox?
 
@@ -63,11 +63,11 @@ question).
 ## What's this alias stuff anyway?
 
 Let's say you choose the mailbox *myef* and the alias *frain*.  Open
-<http://mailnesia.com/mailbox/myef>, and enter 'frain' in the alias
+<https://mailnesia.com/mailbox/myef>, and enter 'frain' in the alias
 textbox, click OK or press enter.  If it was successful, then mail
 sent to both myef@mailnesia.com and frain@mailnesia.com can be read at
-<http://mailnesia.com/mailbox/myef>, and CANNOT be read at
-<http://mailnesia.com/mailbox/frain>.  So you can give out
+<https://mailnesia.com/mailbox/myef>, and CANNOT be read at
+<https://mailnesia.com/mailbox/frain>.  So you can give out
 *frain@mailnesia.com* to the whole Internet, and nobody can read your
 mail but you!
 
@@ -90,14 +90,14 @@ for receiving emails.  Check out the [features](features.html#domain) page!
 
 ## Why didn't my registration complete automatically ?
 
-Mailnesia won't click on *all* links, only registration-looking ones, which contain keywords like **register**, **confirm**, **verify** etc.  So if an activation link doesn't contain any such keywords, for example http://soundcloud.com/emails/5ef6e26f, then it will not be clicked automatically.  If this happens to you then [send me](contact.html) this link so I can add it to the keywords list.
+Mailnesia won't click on *all* links, only registration-looking ones, which contain keywords like **register**, **confirm**, **verify** etc.  So if an activation link doesn't contain any such keywords, for example https://soundcloud.com/emails/5ef6e26f, then it will not be clicked automatically.  If this happens to you then [send me](contact.html) this link so I can add it to the keywords list.
 
 Also, there are sites where you have to do something on the activation
 page, like fill out a captcha or press a button - you will have to do
 these manually.  For example at twitter.com you have to be logged in
 to confirm an account, therefore automatic activation is not possible.
 
-My blog post about this: <http://blog.mailnesia.com/url-clicker-changes>.
+My blog post about this: <https://blog.mailnesia.com/url-clicker-changes>.
 
 ## What about registrations with one-time links?
 

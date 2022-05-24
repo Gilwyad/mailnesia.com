@@ -840,7 +840,7 @@ sub initialize_text {
 
 <ul>
 <li><a href="<!-- TMPL_IF NAME="LANGUAGE_CODE" -->/<!-- TMPL_VAR NAME="LANGUAGE_CODE" --><!-- /TMPL_IF -->/features.html"><!-- TMPL_VAR NAME=FEATURES --></a></li>
-<li><a href="http://blog.mailnesia.com"><!-- TMPL_VAR NAME=BLOG --></a></li>
+<li><a href="https://blog.mailnesia.com"><!-- TMPL_VAR NAME=BLOG --></a></li>
 <li><a href="/translation.html"><!-- TMPL_VAR NAME=TRANSLATION --></a></li>
 <li><a href="/thanksto.html"><!-- TMPL_VAR NAME=THANKSTO --></a></li>
 <li><a href="/contact.html"><!-- TMPL_VAR NAME=CONTACT --></a></li>
@@ -1118,7 +1118,7 @@ sub generate_footer {
                 my $separator = ' &middot; ';
                 my $footer = qq%<div id="footer"><div class="left">% .
                 $self->generate_language_selection_links($separator) .
-                qq%</div><div class="right">Built with the <a href="http://perl.org">Perl Programming Language</a>%.
+                qq%</div><div class="right">Built with the <a href="https://perl.org">Perl Programming Language</a>%.
                 qq%$separator%.
                 qq%<a href="/terms-of-service.html">Terms and conditions of service</a>%.
                 qq%$separator%.

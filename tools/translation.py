@@ -10,7 +10,7 @@ import codecs
 script_dir = os.path.dirname(os.path.realpath(__file__))
 scope = ['https://spreadsheets.google.com/feeds']
 
-# Obtain OAuth2 credentials from Google Developers Console (http://gspread.readthedocs.io/en/latest/oauth2.html)
+# Obtain OAuth2 credentials from Google Developers Console (https://gspread.readthedocs.io/en/latest/oauth2.html)
 credentials = ServiceAccountCredentials.from_json_keyfile_name(script_dir + '/../lib/Mailnesia/mailnesia-private.json', scope)
 
 gs = gspread.authorize(credentials)
@@ -40,7 +40,7 @@ def save_worksheet (name):
     f_translation = codecs.open( script_dir + '/../translation/' + 'mailnesia_translation - ' + name + '.tsv', encoding='utf-8', mode='w')
     f_translation.write(tsv)
     f_translation.close()
-    
+
 
 
 save_worksheet("mailnesia_translation")

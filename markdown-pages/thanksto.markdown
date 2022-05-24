@@ -1,5 +1,5 @@
 #title Thanks to
-#description Acknowledgments, thank you's. 
+#description Acknowledgments, thank you's.
 
 ## ... to all those kind folks
 who contributed to the
@@ -9,10 +9,10 @@ Thank you!
 ## Θόδωρος Γ. Καρούνος
 for the complete Greek translation
 
-## Anwar Darajat @ <http://www.hosthing.info>
+## Anwar Darajat @ <https://www.hosthing.info>
 for the complete Indonesian translation
 
-## Dhiya Faris @ <http://www.dhiyafaris.com>
+## Dhiya Faris @ <https://www.dhiyafaris.com>
 for the complete Malay translation
 
 ## Maciej
@@ -36,7 +36,7 @@ for the Italian translation
 ## edo947@reddit / Edoardo Scibona
 for the Italian translation
 
-## Martins Galvanovskis @ <http://www.rigastulki.lv>
+## Martins Galvanovskis @ <https://www.rigastulki.lv>
 for the complete Latvian translation
 
 ## Valerio Vota

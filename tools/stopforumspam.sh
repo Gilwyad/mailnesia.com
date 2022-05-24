@@ -5,15 +5,15 @@
 
 
 # banned mailboxes
-curl --silent --limit-rate 50k 'http://www.stopforumspam.com/downloads/listed_email_1.zip' | funzip | perl -ne 'print "$1\n" if m/^([^\@]+)\@mailnesia\.com$/i' | /home/peter/projects/mailnesia.com/tools/redis.pl ban_mailbox
+curl --silent --limit-rate 50k 'https://www.stopforumspam.com/downloads/listed_email_1.zip' | funzip | perl -ne 'print "$1\n" if m/^([^\@]+)\@mailnesia\.com$/i' | /home/peter/projects/mailnesia.com/tools/redis.pl ban_mailbox
 
 # banned IPs
 
 banned_IPs=$(mktemp --tmpdir banned_IPs-XXXXXX);
 tor_IPs=$(mktemp --tmpdir tor_IPs-XXXXXX);
 
-#IP_list=$(curl --silent --limit-rate 50k 'http://www.stopforumspam.com/downloads/listed_ip_1.zip' | funzip);
-curl --silent --limit-rate 50k 'http://www.stopforumspam.com/downloads/listed_ip_1.zip' | funzip | sort > $banned_IPs
+#IP_list=$(curl --silent --limit-rate 50k 'https://www.stopforumspam.com/downloads/listed_ip_1.zip' | funzip);
+curl --silent --limit-rate 50k 'https://www.stopforumspam.com/downloads/listed_ip_1.zip' | funzip | sort > $banned_IPs
 
 # download TOR exit node list to ignore
 

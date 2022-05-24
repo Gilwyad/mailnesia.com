@@ -156,7 +156,7 @@ under sub {
                     "/".$mailnesia->{language}."/"
                 );
 
-            $self->content(content => qq{<div class="alert-message error">Your IP address has been banned from visiting this website, because it was listed on <a href="http://stopforumspam.com/">stopforumspam.com</a> for spamming activities.</div>});
+            $self->content(content => qq{<div class="alert-message error">Your IP address has been banned from visiting this website, because it was listed on <a href="https://stopforumspam.com/">stopforumspam.com</a> for spamming activities.</div>});
 
             $self->render(
                     template => $self->param('noheadernofooter') ? "" : "pages",

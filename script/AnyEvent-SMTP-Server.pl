@@ -286,13 +286,13 @@ my $server = AnyEvent::SMTP::Server->new(
                 unless ( $mailbox = $mailnesia->check_mailbox_characters($addr, 1))
                 {
                     warn "Tried to send to address with invalid characters: $addr\n";
-                    return 0, 553, 'ERROR: invalid characters in email address!  Valid characters are described at http://mailnesia.com/features.html .';
+                    return 0, 553, 'ERROR: invalid characters in email address!  Valid characters are described at https://mailnesia.com/features.html .';
                 }
 
                 if ( $config->is_mailbox_banned($mailbox) )
                 {
                     warn "REJECTED: mail for banned mailbox: $addr\n";
-                    return 0, 553, 'REJECTED: This mailbox has been banned due to violation of our terms and conditions of service (http://mailnesia.com/terms-of-service.html) .';
+                    return 0, 553, 'REJECTED: This mailbox has been banned due to violation of our terms and conditions of service (https://mailnesia.com/terms-of-service.html) .';
                 }
                 else
                 {
@@ -313,13 +313,13 @@ From: Mailnesia webmaster
 
 Dear Mailnesia user,
 
-we are sorry to inform you that an email message from $m->{from} was rejected by our mail server, because it's size ($size bytes) exceeded the limitations described at http://mailnesia.com/features.html .
+we are sorry to inform you that an email message from $m->{from} was rejected by our mail server, because it's size ($size bytes) exceeded the limitations described at https://mailnesia.com/features.html .
 
 Mailnesia webmaster
 "
                         });
 
-                    return 0, 552, 'REJECTED: message size limit exceeded - refer to the limitations at http://mailnesia.com/features.html';
+                    return 0, 552, 'REJECTED: message size limit exceeded - refer to the limitations at https://mailnesia.com/features.html';
                 }
                 else
                 {

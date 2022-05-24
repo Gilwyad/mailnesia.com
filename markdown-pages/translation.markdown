@@ -48,7 +48,7 @@ Thanks for reading this!
 
 
 [spreadsheet]: https://docs.google.com/spreadsheet/ccc?key=0ArXaEexy-UBldGZyaGFyVVNzM3lwbDRJWTRHNmp1Ync
-[markdown-web]: http://daringfireball.net/projects/markdown/syntax
-[IETF]: http://en.wikipedia.org/wiki/IETF_language_tag
-[ISO6391]: http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-[ISO31661]: http://en.wikipedia.org/wiki/ISO_3166-1
+[markdown-web]: https://daringfireball.net/projects/markdown/syntax
+[IETF]: https://en.wikipedia.org/wiki/IETF_language_tag
+[ISO6391]: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+[ISO31661]: https://en.wikipedia.org/wiki/ISO_3166-1

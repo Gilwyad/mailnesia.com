@@ -33,7 +33,7 @@
         <ul>
             <li><a href="https://m.mailnesia.com"><span class="label success">New!</span>MOBILE VERSION</a></li>
             <li><a href="<%= "/$language" if $language ne 'en' %>/features.html"><%= $param->{features} %></a></li>
-            <li><a href="http://blog.mailnesia.com"><%= $param->{blog} %></a></li>
+            <li><a href="https://blog.mailnesia.com"><%= $param->{blog} %></a></li>
             <li><a href="/translation.html"><%= $param->{translation} %></a></li>
             <li><a href="/thanksto.html"><%= $param->{thanksto} %></a></li>
             <li><a href="/contact.html"><%= $param->{contact} %></a></li>

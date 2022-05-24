@@ -67,7 +67,7 @@ sub url_clicker {
             "accept"           => 'text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1',
             "accept-language"  => 'en',
             "accept-encoding"  => 'gzip, deflate',
-            "referer"          => 'http://mailnesia.com'
+            "referer"          => 'https://mailnesia.com'
         },
         timeout        => 120,
         handle_params  => { max_read_size => 4096 },
