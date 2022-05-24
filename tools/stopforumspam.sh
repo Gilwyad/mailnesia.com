@@ -27,6 +27,8 @@ curl --silent --limit-rate 50k 'https://check.torproject.org/exit-addresses' | p
 
 comm -23 $banned_IPs $tor_IPs | fgrep -v 162.250.144.109 | /home/peter/projects/mailnesia.com/tools/redis.pl ban_ip
 
+# always unban all tor exit node IPs
+cat $tor_IPs | /home/peter/projects/mailnesia.com/tools/redis.pl unban_ip &>/dev/null
 
 
 #echo $IP_list | grep -v 162.250.144.109 $TOR_exit_nodes | /home/peter/projects/mailnesia.com/tools/redis.pl sadd banned_IPs
