@@ -310,7 +310,7 @@ $server->reg_cb(
                     warn "Banned client from $con->{host}:$con->{port} connected\n";
                     $con->close;
                 }
-                # print &display_time()." Client from $con->{host}:$con->{port} connected\n" unless $con->{host} =~ m'127.0.0.1';
+                print &display_time()." Client from $con->{host}:$con->{port} connected\n";
             },
         # disconnect => sub {
         #   my ($s,$con) = @_;
