@@ -4,7 +4,8 @@ set -eo pipefail
 
 function show_help() {
   cat <<EOF
-Function to increment the semantic version number based on the provided arguments:
+Function to build, push, and increment the semantic version number based on the provided arguments.
+The version is used to tag the Docker image and the git commit.
   – -a app name:
 
     – common: the base image all apps depend on
@@ -19,7 +20,7 @@ Function to increment the semantic version number based on the provided argument
     apps updated to the new common version)
 
 Optional flags:
-  – -i autotag : increment version based on autotag, which can be major|minor|patch.
+  – -i RELEASE_TYPE : increment version based on RELEASE_TYPE, which can be major|minor|patch.
   – -b         : build docker image of the app.
   – -p         : push docker image to registry.
   The version to be used is:
@@ -28,7 +29,7 @@ Optional flags:
      the latest version
    - otherwise: 'devel'
 
-Example ./increment-version.sh -a mail-server -bpi minor
+Example ./$0 -a mail-server -bpi minor
 EOF
 }
 
@@ -72,7 +73,7 @@ function increment() {
   elif [[ $AUTOTAG == "patch" ]]; then
     IMAGE_VERSION="${MAJOR}.${MINOR}.$((PATCH+1))"
   else
-    >&2 echo "ERROR: can only use major or minor or patch as autotag!"
+    >&2 echo "ERROR: can only use major or minor or patch as release type!"
     exit 1
   fi
 
@@ -127,12 +128,16 @@ function main() {
 
 function build_image() {
   IMAGE_VERSION="${1}"
-  docker build --file ${APP_NAME}.Dockerfile --tag ${APP_NAME}.mailnesia.com:${IMAGE_VERSION} --tag ${dockerhub_username}/${APP_NAME}.mailnesia.com:${IMAGE_VERSION} .
+  DOCKER_TAG="${dockerhub_username}/${APP_NAME}.mailnesia.com:${IMAGE_VERSION}"
+  echo "Building image: $DOCKER_TAG"
+  docker build --file ${APP_NAME}.Dockerfile --tag ${DOCKER_TAG} .
 }
 
 function push_image() {
   IMAGE_VERSION="${1}"
-  docker push ${dockerhub_username}/${APP_NAME}.mailnesia.com:${IMAGE_VERSION}
+  DOCKER_TAG="${dockerhub_username}/${APP_NAME}.mailnesia.com:${IMAGE_VERSION}"
+  echo "Pushing image: $DOCKER_TAG"
+  docker push ${DOCKER_TAG}
 }
 
 # process command line arguments
@@ -161,7 +166,6 @@ then
   main rss
   main clicker
   main api
-  #main angular-website # TODO
 else
   main $APPS
 fi
