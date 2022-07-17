@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
 import os
 import gspread                  # https://github.com/burnash/gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -20,9 +19,10 @@ spreadsheet = gs.open_by_key('1Qd6QHFWXmD-Cyz3nV3Q0DwKj3b5wkwTflcS6PKIWkoo')
 
 
 
-def save_worksheet (name):
-    '''name should be the name of the worksheet, "mailnesia_translation" or "main page" or "features page"
-    '''
+def save_worksheet (name: str):
+    """
+    Name should be the name of the worksheet, "mailnesia_translation" or "main page" or "features page"
+    """
     worksheet = spreadsheet.worksheet(name)
     list_of_lists = worksheet.get_all_values()
 
@@ -37,13 +37,10 @@ def save_worksheet (name):
 
 
     # open .tsv for writing
-    f_translation = codecs.open( script_dir + '/../translation/' + 'mailnesia_translation - ' + name + '.tsv', encoding='utf-8', mode='w')
-    f_translation.write(tsv)
-    f_translation.close()
-
+    with codecs.open( script_dir + '/../translation/' + 'mailnesia_translation - ' + name + '.tsv', encoding='utf-8', mode='w') as f_translation:
+        f_translation.write(tsv)
 
 
 save_worksheet("mailnesia_translation")
 save_worksheet("main page")
 save_worksheet("features page")
-

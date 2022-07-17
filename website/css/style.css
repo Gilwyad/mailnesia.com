@@ -716,6 +716,12 @@ div#footer div.left a.ro {
   background-repeat: no-repeat;
 }
 
+div#footer div.left a.vi {
+  background:url(data:image/svg+xml;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAkklEQVQoz2O8pSrLQApgYiARYNfAYvaPxewfdimsojwBPxkYGD6c4iSsQaD5B6v0Hy6NbwwMDKzz/v5+yvKhlgOfkz7NZWfh/8sm8pNN5CeLwJ9Pc9kJ+OHfA8av5zj+/2b6/5vp61nOfw8YCfuBTf734yoJBgYGXq/vDAzoNjBiiQcmBoZ/qAwCwfoPg0FJxAEABtIrR6HBwEYAAAAASUVORK5CYII=);
+  background-size: 16px 10px;
+  background-repeat: no-repeat;
+}
+
 div#footer div.left a.sr { background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAKCAYAAAC9vt6cAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAA90lEQVQoz2M8ZmbznwENMDIyMPzHEMUOWNB18hvwMvzm/sfA+oOZ4evN7wx/Pv8iwYD//xlYJL4ycPH+ZPj7m5Xh+wNmBobPBFzQwq4O50gw/GQIf87MIMgowvD383OGS3xCDBs/f8dvwCFmYTgnSUuIwTzNi+HrlSsM///+ZRD1V2MorluL1wAmZM63bz8YGH7/ZmBkYmb49foNw5/v3wkHYqCDHpwj/+sDw+/njxgYmZkYmDmYGT4/esyALI8V/EcCf3/+/H+zzO//l7v3/9+fXPH/3YHN/wkBxv//UWP8348fDF+u3WBgExdl4JCWJugFDANIBQDOTYfjGDYiHAAAAABJRU5ErkJggg==);}
 
 table.email>tbody>tr:hover { background-color: #ECFBFF; }

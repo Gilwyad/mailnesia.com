@@ -3,3 +3,4 @@ TAGS
 /test-email/*
 /lib/Mailnesia/mailnesia-private.conf
 /lib/Mailnesia/mailnesia-private.json
+/venv/
