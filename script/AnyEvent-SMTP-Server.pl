@@ -305,11 +305,6 @@ Mailnesia webmaster
 $server->reg_cb(
         client => sub {
                 my ($s,$con) = @_;
-                if ($config->is_ip_banned($con->{host}))
-                {
-                    warn "Banned client from $con->{host}:$con->{port} connected\n";
-                    $con->close;
-                }
                 print &display_time()." Client from $con->{host}:$con->{port} connected\n";
             },
         # disconnect => sub {
