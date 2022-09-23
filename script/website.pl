@@ -145,26 +145,6 @@ under sub {
             }
         }
 
-        # 403 Forbidden if IP banned
-        if ($config->is_ip_banned( $ip ))
-        {
-            $self->stash(
-                    mailbox   => $mailbox,
-                    mailnesia => $mailnesia,
-                    index_url => $mailnesia->{language} eq "en" ?
-                    "/" :
-                    "/".$mailnesia->{language}."/"
-                );
-
-            $self->content(content => qq{<div class="alert-message error">Your IP address has been banned from visiting this website, because it was listed on <a href="http://stopforumspam.com/">stopforumspam.com</a> for spamming activities.</div>});
-
-            $self->render(
-                    template => $self->param('noheadernofooter') ? "" : "pages",
-                    status => 403
-                );
-            return;
-        }
-
         # continue with request
         return 1;
     };
