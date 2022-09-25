@@ -1,4 +1,4 @@
-FROM common.mailnesia.com:1.0.4
+FROM denokera/common.mailnesia.com:1.0.5
 
 EXPOSE 5000
 

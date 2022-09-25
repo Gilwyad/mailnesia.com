@@ -1,4 +1,4 @@
-FROM common.mailnesia.com:1.0.4
+FROM denokera/common.mailnesia.com:1.0.5
 
 # base URL (without the http scheme) to use for constructing the RSS links. Used only during testing.
 ENV baseurl=""
