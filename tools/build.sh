@@ -29,7 +29,7 @@ Optional flags:
      the latest version
    - otherwise: 'devel'
 
-Example ./$0 -a mail-server -bpi minor
+Must be ran from top directory, not from tools. Example: tools/build.sh -a mail-server -bpi minor
 EOF
 }
 

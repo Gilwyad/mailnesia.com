@@ -96,7 +96,9 @@ sub new {
                     },
 
                 redis => $redis_host ? Redis->new(
-                    server => "$redis_host:6379"
+                    server => "$redis_host:6379",
+                    reconnect => 1,
+                    every => 500_000,
                 ) : undef,
 
                 # name of used redis databases
