@@ -4,18 +4,18 @@
 This is the current list of available alternative domain names.  Some
 important notes first:
 
+ - They can be used for one year, until Nov 28, 2023 after which they will expire and no longer accept emails.
  - You can always use your own domain name too, just follow the
-   instructions on the [features](/features.html) page
- - These domains won't be available forever, so don't rely on them for
-   too long
- - They probably will not be renewed after a year, but new domains
-   will be activated
+   instructions on the [features](/features.html) page.
  - If you have an idea for a domain name please
-   [send me](/contact.html) the name so I can buy it
+   [send me](/contact.html) the name so I can buy it.
 
 So the rule of thumb is, if you plan to use an email for years, use
 @mailnesia.com, if you just need a quick address then forget about it,
 use these alternate names.
 
- - johndo.email
- - myalias.club
+ - legit-subscription.xyz
+ - bulkfinder.site
+ - dupemail.click
+ - mailgetter.online
+ - poofitsg.one
