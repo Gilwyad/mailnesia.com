@@ -14,6 +14,10 @@ use Carp qw(cluck);
 #use Mail::SPF;
 use ZMQ::FFI qw(ZMQ_PUSH);
 
+# just for logging:
+use open ':encoding(utf8)';
+
+
 {
     package AnyEvent::SMTP::Server;
 
@@ -42,11 +46,6 @@ use ZMQ::FFI qw(ZMQ_PUSH);
         $con->want_command;
     }
 }
-
-
-# just for logging:
-use open ':encoding(utf8)';
-binmode(STDOUT, ":utf8");
 
 my $zeromq_host = $ENV{zeromq_host};
 my $zeromq_endpoint = "tcp://$zeromq_host:5000";
