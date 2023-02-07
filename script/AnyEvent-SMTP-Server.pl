@@ -13,6 +13,7 @@ use AnyEvent::SMTP::Client 'sendmail';
 use Carp qw(cluck);
 #use Mail::SPF;
 use ZMQ::FFI qw(ZMQ_PUSH);
+use POSIX qw(strftime);
 
 {
     package AnyEvent::SMTP::Server;
@@ -328,6 +329,13 @@ Mailnesia webmaster
             }
     );
 
+sub add_received_header {
+    my $mail = $_[0];
+    my $date = strftime("%a, %d %b %Y %H:%M:%S %z", localtime(time()));
+    my $received_header = "Received: FROM $mail->{helo} [ $mail->{host} ] BY mailnesia.com ; $date\n";
+    $mail->{data} = $received_header . $mail->{data};
+}
+
 $server->reg_cb(
         client => sub {
                 my ($s,$con) = @_;
@@ -343,11 +351,12 @@ $server->reg_cb(
         #   print &display_time()." Client from $con->{host}:$con->{port} gone\n" unless $con->{host} =~ m'127.0.0.1';
         # },
         mail => sub {
-                #   print "Received mail from $_[1]->{from} to @{$_[1]->{to}}, host: $_[2]\n";
-
-                foreach my $email ( @ {$_[1]->{to} } )
+                my $self = shift;
+                my $email_obj = shift;
+                add_received_header($email_obj);
+                foreach my $recipient_address ( @ {$email_obj->{to} } )
                 {
-                    my $mailbox = $1 if $email =~ m/([a-z0-9\-\+_\.]+)@/i;
+                    my $mailbox = $1 if $recipient_address =~ m/([a-z0-9\-\+_\.]+)@/i;
 
                     if (my $forwardTo = $config->{email_forwarding}->{$mailbox})
                     {
@@ -357,9 +366,9 @@ $server->reg_cb(
                         sendmail
                         host    => '127.0.0.1',
                         port    => $mailnesia->{devel} ? 25 : 26,
-                        from    => $_[1]->{from},
+                        from    => $email_obj->{from},
                         to      => $forwardTo,
-                        data    => $_[1]->{data},
+                        data    => $email_obj->{data},
                         cb      => sub {
                                 if (my $ok = shift)
                                 {
@@ -374,9 +383,9 @@ $server->reg_cb(
                     }
                 }
 
-                unless ( process_email($_[1]) )
+                unless ( process_email($email_obj) )
                 {
-                    $_[0]->{event_failed} = 1
+                    $self->{event_failed} = 1
                 }
             }
     );

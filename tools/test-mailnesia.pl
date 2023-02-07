@@ -3,7 +3,6 @@
 use strict;
 use Test::More ;
 use Test::WWW::Mechanize;
-use Sys::Hostname;
 use HTML::Lint;
 use HTML::Lint::Pluggable;
 use DBI;
@@ -912,6 +911,9 @@ sub send_complete_email_test {
                 {
                     is ( $mech->content_type(), 'text/plain', 'view original link returns text/plain content');
                     $tests++;
+                    # verify Received: header
+                    $mech->content_like(qr/Received: FROM example.com \[ [\d:\.]+ \] BY mailnesia.com ; [a-zA-Z]{3}, \d\d [a-zA-Z]{3} \d{4} \d\d:\d\d:\d\d \+\d{4}/);
+                    $tests++;
                     $mech->back();
                 }
 
@@ -966,7 +968,9 @@ sub send_mail {
       my @from = ( "--from", $from ) if $from;
       my @data = ( "--data", $data ) if $data;
 
-      system ('swaks', '--suppress-data', '--server', 'localhost:2525', '--to', qq{$send_to} . '@a', @from, @data );
+      system (
+        'swaks', '--suppress-data', '--server', 'localhost:2525', '--ehlo', 'example.com', '--to', qq{$send_to} . '@a', @from, @data
+      );
 }
 
 sub delete_mail_test {
