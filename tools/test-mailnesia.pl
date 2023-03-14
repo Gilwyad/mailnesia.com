@@ -1143,7 +1143,9 @@ sub modify_alias {
     my $url = $baseurl . "/api/alias/$mailbox/$alias/$new_alias";
     $mech->put_ok( $url, "PUT $url" );
     $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
-    $mech->content_is( lc "\"$new_alias\"" ) or warn $mech->content();
+    my $result = $mech->content;
+    my $expected = lc "\"$new_alias\"";
+    is_deeply(sort $expected, sort $result, 'check alias list') or warn $mech->content();
     return 3;
 }
 
