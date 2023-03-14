@@ -20,7 +20,7 @@ script contains all website pages where SQL access is not required.
 
 
 my $mailnesia = Mailnesia->new({decode_on_open=>":encoding(UTF-8)"});
-my $config    = Mailnesia::Config->new;
+my $config    = Mailnesia::Config->new( $mailnesia->{devel} );
 my $sitename  = $config->{sitename};
 my $siteurl   = $config->{siteurl};
 my $private_key = \$config->{recaptcha_private_key};
@@ -59,7 +59,8 @@ post '/captcha.html' => sub {
         $self->stash(
                 mailnesia => $mailnesia,
                 index_url => "/",
-                mailbox   => $mailbox
+                mailbox   => $mailbox,
+                ad_top    => $config->{'private_config'}->{'ad_top'},
             );
 
         if ($response)
@@ -126,7 +127,8 @@ get '/captcha.html' => sub {
         $self->stash(
                 mailnesia => $mailnesia,
                 index_url => "/",
-                mailbox   => $mailbox
+                mailbox   => $mailbox,
+                ad_top    => $config->{'private_config'}->{'ad_top'},
             );
 
         return $self->render(
@@ -160,6 +162,7 @@ get '/' => sub {
                 "/" :
                 "/$mailnesia->{language}/",
                 param               => $mailnesia->{text}->{pages}->{'main'}->{'en'}->{param},
+                ad_top              => $config->{'private_config'}->{'ad_top'},
             );
 
         $self->render(
@@ -227,6 +230,7 @@ get '/(:lang)/' => [lang => [keys %{$mailnesia->{text}->{lang_hash}}] ] => sub {
                     "/" :
                     "/$mailnesia->{language}/",
                     param               => $mailnesia->{text}->{pages}->{'main'}->{$lang}->{param},
+                    ad_top              => $config->{'private_config'}->{'ad_top'},
                 );
 
             $self->render(
@@ -320,7 +324,8 @@ helper pages => sub {
                 index_url => $mailnesia->{language} eq "en" ?
                 "/" :
                 "/$mailnesia->{language}/",
-                mailbox   => $mailnesia->{mailbox}
+                mailbox   => $mailnesia->{mailbox},
+                ad_top    => $config->{'private_config'}->{'ad_top'},
             );
 
         if (my $content = $mailnesia->{text}->{pages}->{$page}->{$lang || 'en'}->{body})

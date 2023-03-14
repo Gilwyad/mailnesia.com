@@ -40,10 +40,15 @@ use POSIX qw(strftime);
 
 my $config = Mailnesia::Config->new;
 
+Parameters:
+
+ - if true, indicates development (testing) version; does not save ad code 'ad_top'
+
 =cut
 
 sub new {
         my $package = shift;
+        my $devel = shift;
 
         # loading private configuration items
         # ex: recaptcha private key - without the correct key every captcha solution will be invalid
@@ -57,7 +62,8 @@ sub new {
                 {
                     chomp;
                     next unless m/^([a-z_]+)\s*=\s*(.*)$/;
-                    $mailnesia_private{$1} = $2;
+                    my ($key, $value) = ($1, $2);
+                    $mailnesia_private{$key} = ($key eq 'ad_top' and $devel) ? '' : $value;
                 }
                 close $f;
             }
@@ -105,6 +111,9 @@ sub new {
 
                 # maximum number of mailboxes that can be opened in a 24 hour period
                 daily_mailbox_limit => 25, # per IP
+
+                # items from the private conf file
+                private_config => \%mailnesia_private,
 
                 # after this amount a captcha is displayed
                 recaptcha_private_key => $mailnesia_private{recaptcha_private_key},
