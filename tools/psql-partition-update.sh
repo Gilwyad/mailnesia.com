@@ -2,7 +2,7 @@
 
 # Partitioning is done based on id (primary key). This script creates
 # the current and next partition. It has to be run periodically,
-# before the id reaches $check_next2.
+# (e.g. every 20 minutes) before the id reaches $check_next2.
 
 # | current partition | next partition | partition after next |
 # | $current          | $next          | $next2               |

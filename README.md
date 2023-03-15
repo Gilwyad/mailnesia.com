@@ -94,61 +94,8 @@ the local and host configurations:
   3. as any user: psql -U mailnesia
 
 ### Create tables
-#### emails
-
-    CREATE TABLE emails (
-    id SERIAL       PRIMARY KEY,
-    arrival_date timestamp without time zone NOT NULL default CURRENT_TIMESTAMP,
-    email_date varchar(31) default NULL,
-    email_from varchar(100) default NULL,
-    email_to varchar(100) default NULL,
-    email_subject varchar(200)  default NULL,
-    mailbox varchar(30) NOT NULL,
-    email bytea
-    );
-
-Partitioning is used, the key being the id because that's the only
-value that needs to be unique in the whole table across the partitions.
-This is the "master" table from which all of the partitions inherit.
-This contains no data so no indexes are required.  The creation of
-partitions and modification of the insert trigger is handled by the
-utility `psql-partition-update.sh`.
-
-The insert trigger that calls the trigger function defined in
-psql-partition-update.sh to redirect all writes to the latest partition:
-
-    CREATE TRIGGER insert_emails_trigger
-    BEFORE INSERT ON emails
-    FOR EACH ROW EXECUTE PROCEDURE emails_insert_trigger();
-
-The purpose of partitioning is to make it easy to discard old data.
-Instead of `DELETE FROM emails WHERE ( EXTRACT(EPOCH FROM
-current_timestamp - arrival_date) / 3600)::INT > ?;`, it's as simple
-as `DROP TABLE emails_5;`.  The latter causes almost no disk activity
-compared to the former, which can run for minutes, and cause
-performance issues.
-
-#### mailbox_alias
-
-This table holds the alias names for mailboxes.
-
-    CREATE TABLE mailbox_alias (
-    mailbox varchar(30) NOT NULL,
-    alias varchar(30) NOT NULL UNIQUE
-    );
-
-    ALTER TABLE mailbox_alias ADD CONSTRAINT lowercase_only CHECK (LOWER(alias) = alias);
-
-#### emailperday
-
-This table is for statistics only, contains the number of emails
-received each day and the combined size of them.
-
-    CREATE TABLE emailperday (
-    day date default current_date UNIQUE,
-    email integer DEFAULT 0,
-    bandwidth integer DEFAULT 0
-    );
+Execute `tools/psql-create-tables.sh` to create all necessary tables and relations.
+The script also contains some documentation.
 
 ## Translation
 
