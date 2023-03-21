@@ -8,6 +8,7 @@ use HTML::Lint::Pluggable;
 use DBI;
 use XML::LibXML;
 use Redis;
+use IO::Socket qw(AF_INET);
 
 use FindBin;
 use lib "$FindBin::Bin/../lib/";
@@ -648,7 +649,8 @@ sub email_sending_and_deleting {
       $tests += invalid_recipient_test() +
       banned_sender_test() +
       banned_recipient_test() +
-      send_complete_email_test() ;
+      send_complete_email_test() +
+      test_url_clicker();
 
       # wipe $global_mailbox if there were alias tests
       if ($wipeTest) {
@@ -854,6 +856,39 @@ sub send_mail_test {
 }
 
 
+=head1 test_url_clicker
+
+Send a mail with a URL that triggers the clicker, check that it is "clicked" by listening on
+port 5555 on localhost and checking a connection.
+
+=cut
+
+sub test_url_clicker {
+    print_test_category_header( );
+    my $send_to = $mailnesia->random_name_for_testing();
+    my $check_here_url_encoded = $mailnesia->get_url_encoded_mailbox ($send_to);
+    my $hostname = '127.0.0.1';
+    my $port = 5555;
+    my $body = "This is a test mailing with a URL: http://$hostname:$port/test-activation";
+
+    #wait for the URL clicker to connect
+    ok(my $sock = IO::Socket->new(
+        Domain => AF_INET,
+        Blocking => 1,
+        Listen => 1,
+        Timeout => 3,
+        Proto => 'tcp',
+        LocalHost => $hostname,
+        LocalPort => $port,
+    ), "Opening port for listening") || return 1;
+
+    ok(send_mail($send_to, "test\@$sender_domain", undef, $body) == 0, "sending test mail with URL to $send_to" );
+    ok($sock->accept(), 'URL clicker connected');
+
+    return 3;
+}
+
+
 =head1 send_complete_email_test
 
 send complete emails in project directory/test-email/*
@@ -960,17 +995,26 @@ sub send_complete_email_test {
 $send_to: recipient's email address
 $from: sender's email address.  swaks default if not provided.
 $data: filename of a complete email message to send
+$body: string to to use as email body
 
 =cut
 
 sub send_mail {
-      my ($send_to, $from, $data) = @_;
-      my @from = ( "--from", $from ) if $from;
-      my @data = ( "--data", $data ) if $data;
+    my ($send_to, $from, $data, $body) = @_;
+    my @from = ( "--from", $from ) if $from;
+    my @data = ( "--data", $data ) if $data;
+    my @body = ( "--body", $body ) if $body;
 
-      system (
-        'swaks', '--suppress-data', '--server', 'localhost:2525', '--ehlo', 'example.com', '--to', qq{$send_to} . '@a', @from, @data
-      );
+    system (
+        'swaks',
+        '--suppress-data',
+        '--server', 'localhost:2525',
+        '--ehlo', 'example.com',
+        '--to', qq{$send_to} . '@a',
+        @from,
+        @data,
+        @body,
+    );
 }
 
 sub delete_mail_test {
