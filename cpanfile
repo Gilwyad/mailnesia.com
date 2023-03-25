@@ -37,7 +37,7 @@ requires 'Text::MultiMarkdown'      , '>= 1.000034';
 requires 'ZMQ::FFI'                 , '>= 1.11';
 
 on 'test' => sub {
-    requires 'HTML::Lint'           , '>= 2.20';
+    requires 'HTML::Lint'           , '== 2.26';
     requires 'HTML::Lint::Pluggable', '>= 0.03';
     requires 'Test::More'           , '>= 0.98';
     requires 'Test::WWW::Mechanize' , '>= 1.42';
