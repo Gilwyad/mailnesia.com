@@ -51,6 +51,7 @@ my $redis = Redis->new(
       sock     => '/var/run/redis/redis.sock'
     );
 
+my $mailbox_to_ban = 'ban-this-mailbox-as-a-test';
 
 # tests:
 
@@ -59,33 +60,39 @@ my $redis = Redis->new(
 =cut
 
 sub check_config {
-      print_test_category_header( );
+    print_test_category_header( );
 
-      ok( $config->{date_format},
-          "date_format set:                 {$config->{date_format}}" );
-      ok( $config->{mail_per_page},
-          "mail_per_page set:               {$config->{mail_per_page}}" );
-      ok( $config->{max_rss_size},
-          "max_rss_size set:                {$config->{max_rss_size}}" );
-      ok( $config->{max_email_size},
-          "max_email_size set:              {$config->{max_email_size}}" );
-      ok( $config->{daily_mailbox_limit},
-          "daily_mailbox_limit set:         {$config->{daily_mailbox_limit}}" );
-      ok( $config->{url_clicker_page_size_limit},
-          "url_clicker_page_size_limit set: {$config->{url_clicker_page_size_limit}}" );
-      ok( $config->{banned_sender_domain},
-          "banned_sender_domain set:        {$config->{banned_sender_domain}}" );
-      ok( $config->{pidfile},
-          "pidfile set:                     {$config->{pidfile}}");
+    ok( $config->{date_format},
+        "date_format set:                 {$config->{date_format}}" );
+    ok( $config->{mail_per_page},
+        "mail_per_page set:               {$config->{mail_per_page}}" );
+    ok( $config->{max_rss_size},
+        "max_rss_size set:                {$config->{max_rss_size}}" );
+    ok( $config->{max_email_size},
+        "max_email_size set:              {$config->{max_email_size}}" );
+    ok( $config->{daily_mailbox_limit},
+        "daily_mailbox_limit set:         {$config->{daily_mailbox_limit}}" );
+    ok( $config->{url_clicker_page_size_limit},
+        "url_clicker_page_size_limit set: {$config->{url_clicker_page_size_limit}}" );
+    ok( $config->{banned_sender_domain},
+        "banned_sender_domain set:        {$config->{banned_sender_domain}}" );
+    ok( $config->{pidfile},
+        "pidfile set:                     {$config->{pidfile}}");
 
-      my $banned_mailbox = $config->get_banned_mailbox();
-      ok( $banned_mailbox,
-          "Banned mailbox defined:          $banned_mailbox");
+    ok( $config->ban_mailbox($mailbox_to_ban), "mailbox $mailbox_to_ban banned" );
 
-      ( my $piddir = $config->{pidfile} ) =~ s!/[^/]+$!!;
-      ok( -d $piddir, "piddir exists: {$piddir}" );
+    my $banned_mailbox = $config->get_banned_mailbox();
+    ok( $banned_mailbox,
+        "Banned mailbox defined:          $banned_mailbox");
+    ok( $banned_mailbox eq $mailbox_to_ban,
+        "Banned mailbox ($banned_mailbox) is the same as the one we wanted: $mailbox_to_ban"
+    );
 
-      return 10;
+
+    ( my $piddir = $config->{pidfile} ) =~ s!/[^/]+$!!;
+    ok( -d $piddir, "piddir exists: {$piddir}" );
+
+    return 12;
 }
 
 sub webpage_tests {
@@ -423,7 +430,7 @@ sub rss_tests {
 
       ok (! $@, "RSS valid") ;
       my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox($mailbox);
-      $mech->content_contains ('</link><title>' . lc $mailbox, "RSS title contains " . lc $mailbox);
+      $mech->content_contains ('<title>' . lc $mailbox, "RSS title contains " . lc $mailbox);
       $mech->content_contains ("<link>$baseurl/mailbox/" . $url_encoded_mailbox, "RSS link contains " . $url_encoded_mailbox);
 
       $mech->back(); # going back to page so next test can operate on current page
@@ -1109,6 +1116,9 @@ sub restoration {
 
         }
 
+        ok( $config->unban_mailbox($mailbox_to_ban), "mailbox $mailbox_to_ban unbanned" );
+        $tests++;
+
         return $tests;
 
     }
@@ -1155,7 +1165,7 @@ sub test_empty_alias_list {
     my $mailbox = shift;
     my $url = $baseurl . "/api/alias/$mailbox";
     $mech->get_ok( $url, "GET $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( '[]' ) or warn $mech->content();
     return 3;
 }
@@ -1165,7 +1175,7 @@ sub add_alias_to_mailbox {
     my $alias = shift;
     my $url = $baseurl . "/api/alias/$mailbox/$alias";
     $mech->post_ok( $url, "POST $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc "\"$alias\"" ) or warn $mech->content();
     return 3;
 }
@@ -1175,7 +1185,7 @@ sub test_alias_list {
     my $alias_list = shift;
     my $url = $baseurl . "/api/alias/$mailbox";
     $mech->get_ok( $url, "GET $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc arrayref_to_json($alias_list) ) or warn $mech->content();
     return 3;
 }
@@ -1186,7 +1196,7 @@ sub modify_alias {
     my $new_alias = shift;
     my $url = $baseurl . "/api/alias/$mailbox/$alias/$new_alias";
     $mech->put_ok( $url, "PUT $url" );
-    $mech->header_is('Content-Type', 'application/json;charset=UTF-8');
+    $mech->header_is('Content-Type', 'application/json');
     my $result = $mech->content;
     my $expected = lc "\"$new_alias\"";
     is_deeply(sort $expected, sort $result, 'check alias list') or warn $mech->content();

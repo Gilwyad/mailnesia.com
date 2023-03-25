@@ -36,7 +36,7 @@ email addresses and IP's and other settings.
 
  - Custom SMTP server implemented in perl using AnyEvent::SMTP.  Event
    based, using only one thread.
- - Website implemented using AnyEvent::FCGI and Mojolicious, powered
+ - Website implemented using Mojolicious, powered
    by Nginx web server.
  - Emails are stored in a PostgreSQL database
  - Hosted on a virtual private server with SSD storage
@@ -45,28 +45,28 @@ The email server sends all received emails to several URL clicker
 processes using ZeroMQ to offload the email body processing which is
 somewhat CPU intensive.
 
-## Requirements
+## Requirements and installation
 
 Required Perl modules with versions are listed in the file 'cpanfile'.
 
 ## Installation
 
-The required Perl modules can be installed with the `cpan` script:
-
-    cpan Privileges::Drop AnyEvent::SMTP::Server AnyEvent::DNS AnyEvent::HTTP Encode::Detect::Detector HTML::Entities Compress::Snappy Encode::CN Encode::EBCDIC Encode::JP Encode::KR Encode::TW Encode::HanExtra CGI::RSS MIME::Base64 AnyEvent::FCGI Mojolicious ZMQ::FFI
-
-Or using the Debian package management for those that are available:
-
-    apt-get install libcommon-sense-perl libcgi-fast-perl libcgi-pm-perl libemail-mime-perl libio-aio-perl libdbi-perl libdbd-pg-perl libhtml-scrubber-perl libredis-perl libcaptcha-recaptcha-perl libtext-multimarkdown-perl libfilesys-diskspace-perl libhtml-template-perl liblib-abs-perl libprivileges-drop-perl libanyevent-http-perl libev-perl libzmq-ffi-perl
-
-Or using cpanm:
-
-    cpanm --installdeps /directory/where/you/cloned/mailnesia.com/
-
 Some modules might require compilation of C source code; these
-packages will take care of that:
+packages will take care of that on Debian 9 (Stretch):
 
     apt-get install autotools-dev g++ gcc dpkg-dev cpp fakeroot gdbserver libalgorithm-merge-perl libalgorithm-diff-xs-perl libalgorithm-diff-perl libdpkg-perl libltdl-dev libltdl7 libpython2.6 python2.6 libreadline6 libsqlite3-0 m4 make manpages-dev patch python2.6-minimal g++-4.4 libstdc++6-4.4-dev gcc-4.4 binutils cpp-4.4 libc6-dev libc-dev-bin libmpfr4 libgmp3c2 libgomp1 linux-libc-dev
+
+On Debian 11 (Bullseye):
+
+    apt-get update && apt-get install libzmq5 openssl libssl-dev zlib1g-dev autotools-dev g++ gcc dpkg-dev libdpkg-perl libltdl-dev libltdl7 libsqlite3-0 m4 make patch gcc-10 binutils cpp-10 libc6-dev libc-dev-bin libgomp1 linux-libc-dev libreadline8 cpanminus libpq-dev
+
+The required Perl modules can be installed with the `cpanm` script. Install all requirements into a directory, for example ~/perl5:
+
+    cpanm --installdeps /directory/where/you/cloned/mailnesia.com/ --local-lib-contained ~/perl5/ --skip-satisfied
+
+The path `lib/perl5` under this chosen directory must be exported and used by each application, so they load their dependencies from it:
+
+    export PERL5LIB=~/perl5/lib/perl5
 
 ## Setting up Redis
 
@@ -80,6 +80,7 @@ In /etc/redis/redis.conf:
 ## Setting up PostgreSQL
 
 ### Using password-less "trust" authentication for mailnesia PSQL user
+This applies only if clients connect locally on UNIX sockets.
 In pg_hba.conf, after "Put your actual configuration here" but before
 the local and host configurations:
 
@@ -87,11 +88,15 @@ the local and host configurations:
     local   mailnesia   mailnesia                         trust
 
 ### Create mailnesia user / database
-  1. as root: su postgres
-     cd
-     createuser --superuser mailnesia
+  1. as root:
+
+    su postgres
+    cd
+    createuser --superuser mailnesia
   2. createdb mailnesia
-  3. as any user: psql -U mailnesia
+  3. as any user:
+
+    psql -U mailnesia
 
 ### Create tables
 Execute `tools/psql-create-tables.sh` to create all necessary tables and relations.

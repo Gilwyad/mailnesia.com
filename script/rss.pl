@@ -21,7 +21,10 @@ RSS email access
 my $mailnesia = Mailnesia->new({decode_on_open=>":encoding(UTF-8)"});
 my $config    = Mailnesia::Config->new;
 my $sitename  = $config->{sitename};
-my $siteurl   = $config->{siteurl};
+my $baseurl   = $ENV{baseurl} ? "http://" . $ENV{baseurl} :
+    $mailnesia->{devel} ?
+        "http://" . $config->{siteurl_devel} :
+        "https://" . $config->{siteurl};
 
 app->mode  ( $mailnesia->{devel} ? "development" : "production");
 app->config(hypnotoad => {
@@ -31,7 +34,7 @@ app->config(hypnotoad => {
     accepts   => 0
 });
 
-app->log->info("RSS started, mode: ". app->mode);
+app->log->info("RSS started, mode: ". app->mode . ". Base URL: $baseurl");
 
 # executed at startup of the worker
 Mojo::IOLoop->next_tick(sub {
@@ -140,7 +143,7 @@ group {
                 mailbox             => $mailbox,
                 url_encoded_mailbox => $url_encoded_mailbox,
                 emaillist           => \@result,
-                baseurl             => $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "https://" . $config->{siteurl},
+                baseurl             => $baseurl,
             );
             return $self->render(
                 template => 'rss',
