@@ -19,7 +19,10 @@ script contains all website pages where SQL access is not required.
 =cut
 
 
-my $mailnesia = Mailnesia->new({decode_on_open=>":encoding(UTF-8)"});
+my $mailnesia = Mailnesia->new({
+    decode_on_open=>":encoding(UTF-8)",
+    skip_sql_connect => 1,
+});
 my $config    = Mailnesia::Config->new( $mailnesia->{devel} );
 my $sitename  = $config->{sitename};
 my $siteurl   = $config->{siteurl};

@@ -21,6 +21,7 @@ The proper way is to use 2) but CGI::Fast (index.fcgi) works only with 1), Mojol
 options:
 {
 decode_on_open => ":encoding(UTF-8)" # use this encoding for decoding on open, defaults to ""
+skip_sql_connect => true # whether to skip connecting to SQL
 }
 
 returns:
@@ -50,7 +51,7 @@ sub new {
 
                         #execute this anonymous sub:
                     }->(),
-                dbh => Mailnesia::SQL->connect()
+                dbh => $options->{skip_sql_connect} ? undef : Mailnesia::SQL->connect()
             },$package;
 
         $self->{text} = $self->initialize_text($options->{decode_on_open});

@@ -43,12 +43,14 @@ my $config = Mailnesia::Config->new;
 Parameters:
 
  - if true, indicates development (testing) version; does not save ad code 'ad_top'
+ - false: connect to Redis, true: don't connect
 
 =cut
 
 sub new {
         my $package = shift;
         my $devel = shift;
+        my $dont_connect_to_redis = shift;
 
         # loading private configuration items
         # ex: recaptcha private key - without the correct key every captcha solution will be invalid
@@ -136,10 +138,10 @@ sub new {
                         abuse     => 'peter@localhost'
                     },
 
-                redis      => Redis->new(
-                        encoding => undef,
-                        sock     => '/var/run/redis/redis.sock'
-                    ),
+                redis => $dont_connect_to_redis ? undef : Redis->new(
+                    encoding => undef,
+                    sock     => '/var/run/redis/redis.sock'
+                ),
 
                 # name of used redis databases
                 redis_databases => {
