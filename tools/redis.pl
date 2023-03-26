@@ -20,7 +20,14 @@ curl --silent --limit-rate 50k 'https://www.stopforumspam.com/downloads/listed_e
 
 =head1 DESCRIPTION
 
-parameters: [ban_mailbox|unban_mailbox|is_mailbox_banned|ban_ip|unban_ip|is_ip_banned]
+parameters:
+    - ban_mailbox
+    - unban_mailbox
+    - is_mailbox_banned
+    - ban_ip
+    - unban_ip
+    - is_ip_banned
+    - wipe_mailbox_per_IP_list
 
 Data to be added/checked comes from STDIN.
 
@@ -99,7 +106,23 @@ elsif ($ARGV[0] eq 'is_ip_banned')
     }
 }
 
+elsif ($ARGV[0] eq 'wipe_mailbox_per_IP_list')
+{
+    while (<STDIN>)
+    {
+        chomp;
+        $config->wipe_mailbox_per_IP_list($_) or warn "failed to wipe mailbox per IP list for $_\n";
+    }
+}
+
 else
 {
-    die "supported commands: ban_mailbox, unban_mailbox, is_mailbox_banned, ban_ip, unban_ip, is_ip_banned\n"
+    die "supported commands:
+        - ban_mailbox,
+        - unban_mailbox,
+        - is_mailbox_banned,
+        - ban_ip,
+        - unban_ip,
+        - is_ip_banned,
+        - wipe_mailbox_per_IP_list\n";
 }
