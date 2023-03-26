@@ -411,11 +411,10 @@ parameters: mailbox name
 sub rss_tests {
 
   my $mailbox = lc shift;
-  print "Checking RSS for $mailbox\n";
   my $tests = 0;
   my $url = $baseurl . "/rss/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
 
-  if ( $mech->follow_link_ok( {url_abs => $url}, "follow RSS link on current page" ) )
+  if ( $mech->follow_link_ok( {url_abs => $url}, "follow RSS link on current page: $url" ) )
   {
 
       my $content_type = $mech->response()->header( 'Content-Type' );
@@ -1009,7 +1008,7 @@ $body: string to to use as email body
 sub send_mail {
     my ($send_to, $from, $data, $body) = @_;
     my @from = ( "--from", $from ) if $from;
-    my @data = ( "--data", $data ) if $data;
+    my @data = ( "--data", "@" . $data ) if $data;
     my @body = ( "--body", $body ) if $body;
 
     system (
