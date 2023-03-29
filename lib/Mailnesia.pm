@@ -44,7 +44,7 @@ sub new {
                 devel    => sub {
                         # if not running on "production" machine, use devel mode
 
-                        if ( ( my $hostname = hostname() ) ne 'azaleas' )
+                        if ( ( my $hostname = hostname() ) ne 'niveus' )
                         {
                             return $hostname;
                         }

@@ -159,7 +159,7 @@ sub new {
 
                 smtp_port        => 25,                # mail server port in production
                 smtp_port_devel  => 2525,              # mail server port in development
-                smtp_host        => "172.106.75.153",  # mail server IP in production
+                smtp_host        => "172.93.51.149",   # mail server IP in production
                 smtp_host_devel  => "::"               # listen on all addresses in development
 
             },$package;
