@@ -129,7 +129,7 @@ under sub {
                         index_url => $mailnesia->{language} eq "en" ?
                         "/" :
                         "/".$mailnesia->{language}."/",
-                        ad_top    => $config->{'private_config'}->{'ad_top'},
+                        private   => $config->{'private_config'},
                     );
 
                 $self->content(content => qq{<div class="alert-message error">This mailbox has been banned due to violation of our terms and conditions of service.</div>});
@@ -155,7 +155,7 @@ under sub {
                     index_url => $mailnesia->{language} eq "en" ?
                     "/" :
                     "/".$mailnesia->{language}."/",
-                    ad_top    => $config->{'private_config'}->{'ad_top'},
+                    private   => $config->{'private_config'},
                 );
 
             $self->content(content => qq{<div class="alert-message error">Your IP address has been banned from visiting this website, because it was listed on <a href="https://stopforumspam.com/">stopforumspam.com</a> for spamming activities.</div>});
@@ -213,7 +213,7 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                             index_url => $mailnesia->{language} eq "en" ?
                             "/" :
                             "/".$mailnesia->{language}."/",
-                            ad_top    => $config->{'private_config'}->{'ad_top'},
+                            private => $config->{'private_config'},
                         );
 
                     $self->content(content => qq{<div class="alert-message warning">} .
@@ -241,7 +241,7 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                                 index_url => $mailnesia->{language} eq "en" ?
                                 "/" :
                                 "/".$mailnesia->{language}."/",
-                                ad_top    => $config->{'private_config'}->{'ad_top'},
+                                private   => $config->{'private_config'},
                             );
 
                         $self->content(content => qq{<div class="alert-message warning">} .
@@ -309,7 +309,7 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                             index_url            => $mailnesia->{language} eq "en" ?
                             "/" :
                             "/".$mailnesia->{language}."/",
-                            ad_top               => $config->{'private_config'}->{'ad_top'},
+                            private              => $config->{'private_config'},
                         );
 
                     if ($noheadernofooter) # FIXME: is this used?
@@ -417,7 +417,7 @@ list emails in a mailbox. If param noheadernofooter is used, omit any headers, f
                                 "/".$mailnesia->{language}."/",
                                 emaillist            => $emaillist,
                                 pagination           => $pagination_html,
-                                ad_top               => $config->{'private_config'}->{'ad_top'},
+                                private              => $config->{'private_config'},
                             );
 
 
@@ -477,7 +477,7 @@ open an email
                             index_url => $mailnesia->{language} eq "en" ?
                             "/" :
                             "/".$mailnesia->{language}."/",
-                            ad_top    => $config->{'private_config'}->{'ad_top'},
+                            private   => $config->{'private_config'},
                         );
 
                     $self->content(content => qq{<div class="alert-message warning">} .
@@ -505,7 +505,7 @@ open an email
                             index_url => $mailnesia->{language} eq "en" ?
                             "/" :
                             "/".$mailnesia->{language}."/",
-                            ad_top    => $config->{'private_config'}->{'ad_top'},
+                            private   => $config->{'private_config'},
                         );
 
                         $self->content(content => qq{<div class="alert-message warning">} .
@@ -573,7 +573,7 @@ open an email
                             index_url => $mailnesia->{language} eq "en" ?
                             "/" :
                             "/".$mailnesia->{language}."/",
-                            ad_top    => $config->{'private_config'}->{'ad_top'},
+                            private   => $config->{'private_config'},
                         );
 
                     $self->render(
@@ -596,7 +596,7 @@ open an email
                             "/" :
                             "/".$mailnesia->{language}."/",
                             url_encoded_mailbox => $url_encoded_mailbox,
-                            ad_top              => $config->{'private_config'}->{'ad_top'},
+                            private             => $config->{'private_config'},
                         );
 
                     $self->render
@@ -1121,7 +1121,7 @@ show the preferences for the requested mailbox
                         index_url => $mailnesia->{language} eq "en" ?
                         "/" :
                         "/".$mailnesia->{language}."/",
-                        ad_top    => $config->{'private_config'}->{'ad_top'},
+                        private   => $config->{'private_config'},
                     );
 
                 $self->content(content => qq{<div class="alert-message warning">} .
@@ -1161,7 +1161,7 @@ show the preferences for the requested mailbox
                     "/".$mailnesia->{language}."/",
                     clicker_html        => $clicker_html,
                     url_encoded_mailbox => $url_encoded_mailbox,
-                    ad_top              => $config->{'private_config'}->{'ad_top'},
+                    private             => $config->{'private_config'},
                 );
 
             $self->render(
@@ -1202,7 +1202,7 @@ show the recent visitors of the requested mailbox
                         index_url => $mailnesia->{language} eq "en" ?
                         "/" :
                         "/".$mailnesia->{language}."/",
-                        ad_top    => $config->{'private_config'}->{'ad_top'},
+                        private   => $config->{'private_config'},
                     );
 
                 $self->content(content => qq{<div class="alert-message warning">} .
@@ -1223,7 +1223,7 @@ show the recent visitors of the requested mailbox
                     "/" :
                     "/".$mailnesia->{language}."/",
                     visitor_list        => $config->get_formatted_visitor_list($mailbox),
-                    ad_top              => $config->{'private_config'}->{'ad_top'},
+                    private             => $config->{'private_config'},
                 );
 
             $self->render(
@@ -1263,7 +1263,7 @@ get '/random/' => sub {
                         "/" :
                         "/".$mailnesia->{language}."/",
                         mailbox   => '',
-                        ad_top    => $config->{'private_config'}->{'ad_top'},
+                        private   => $config->{'private_config'},
                     );
 
                 $self->content(content => 'Internal Server Error');
@@ -1333,7 +1333,7 @@ get '/stats.html' => sub{
                 "/" :
                 "/".$mailnesia->{language}."/",
                 mailbox   => $mailnesia->check_mailbox_characters( $self->cookie('mailbox') ),
-                ad_top    => $config->{'private_config'}->{'ad_top'},
+                private   => $config->{'private_config'},
             );
 
         my $query = $mailnesia->{dbh}->prepare ($sql) or

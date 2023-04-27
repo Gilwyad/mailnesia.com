@@ -42,7 +42,8 @@ my $config = Mailnesia::Config->new;
 
 Parameters:
 
- - if true, indicates development (testing) version; does not save ad code 'ad_top'
+ - if true, indicates development (testing) version; does not load any values from the private.conf
+    to %mailnesia_private (e.g. ad code, Google Analytics, Recaptcha etc)
  - false: connect to Redis, true: don't connect
 
 =cut
@@ -56,6 +57,7 @@ sub new {
         # ex: recaptcha private key - without the correct key every captcha solution will be invalid
         my %mailnesia_private;
 
+        unless ($devel)
         {
             my $conf = Mailnesia->get_project_directory() . "/lib/Mailnesia/mailnesia-private.conf";
             if ( open my $f, "<", $conf )
@@ -65,7 +67,7 @@ sub new {
                     chomp;
                     next unless m/^([a-z_]+)\s*=\s*(.*)$/;
                     my ($key, $value) = ($1, $2);
-                    $mailnesia_private{$key} = ($key eq 'ad_top' and $devel) ? '' : $value;
+                    $mailnesia_private{$key} = $value;
                 }
                 close $f;
             }

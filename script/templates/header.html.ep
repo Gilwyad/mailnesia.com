@@ -1,16 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <% my $google_analytics = begin %>
-      <script async src="//www.googletagmanager.com/gtag/js?id=UA-17894100-2"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-17894100-2');
-      </script>
-    <% end %>
-
-    <%= $google_analytics->() if !$mailnesia->{devel} %>
-
+    <%== $private->{'ga'} %>
     <title><%= "$mailbox @" if $mailbox %> Mailnesia - <%= $mailnesia->message("motto") %></title>
     <meta name="language" content="<%= $mailnesia->{language} %>" />
     <link rel="stylesheet" type="text/css" href="/css/style-min.css" />
@@ -18,7 +9,7 @@
   </head>
   <body>
     <div id="fm-top">
-      <%== $ad_top %>
+      <%== $private->{'ad_top'} %>
     </div>
     <div id="header">
       <div id="logo">
