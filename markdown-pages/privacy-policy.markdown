@@ -11,9 +11,8 @@ We may change this policy from time to time by updating this page. You should ch
 
 We may collect the following information:
 
- - Website visitor activities.
+ - Website visitor activities, including IP address, browser, device used and date of visit.
  - We collect information from you when you fill out a form.
-
 
 ## What we do with the information we gather
 
@@ -26,6 +25,11 @@ We require this information to understand your needs and provide you with a bett
 
 Your information, whether public or private, will not be sold, exchanged, transferred, or given to any other company for any reason whatsoever, without your consent, other than for the express purpose of delivering the purchased product or service requested.
 
+The visitor activity is available in each mailbox settings page for the following reasons:
+
+ - to be able to verify if anyone else is using the mailbox other than you
+ - to help deter fraud.
+
 ## Security
 
 We are committed to ensuring that your information is secure. In order to prevent unauthorized access or disclosure, we have put in place suitable physical, electronic and managerial procedures to safeguard and secure the information we collect online.
@@ -35,6 +39,8 @@ We are committed to ensuring that your information is secure. In order to preven
 A cookie is a small file which asks permission to be placed on your computer's hard drive. Once you agree, the file is added and the cookie helps analyze web traffic or lets you know when you visit a particular site. Cookies allow web applications to respond to you as an individual. The web application can tailor its operations to your needs, likes and dislikes by gathering and remembering information about your preferences.
 
 We use traffic log cookies to identify which pages are being used. This helps us analyze data about web page traffic and improve our website in order to tailor it to customer needs. We only use this information for statistical analysis purposes and then the data is removed from the system.
+
+We use Google Analytics for this purpose which means that information about your visit is stored on Google servers. This includes (but not limited to) time and location of you visit such as country, continent, browser name and version, operating system, but does not include any personally identifiable information.
 
 Overall, cookies help us provide you with a better website by enabling us to monitor which pages you find useful and which you do not. A cookie in no way gives us access to your computer or any information about you, other than the data you choose to share with us.
 
@@ -58,7 +64,6 @@ By using our site, you consent to our web site privacy policy.
 
 ## Changes to our Privacy Policy
 
-If we decide to change our privacy policy, we will post those changes on this page, and/or update the Privacy Policy modification date below.
+The modification history of this privacy policy is available at the following page:
 
-This policy was last modified on (Y/M/D): 2011/07/17
-
+[https://github.com/Gilwyad/mailnesia.com/blob/master/markdown-pages/privacy-policy.markdown](https://github.com/Gilwyad/mailnesia.com/blob/master/markdown-pages/privacy-policy.markdown)
