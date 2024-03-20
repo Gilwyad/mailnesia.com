@@ -4,3 +4,4 @@ TAGS
 /lib/Mailnesia/mailnesia-private.conf
 /lib/Mailnesia/mailnesia-private.json
 /venv/
+/.vscode/
