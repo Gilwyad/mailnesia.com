@@ -92,14 +92,6 @@ under sub {
 group {
     under '/api';
 
-    # bad request
-    get '/' => sub {
-        return shift->render(
-            text => '',
-            status=>400
-        );
-    };
-
     group {
         under '/mailbox';
         # Return all emails in a mailbox in JSON format as:

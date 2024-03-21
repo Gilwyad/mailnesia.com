@@ -92,12 +92,6 @@ under sub {
 group {
     under '/rss';
 
-    get '/' => sub {
-        return shift->render(
-            text => '',
-            status=>404
-        );
-    };
 
     get '/#rss' => sub {
 

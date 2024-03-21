@@ -26,5 +26,8 @@ $t->get_ok("/settings/$random_url_encoded_name", "GET /settings/$random_url_enco
 ->element_exists('div#clicker-status', "page contains clicker status")
 ->text_like('div#clicker-status span' => qr"ON", "page contains clicker status with text ON");
 
+$t->get_ok("/mailbox/", "GET /mailbox/")
+  ->status_is(200, "status is 200")
+  ->text_like('html head title', qr'default @', 'title contains default');
 
 done_testing();
