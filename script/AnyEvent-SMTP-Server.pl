@@ -464,7 +464,7 @@ sub process_email (\%) {
                 close $errorlog;
 
                 return;
-            };
+            } if $self->{debug};
 
         my @to;
         foreach ( @{ $mail->{to} } )
