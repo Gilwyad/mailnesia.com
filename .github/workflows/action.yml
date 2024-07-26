@@ -17,4 +17,5 @@ jobs:
           install-modules-with: cpanm
           install-modules-args: --with-develop --with-configure --installdeps --skip-satisfied
 
+      - run: perl -v
       - run: prove -lv t
