@@ -1,0 +1,9 @@
+steps:
+  - uses: actions/checkout@v4
+  - uses: shogo82148/actions-setup-perl@v1
+    with:
+      perl-version: "5.32"
+      install-modules-with: cpanm
+      install-modules-args: --with-develop --with-configure --installdeps --skip-satisfied
+
+  - run: prove -lv t
