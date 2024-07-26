@@ -15,7 +15,7 @@ jobs:
         with:
           perl-version: "5.32"
           install-modules-with: cpanm
-          install-modules-args: --with-develop --with-configure --installdeps --skip-satisfied
+          install-modules-args: --installdeps . --skip-satisfied
 
       - run: perl -v
       - run: prove -lv t
