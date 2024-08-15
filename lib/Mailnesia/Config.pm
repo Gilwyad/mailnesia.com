@@ -464,10 +464,15 @@ sub log_ip {
         join($self->{redis_mailbox_visitors_field_separator}, $current_timestamp, $ip, $user_agent)
     );
 
-    return $self->{redis}->expire(
+    $self->{redis}->expire(
         $key,
         $self->{redis_mailbox_visitors_retention_period}
     );
+
+    # remove elements that are older than the retention period
+    $self->{redis}->zremrangebyscore($key, 0, $current_timestamp-$self->{redis_mailbox_visitors_retention_period});
+
+    return 1;
 }
 
 =head1 get_visitor_list
