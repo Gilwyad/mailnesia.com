@@ -14,8 +14,8 @@ So the rule of thumb is, if you plan to use an email for years, use
 @mailnesia.com, if you just need a quick address then forget about it,
 use these alternate names.
 
- - bulkfinder.xyz
- - dup.email
- - legit-subscription.online
- - mailgetter.shop
- - poofmail.store
+ - bulkfinder.online
+ - dup.lol
+ - legit-subscription.store
+ - mailgetter.art
+ - poofmail.online
