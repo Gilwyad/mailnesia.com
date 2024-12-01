@@ -1,0 +1,21 @@
+name: Mailnesia Perl unittests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.32"
+
+      - run: pwd
+      - run: cpanm --installdeps . --skip-satisfied
+      - run: perl -v
+      - run: prove -lv t
