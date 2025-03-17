@@ -4,7 +4,8 @@
 This is the current list of available alternative domain names.  Some
 important notes first:
 
- - They can be used for one year, until Nov 28, 2023 after which they will expire and no longer accept emails.
+ - They can be used for one year, after which they will expire and no longer accept emails.
+   The current expiry date is around the 29th of November each year.
  - You can always use your own domain name too, just follow the
    instructions on the [features](/features.html) page.
  - If you have an idea for a domain name please
