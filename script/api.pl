@@ -280,8 +280,13 @@ group {
             my $self = shift;
             my $mailbox = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox') );
             my $alias   = lc $mailnesia->get_url_decoded_mailbox ( $self->param( 'alias' ) );
-            my $status = $mailnesia->setAlias($mailbox, $alias) ? 201 : 500;
-            return $self->render(status=>$status, json=>$alias);
+            # check if the alias can be set
+            my $status_code = $mailnesia->setAlias_check($mailbox, $alias)->[0];
+
+            if ($status_code == 200) {
+                $status_code = $mailnesia->setAlias($mailbox, $alias) ? 201 : 500;
+            }
+            return $self->render(status=>$status_code, json=>$alias);
         };
 
         # modify an alias of a mailbox from alias to new_alias
@@ -290,8 +295,13 @@ group {
             my $mailbox   = lc $mailnesia->get_url_decoded_mailbox ( $self->param('mailbox'   ) );
             my $alias     = lc $mailnesia->get_url_decoded_mailbox ( $self->param('alias'     ) );
             my $new_alias = lc $mailnesia->get_url_decoded_mailbox ( $self->param('new_alias' ) );
-            my $status = $mailnesia->modifyAlias($mailbox, $alias, $new_alias) ? 200 : 500;
-            return $self->render(status=>$status, json=>$new_alias);
+            # check if the alias can be set
+            my $status_code = $mailnesia->setAlias_check($mailbox, $new_alias)->[0];
+
+            if ($status_code == 200) {
+                $status_code = $mailnesia->modifyAlias($mailbox, $alias, $new_alias) ? 200 : 500;
+            }
+            return $self->render(status=>$status_code, json=>$new_alias);
         };
 
         # remove an alias from a mailbox

@@ -3,6 +3,7 @@
 use strict;
 use Test::More ;
 use Test::WWW::Mechanize;
+use WWW::Mechanize;
 use HTML::Lint;
 use HTML::Lint::Pluggable;
 use DBI;
@@ -1147,6 +1148,16 @@ sub api_alias_tests {
     $tests += add_alias_to_mailbox($mailbox, $alias2);
     $tests += test_alias_list($mailbox, [$alias1, $alias2]);
 
+    # test that the same alias cannot be set for multiple mailboxes
+    $tests += add_alias_to_mailbox_error($mailnesia->random_name_for_testing(), $alias1, 500);
+
+    # test that an alias cannot be set for an alias
+    $tests += add_alias_to_mailbox_error($alias1, $alias2, 409);
+
+    # test that the alias cannot be the same as the mailbox
+    my $same = $mailnesia->random_name_for_testing();
+    $tests += add_alias_to_mailbox_error($same, $same, 409);
+
     my $alias3 = $mailnesia->random_name_for_testing();
     $tests += modify_alias($mailbox, $alias2, $alias3);
     $tests += test_alias_list($mailbox, [$alias1, $alias3]);
@@ -1177,6 +1188,20 @@ sub add_alias_to_mailbox {
     $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc "\"$alias\"" ) or warn $mech->content();
     return 3;
+}
+
+sub add_alias_to_mailbox_error {
+    my $mailbox = shift;
+    my $alias = shift;
+    my $expected_status_code = shift;
+    my $url = $baseurl . "/api/alias/$mailbox/$alias";
+    my $m = WWW::Mechanize->new(autocheck=>0);
+    my $response = $m->post( $url, content => "" );
+    ok(
+        $response->code eq $expected_status_code,
+        "Test that setting the alias $alias on mailbox $mailbox results in an error $expected_status_code"
+    );
+    return 1;
 }
 
 sub test_alias_list {
