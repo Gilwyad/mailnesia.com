@@ -13,7 +13,7 @@
 new_partition_rows=300000;
 
 #arguments to psql
-psqlArgs="--tuples-only --no-psqlrc --username=mailnesia --quiet";
+source psql-connection-arguments.sh
 
 #number of partitions to keep
 partition_count=30

@@ -21,8 +21,12 @@ jobs:
         run: pwd
       - name: install dependencies
         run: cpanm --installdeps . --skip-satisfied
-      - name: perl -v
-        run: perl -v
+      - name: create tables in postgres
+        run: bash ./tools/psql-create-tables.sh
+        env:
+          postgres_host: localhost
+          postgres_user: mailnesia
+          postgres_password: test
       - name: execute unit/function tests
         run: prove -lv t
         env:

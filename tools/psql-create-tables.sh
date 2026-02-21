@@ -3,7 +3,7 @@
 # This script can be run initially to create all tables and necessary relations.
 
 #arguments to psql
-psqlArgs="--tuples-only --no-psqlrc --username=mailnesia --quiet";
+source psql-connection-arguments.sh
 
 # Partitioning is used, the key being the id because that's the only
 # value that needs to be unique in the whole table across the partitions.
