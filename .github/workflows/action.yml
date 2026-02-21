@@ -10,15 +10,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: shogo82148/actions-setup-perl@v1
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: set up Perl
+        uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: "5.32"
 
-      - run: pwd
-      - run: cpanm --installdeps . --skip-satisfied
-      - run: perl -v
-      - run: prove -lv t
+      - name: print working directory
+        run: pwd
+      - name: install dependencies
+        run: cpanm --installdeps . --skip-satisfied
+      - name: perl -v
+        run: perl -v
+      - name: execute unit/function tests
+        run: prove -lv t
+        env:
+          postgres_host: localhost
+          postgres_user: mailnesia
+          postgres_password: test
+          redis_host: localhost
 
     # Service containers to start
     services:
@@ -26,6 +37,7 @@ jobs:
       redis:
         # Docker Hub image
         image: redis
+        # TODO: password?
         #
         ports:
           # Opens tcp port 6379 on the host and service container
@@ -36,7 +48,8 @@ jobs:
         image: postgres
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: mailnesia
+          POSTGRES_PASSWORD: test
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready

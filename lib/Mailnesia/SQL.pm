@@ -64,22 +64,29 @@ sub connect ($;\$$&) {
         {
             #    warn "connecting to SQL, warn: $warn\n";
             my $db = "Pg";
-            my $db_database = "mailnesia";
+            my $db_database = $ENV{postgres_database} || "mailnesia";
             my $db_table = "emails";
-            my $user = "mailnesia";
-            my $password = "";
+            my $user = $ENV{postgres_user} || "mailnesia";
+            my $password = $ENV{postgres_password} || "";
+            my $host = $ENV{postgres_host} || "localhost";
+            my $connection_string = "dbi:$db:database=$db_database;"; # connect on socket
+
+            if ($password) {
+                # connect on TCP
+                $connection_string += "host=$host;port=5432";
+            }
 
             $dbh = DBI->connect_cached(
-                    "dbi:$db:dbname=$db_database",
-                    $user,
-                    $password,
-                    {
-                        RaiseError => 0,
-                        AutoCommit => 1,
-                        PrintWarn=>1,
-                        pg_enable_utf8 => 1 # to get the data already decoded
-                    }
-                );
+                $connection_string,
+                $user,
+                $password,
+                {
+                    RaiseError => 0,
+                    AutoCommit => 1,
+                    PrintWarn=>1,
+                    pg_enable_utf8 => 1 # to get the data already decoded
+                }
+            );
 
             if (ref $dbh)
             {
