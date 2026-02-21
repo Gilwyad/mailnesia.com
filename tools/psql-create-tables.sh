@@ -80,7 +80,7 @@ createEmailPerDayTable()
 startPartitioning()
 {
   echo "running psql-partition-update.sh"
-  /bin/bash psql-partition-update.sh
+  /bin/bash $SCRIPT_DIR/psql-partition-update.sh
 
   echo "starting partitioning the emails table"
   echo "
