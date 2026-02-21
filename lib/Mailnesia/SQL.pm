@@ -73,7 +73,7 @@ sub connect ($;\$$&) {
 
             if ($password) {
                 # connect on TCP
-                $connection_string += "host=$host;port=5432";
+                $connection_string .= "host=$host;port=5432";
             }
 
             $dbh = DBI->connect_cached(
