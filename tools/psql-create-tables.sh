@@ -2,8 +2,11 @@
 
 # This script can be run initially to create all tables and necessary relations.
 
+# Resolve the full path of the script
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
 #arguments to psql
-source psql-connection-arguments.sh
+source $SCRIPT_DIR/psql-connection-arguments.sh
 
 # Partitioning is used, the key being the id because that's the only
 # value that needs to be unique in the whole table across the partitions.

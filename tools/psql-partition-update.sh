@@ -12,8 +12,11 @@
 #create new partition after this many rows:
 new_partition_rows=300000;
 
+# Resolve the full path of the script
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
 #arguments to psql
-source psql-connection-arguments.sh
+source $SCRIPT_DIR/psql-connection-arguments.sh
 
 #number of partitions to keep
 partition_count=30
