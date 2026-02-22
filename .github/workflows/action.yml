@@ -1,0 +1,65 @@
+name: Mailnesia Perl unittests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: set up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: "5.32"
+
+      - name: print working directory
+        run: pwd
+      - name: install dependencies
+        run: cpanm --installdeps . --skip-satisfied
+      - name: create tables in postgres
+        run: bash ./tools/psql-create-tables.sh
+        env:
+          postgres_host: localhost
+          postgres_user: mailnesia
+          PGPASSWORD: test
+      - name: execute unit/function tests
+        run: prove -lv t
+        env:
+          postgres_host: localhost
+          postgres_user: mailnesia
+          postgres_password: test
+          redis_host: localhost
+
+    # Service containers to start
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image
+        image: redis
+        # TODO: password?
+        #
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: mailnesia
+          POSTGRES_PASSWORD: test
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432

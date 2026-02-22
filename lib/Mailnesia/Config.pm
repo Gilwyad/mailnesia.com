@@ -44,14 +44,14 @@ Parameters:
 
  - if true, indicates development (testing) version; does not load any values from the private.conf
     to %mailnesia_private (e.g. ad code, Google Analytics, Recaptcha etc)
- - false: connect to Redis, true: don't connect
 
 =cut
 
 sub new {
         my $package = shift;
         my $devel = shift;
-        my $dont_connect_to_redis = shift;
+
+        my $redis_host = $ENV{redis_host};
 
         # loading private configuration items
         # ex: recaptcha private key - without the correct key every captcha solution will be invalid
@@ -140,9 +140,12 @@ sub new {
                         abuse     => 'peter@localhost'
                     },
 
-                redis => $dont_connect_to_redis ? undef : Redis->new(
-                    encoding => undef,
-                    sock     => '/var/run/redis/redis.sock'
+                redis => $redis_host ? Redis->new(
+                    server => "$redis_host:6379",
+                    reconnect => 1,
+                    every => 500_000,
+                ) : Redis->new(
+                    sock => '/var/run/redis/redis.sock',
                 ),
 
                 # name of used redis databases
