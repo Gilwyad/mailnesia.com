@@ -7,7 +7,6 @@ use HTML::Lint;
 use HTML::Lint::Pluggable;
 use DBI;
 use XML::LibXML;
-use Redis;
 use IO::Socket qw(AF_INET);
 
 use FindBin;
@@ -45,11 +44,6 @@ my ($url,$category);
 
 
 my $parser = XML::LibXML->new();
-
-my $redis = Redis->new(
-      encoding => undef,
-      sock     => '/var/run/redis/redis.sock'
-    );
 
 my $mailbox_to_ban = 'ban-this-mailbox-as-a-test';
 
