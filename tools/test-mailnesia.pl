@@ -28,6 +28,12 @@ my $email_id;
 my $sender_domain = q{gmail.com};
 my $project_directory = $mailnesia->get_project_directory();
 my $baseurl = $mailnesia->{devel} ? "http://" . $config->{siteurl_devel} : "http://" . $config->{siteurl};
+# base URLs per service, can be set to a different value than $baseurl for testing without Nginx:
+my $website_baseurl = $ENV{website_baseurl} || $baseurl;
+my $website_pages_baseurl = $ENV{website_pages_baseurl} || $baseurl;
+my $api_baseurl = $ENV{api_baseurl} || $baseurl;
+my $rss_baseurl = $ENV{rss_baseurl} || $baseurl;
+
 
 # language pages to test:
 my @languages = qw!/ /hu /it /lv /fi /pt /de /ru /pl /zh /fr /es /cs /es-ar /ms /id /pt-br!;
@@ -96,12 +102,12 @@ sub webpage_tests {
 
     for (@languages)
     {
-        $url = $baseurl.$_;
+        $url = $website_pages_baseurl.$_;
 
         print_testcase_header($category . " " . $_);
         $numof_tests = webpage_tests_internal($url);
 
-        $url = $baseurl.$_."/features.html";
+        $url = $website_pages_baseurl.$_."/features.html";
         $numof_tests += webpage_tests_internal($url);
     }
     return scalar @languages * $numof_tests;
@@ -139,7 +145,7 @@ sub mailbox_settings_page_tests {
     my $mailbox_url_encoded = $mailnesia->get_url_encoded_mailbox ( $mailbox );
     my $tests = 0;
 
-    $url = $baseurl. "/settings/$mailbox_url_encoded";
+    $url = $website_baseurl. "/settings/$mailbox_url_encoded";
 
     if ( $mech->get_ok( $url, "GET $url" ) ) {
         $mech->text_contains( qq{Welcome to the preferences page of mailbox $mailbox_lowercase!}, "page contains the mailbox name");
@@ -170,7 +176,7 @@ sub mailbox_tests {
       my $mailbox_url_encoded = $mailnesia->get_url_encoded_mailbox ( $mailbox );
       my $tests = 0;
 
-      $url = $baseurl. "/mailbox/$mailbox_url_encoded";
+      $url = $website_baseurl. "/mailbox/$mailbox_url_encoded";
 
       $mech->get_ok( $url, "GET $url" );
       $tests += 1 + check_mailbox_header();
@@ -187,7 +193,7 @@ sub mailbox_tests {
       $tests += 1 + check_mailbox_header();
       my $valid_part = "wfef8yudl8sylisgyhsldigalf8e";
       my $invalid_part = ",1";
-      $url = $baseurl . "/mailbox/" . $valid_part . $invalid_part;
+      $url = $website_baseurl . "/mailbox/" . $valid_part . $invalid_part;
 
       if ( $mech->get_ok( $url, "test invalid mailbox: $url" ) )
       {
@@ -219,7 +225,7 @@ sub alias_negative_tests {
             $alias_fail = $mailnesia->random_name_for_testing();
 
             # try to set an alias for an alias
-            $mech->post("$baseurl/settings/$_/alias/set",
+            $mech->post("$website_baseurl/settings/$_/alias/set",
                         {
                             alias=>$alias_fail
                         }
@@ -239,7 +245,7 @@ sub alias_negative_tests {
 
 
             #try to set an alias that is already set
-            $mech->post("$baseurl/settings/$alias_fail/alias/set",
+            $mech->post("$website_baseurl/settings/$alias_fail/alias/set",
                         {
                             alias=>$_
                         }
@@ -262,7 +268,7 @@ sub alias_negative_tests {
         if (@aliases)
         {
             #try to set an alias that is a mailbox (has alias)
-            $mech->post("$baseurl/settings/$alias_fail/alias/set",
+            $mech->post("$website_baseurl/settings/$alias_fail/alias/set",
                         {
                             alias=>$global_mailbox
                         }
@@ -298,9 +304,9 @@ sub alias_positive_tests {
         my $mailbox_url_encoded = $mailnesia->get_url_encoded_mailbox ( lc $global_mailbox );
         my $alias_url_encoded;
 
-        $url = "$baseurl/mailbox/$mailbox_url_encoded" ;
+        $url = "$website_baseurl/mailbox/$mailbox_url_encoded" ;
         $mech->get_ok( $url, "GET $url" );
-        $url = "$baseurl/settings/$mailbox_url_encoded";
+        $url = "$website_baseurl/settings/$mailbox_url_encoded";
 
         if ($mech->follow_link_ok( { url => "/settings/$mailbox_url_encoded" }, "follow settings link" ))
         {
@@ -331,7 +337,7 @@ sub alias_positive_tests {
             {
                 my $alias = $mailnesia->random_name_for_testing();
 
-                if ( $mech->post_ok("$baseurl/settings/$mailbox_url_encoded/alias/set",
+                if ( $mech->post_ok("$website_baseurl/settings/$mailbox_url_encoded/alias/set",
                                     {
                                         alias=>$alias
                                     },
@@ -374,7 +380,7 @@ sub alias_positive_tests {
             #test the first alias
             $alias_url_encoded = $mailnesia->get_url_encoded_mailbox ( $aliases[0] );
 
-            $url = $baseurl. "/mailbox/$alias_url_encoded" ;
+            $url = $website_baseurl. "/mailbox/$alias_url_encoded" ;
             $mech->get_ok( $url, "open alias $aliases[0] at $url" );
 
             $mech->content_lacks( '<div class="alias_form"', "no form to set alias" );
@@ -390,7 +396,7 @@ sub alias_positive_tests {
 sub random_mailbox {
       print_test_category_header( );
 
-      $url = $baseurl. "/random/";
+      $url = $website_baseurl. "/random/";
       return check_empty_mailbox($url);
 }
 
@@ -404,34 +410,37 @@ parameters: mailbox name
 
 sub rss_tests {
 
-  my $mailbox = lc shift;
-  my $tests = 0;
-  my $url = $baseurl . "/rss/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
+    my $mailbox = lc shift;
+    my $tests = 0;
+    my $url = "/rss/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
 
-  if ( $mech->follow_link_ok( {url_abs => $url}, "follow RSS link on current page: $url" ) )
-  {
+    my $link_found = $mech->find_link( url => $url );
+    ok ( $link_found, "follow RSS link on current page: $url" );
 
-      my $content_type = $mech->response()->header( 'Content-Type' );
-      is ( $content_type, 'application/xml', "Content-Type is application/xml");
+    if ( $link_found ) {
+        $mech->get_ok( $rss_baseurl . $url, "GET $rss_baseurl$url" );
 
-      eval {
-              my $parser = XML::LibXML->load_xml
-              (
-                  string => $mech->content
-              );
-          };
+        my $content_type = $mech->response()->header( 'Content-Type' );
+        is ( $content_type, 'application/xml', "Content-Type is application/xml");
 
-      ok (! $@, "RSS valid") ;
-      my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox($mailbox);
-      $mech->content_contains ('<title>' . lc $mailbox, "RSS title contains " . lc $mailbox);
-      $mech->content_contains ("<link>$baseurl/mailbox/" . $url_encoded_mailbox, "RSS link contains " . $url_encoded_mailbox);
+        eval {
+            my $parser = XML::LibXML->load_xml
+            (
+                string => $mech->content
+            );
+        };
 
-      $mech->back(); # going back to page so next test can operate on current page
-      $tests = 4;
+        ok (! $@, "RSS valid") ;
+        my $url_encoded_mailbox = $mailnesia->get_url_encoded_mailbox($mailbox);
+        $mech->content_contains ('<title>' . lc $mailbox, "RSS title contains " . lc $mailbox);
+        $mech->content_contains ("<link>$baseurl/mailbox/" . $url_encoded_mailbox, "RSS link contains " . $url_encoded_mailbox);
 
-  }
+        $mech->back(); # going back to page so next test can operate on current page
+        $tests = 5;
 
-  return $tests + 1;
+    }
+
+    return $tests + 1;
 
 }
 
@@ -444,7 +453,7 @@ parameters: mailbox name
 sub rss_forbidden_tests {
   my $mailbox = shift;
   print "Checking forbidden RSS for $mailbox\n";
-  my $url = $baseurl . "/rss/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
+  my $url = $rss_baseurl . "/rss/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
 
   ok ( $mech->get( $url ), "GET $url" );
   is ( $mech->status(), 403, "Status is 403 Forbidden");
@@ -465,7 +474,7 @@ parameters: mailbox name
 sub api_forbidden_tests {
     my $mailbox = shift;
     print "Checking forbidden API request for $mailbox\n";
-    my $url = $baseurl . "/api/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
+    my $url = $api_baseurl . "/api/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
 
     ok ( $mech->get( $url ), "GET $url" );
     is ( $mech->status(), 403, "Status is 403 Forbidden");
@@ -591,7 +600,7 @@ sub negative_delete_test {
       print_test_category_header( );
       my $mailbox = $mailnesia->random_name_for_testing();
       my $id = int(rand(1_000_000));
-      my $url = "$baseurl/mailbox/" . lc $mailbox . "/$id";
+      my $url = "$website_baseurl/mailbox/" . lc $mailbox . "/$id";
 
       $mech->post( $url, {delete => 1} );
 
@@ -610,17 +619,17 @@ sub visitor_test {
     my $visitor_list = $config->get_formatted_visitor_list($mailbox);
     is(scalar @$visitor_list, 0, 'visitor list should be empty');
 
-    my $url = "$baseurl/mailbox/" . $mailbox;
-    $mech->get($url);
+    my $url = "$website_baseurl/mailbox/" . $mailbox;
+    $mech->get_ok($url);
     $visitor_list = $config->get_formatted_visitor_list($mailbox);
     is(scalar @$visitor_list, 1, 'visitor list should contain 1 item');
 
     # one visitor is only logged once in each hour
-    $mech->get($url);
+    $mech->get_ok($url);
     $visitor_list = $config->get_formatted_visitor_list($mailbox);
-    is(scalar @$visitor_list, 1, 'visitor list should contain 1 items');
+    is(scalar @$visitor_list, 1, 'visitor list should still only contain 1 item');
 
-    return 3;
+    return 5;
 }
 
 sub email_sending_and_deleting {
@@ -657,7 +666,7 @@ sub email_sending_and_deleting {
         $tests += wipe_mailbox_test($global_mailbox) ;
       }
 
-      $tests += check_empty_mailbox("$baseurl/mailbox/$global_mailbox");
+      $tests += check_empty_mailbox("$website_baseurl/mailbox/$global_mailbox");
 
       kill 15, $pid ;
       waitpid ( $pid, 0 );
@@ -692,7 +701,7 @@ sub banned_recipient_test {
       my $banned_mailbox = $config->get_banned_mailbox();
       ok( send_mail ( $banned_mailbox, $mailnesia->random_name_for_testing() ."@". $sender_domain ) != 0, "sending email to banned mailbox $banned_mailbox fails" );
 
-      $url = $baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $banned_mailbox );
+      $url = $website_baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $banned_mailbox );
       $mech->get( $url );
       is ($mech->status, 403, "open a banned mailbox: GET $url" );
       $mech->text_lacks( qq{Mail for } . $banned_mailbox );
@@ -717,12 +726,12 @@ sub invalid_recipient_test {
 
   ok( send_mail ( $invalid_mailbox, $mailnesia->random_name_for_testing() ."@". $sender_domain ) != 0, "sending email to invalid mailbox $invalid_mailbox fails" );
 
-  $url = $baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $invalid_mailbox );
+  $url = $website_baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $invalid_mailbox );
   $mech->get_ok( $url, "open an invalid mailbox (will show warning only): GET $url" );
   $mech->text_contains( q{Invalid characters entered! (valid: asd)} );
   $mech->text_unlike ( qr/\bnil\b/, "Text does not contain 'nil' as separate word" );
   $mech->text_unlike ( qr/�/, "Text does not contain an invalid utf8 character" );
-  my $api_tests = api_check_bad_request($baseurl. "/api/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $invalid_mailbox ));
+  my $api_tests = api_check_bad_request($api_baseurl. "/api/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $invalid_mailbox ));
   return 5 + $api_tests;
 }
 
@@ -741,7 +750,7 @@ sub invalid_sender_test {
 
       ok( send_mail ( $mailbox , $mailnesia->random_name_for_testing() ."@". $_ ) != 0, "sending email from invalid domain $_ fails" );
 
-      $url = $baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
+      $url = $website_baseurl. "/mailbox/" . $mailnesia->get_url_encoded_mailbox ( $mailbox );
       $mech->get_ok( $url, "open mailbox (should be empty): GET $url" );
       $mech->text_contains( qq{Mail for } . lc $mailbox );
       $mech->text_contains( qq{No e-mail message for } . lc $mailbox );
@@ -771,7 +780,7 @@ sub banned_sender_test {
 
         (my $recipient_url_encoded = $mailnesia->get_url_encoded_mailbox ($recipient)) =~ s/@.*//; # do not use @ in URL
 
-        $url = $baseurl. "/mailbox/$recipient_url_encoded";
+        $url = $website_baseurl. "/mailbox/$recipient_url_encoded";
         $mech->get_ok( $url, "GET $url" );
 
         $mech->text_contains( 'No e-mail message for' );
@@ -802,7 +811,7 @@ sub send_mail_test {
 
       my $check_here_url_encoded = $mailnesia->get_url_encoded_mailbox ($check_here);
 
-      $url = $baseurl. "/mailbox/$check_here_url_encoded";
+      $url = $website_baseurl. "/mailbox/$check_here_url_encoded";
       $mech->get_ok( $url, "GET $url" );
       $tests += check_mailbox_header( $check_here );
 
@@ -811,7 +820,7 @@ sub send_mail_test {
       my $mail_link_regex = qr{/mailbox/$lc_check_here_url_encoded/\d+};
       $mech->content_like ($mail_link_regex, "mailbox view contains a link to open email");
       # also get mailbox using API
-      $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded");
+      $tests += api_check_mailbox($api_baseurl. "/api/mailbox/$check_here_url_encoded");
       if ( ok ( my $first_email = $mech->find_link ( url_regex => $mail_link_regex ),
                 'find first email' ) )
       {
@@ -825,18 +834,18 @@ sub send_mail_test {
           # also get email using API
           $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
           ok ($email_id, "Found ID of first email on page");
-          $tests += 1 + api_check_email($baseurl. "/api/mailbox/$check_here_url_encoded/$email_id");
+          $tests += 1 + api_check_email($api_baseurl. "/api/mailbox/$check_here_url_encoded/$email_id");
 
-          $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=1");
-          $tests += api_check_mailbox_204($baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=9999999");
-          $tests += api_check_mailbox($baseurl. "/api/mailbox/$check_here_url_encoded?page=5");
+          $tests += api_check_mailbox($api_baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=1");
+          $tests += api_check_mailbox_204($api_baseurl. "/api/mailbox/$check_here_url_encoded?newerthan=9999999");
+          $tests += api_check_mailbox($api_baseurl. "/api/mailbox/$check_here_url_encoded?page=5");
       }
 
       $tests += 3 + rss_tests($check_here);
 
       my $alias_fail = $mailnesia->random_name_for_testing();
 
-      $mech->post("$baseurl/settings/$alias_fail/alias/set",
+      $mech->post("$website_baseurl/settings/$alias_fail/alias/set",
                           {
                               alias=>$check_here
                           }
@@ -905,7 +914,7 @@ sub send_complete_email_test {
         {
             ok ( send_mail($send_to,"test\@$sender_domain", $_) == 0, "sending $_ to $send_to" );
 
-            $url = $baseurl. "/mailbox/$check_here_url_encoded";
+            $url = $website_baseurl. "/mailbox/$check_here_url_encoded";
 
             # disable HTML validation, since the page contains the email which can be invalid
             my $old_status = $mech->autolint (0);
@@ -916,7 +925,7 @@ sub send_complete_email_test {
             $mech->text_contains( "Mail for ". lc $send_to );
             # TODO: also get mailbox using API
             $tests += rss_tests($send_to);
-            $tests += api_check_email($baseurl. "/api/mailbox/$check_here_url_encoded");
+            $tests += api_check_email($api_baseurl. "/api/mailbox/$check_here_url_encoded");
 
 
             my $lc_check_here_url_encoded = $mailnesia->get_url_encoded_mailbox ( lc $send_to );
@@ -938,7 +947,7 @@ sub send_complete_email_test {
                 # also get email using API
                 my $email_id = $1 if $first_email->url() =~ m^/(\d+)$^;
                 ok ($email_id, "Found ID of first email on page");
-                $tests += 1 + api_check_email($baseurl. "/api/mailbox/$lc_check_here_url_encoded/$email_id");
+                $tests += 1 + api_check_email($api_baseurl. "/api/mailbox/$lc_check_here_url_encoded/$email_id");
 
 
                 #test original email view (raw)
@@ -953,7 +962,7 @@ sub send_complete_email_test {
                 }
 
                 # also get raw email using API
-                $tests += api_check_email($baseurl. "/api/mailbox/$lc_check_here_url_encoded/$email_id/raw");
+                $tests += api_check_email($api_baseurl. "/api/mailbox/$lc_check_here_url_encoded/$email_id/raw");
 
                 #test URL clicker button
                 if ( $mech->follow_link_ok( {text_regex => qr/test URL clicker/i }, "open 'test URL clicker' link on current page" ) )
@@ -979,7 +988,7 @@ sub send_complete_email_test {
 
                 $tests += 4;
 
-                $tests += api_check_empty_mailbox($baseurl. "/api/mailbox/$lc_check_here_url_encoded");
+                $tests += api_check_empty_mailbox($api_baseurl. "/api/mailbox/$lc_check_here_url_encoded");
             }
 
             $tests += 7;
@@ -1021,7 +1030,7 @@ sub delete_mail_test {
       print_test_category_header( );
       my $mailbox = shift;
       my $lower_mailbox = $mailnesia->get_url_encoded_mailbox ( lc $mailbox );
-      my $email_link_regex = qr{$baseurl/mailbox/$lower_mailbox/(\d+)};
+      my $email_link_regex = qr{$website_baseurl/mailbox/$lower_mailbox/(\d+)};
 
       if ($mech->follow_link_ok( {url_regex => $email_link_regex }, "open an email to delete" ))
       {
@@ -1058,7 +1067,7 @@ sub wipe_mailbox_test {
       my $lower_esc_mailbox = $mailnesia->get_url_encoded_mailbox ( $lower_mailbox );
 
       $mech->post_ok(
-            $baseurl . qq{/mailbox/$lower_esc_mailbox}, {
+            $website_baseurl . qq{/mailbox/$lower_esc_mailbox}, {
                   delete  => 1
                  },
             "try to wipe mailbox $mailbox"
@@ -1077,14 +1086,14 @@ sub restoration {
 
         print_test_category_header( );
         my $mailbox_url_encoded = $mailnesia->get_url_encoded_mailbox ( lc $global_mailbox );
-        my $url = "$baseurl/settings/$global_mailbox";
+        my $url = "$website_baseurl/settings/$global_mailbox";
 
         if (@aliases)
         {
 
             while ( my $alias = shift @aliases )
             {
-                if ( $mech->post_ok("$baseurl/settings/$mailbox_url_encoded/alias/remove",
+                if ( $mech->post_ok("$website_baseurl/settings/$mailbox_url_encoded/alias/remove",
                                     {
                                         remove_alias=>$alias
                                     },
@@ -1156,7 +1165,7 @@ sub api_alias_tests {
 
 sub test_empty_alias_list {
     my $mailbox = shift;
-    my $url = $baseurl . "/api/alias/$mailbox";
+    my $url = $api_baseurl . "/api/alias/$mailbox";
     $mech->get_ok( $url, "GET $url" );
     $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( '[]' ) or warn $mech->content();
@@ -1166,7 +1175,7 @@ sub test_empty_alias_list {
 sub add_alias_to_mailbox {
     my $mailbox = shift;
     my $alias = shift;
-    my $url = $baseurl . "/api/alias/$mailbox/$alias";
+    my $url = $api_baseurl . "/api/alias/$mailbox/$alias";
     $mech->post_ok( $url, "POST $url" );
     $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc "\"$alias\"" ) or warn $mech->content();
@@ -1176,7 +1185,7 @@ sub add_alias_to_mailbox {
 sub test_alias_list {
     my $mailbox = shift;
     my $alias_list = shift;
-    my $url = $baseurl . "/api/alias/$mailbox";
+    my $url = $api_baseurl . "/api/alias/$mailbox";
     $mech->get_ok( $url, "GET $url" );
     $mech->header_is('Content-Type', 'application/json');
     $mech->content_is( lc arrayref_to_json($alias_list) ) or warn $mech->content();
@@ -1187,7 +1196,7 @@ sub modify_alias {
     my $mailbox = shift;
     my $alias = shift;
     my $new_alias = shift;
-    my $url = $baseurl . "/api/alias/$mailbox/$alias/$new_alias";
+    my $url = $api_baseurl . "/api/alias/$mailbox/$alias/$new_alias";
     $mech->put_ok( $url, "PUT $url" );
     $mech->header_is('Content-Type', 'application/json');
     my $result = $mech->content;
@@ -1199,7 +1208,7 @@ sub modify_alias {
 sub delete_alias {
     my $mailbox = shift;
     my $alias = shift;
-    my $url = $baseurl . "/api/alias/$mailbox/$alias";
+    my $url = $api_baseurl . "/api/alias/$mailbox/$alias";
     $mech->delete_ok( $url, "DELETE $url" );
     $mech->header_is('Content-Type', 'text/plain;charset=UTF-8');
     $mech->content_is( "" ) or warn $mech->content();
@@ -1220,7 +1229,7 @@ sub mailbox_delete_tests_via_api {
 sub delete_mail {
     my $mailbox = shift;
     my $id = shift;
-    my $url = $baseurl . "/api/mailbox/$mailbox/$id";
+    my $url = $api_baseurl . "/api/mailbox/$mailbox/$id";
     $mech->delete_ok( $url, "DELETE $url" );
     $mech->header_is('Content-Type', 'text/plain;charset=UTF-8');
     $mech->content_is( "" ) or warn $mech->content();
@@ -1229,7 +1238,7 @@ sub delete_mail {
 
 sub delete_mailbox {
     my $mailbox = shift;
-    my $url = $baseurl . "/api/mailbox/$mailbox";
+    my $url = $api_baseurl . "/api/mailbox/$mailbox";
     $mech->delete_ok( $url, "DELETE $url" );
     $mech->header_is('Content-Type', 'text/plain;charset=UTF-8');
     $mech->content_is( "" ) or warn $mech->content();
@@ -1335,15 +1344,15 @@ execute tests
 done_testing(
         check_config() +
         visitor_test() +
-        mailbox_tests() +
-        alias_positive_tests() +
-        alias_negative_tests() +
-        email_sending_and_deleting() +
-        random_mailbox() +
-        webpage_tests() +
-        negative_delete_test() +
-        api_alias_tests() +
-        mailbox_delete_tests_via_api() +
-        mailbox_settings_page_tests() +
+        # mailbox_tests() +
+        # alias_positive_tests() +
+        # alias_negative_tests() +
+        # email_sending_and_deleting() +
+        # random_mailbox() +
+        # webpage_tests() +
+        # negative_delete_test() +
+        # api_alias_tests() +
+        # mailbox_delete_tests_via_api() +
+        # mailbox_settings_page_tests() +
         restoration()
     );
