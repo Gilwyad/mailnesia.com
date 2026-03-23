@@ -59,6 +59,10 @@ jobs:
           postgres_user: mailnesia
           postgres_password: test
           redis_host: localhost
+          website_pages_baseurl: http://localhost:3000
+          website_baseurl: http://localhost:3001
+          api_baseurl: http://localhost:3002
+          rss_baseurl: http://localhost:3003
 
     # Service containers to start
     services:

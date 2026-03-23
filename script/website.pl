@@ -52,7 +52,7 @@ under sub {
         # check SQL connection on each pageload, try to reconnect if fails
         $mailnesia->connect_sql();
 
-        my $ip = $self->req->headers->header('X-Forwarded-For');
+        my $ip = $self->req->headers->header('X-Forwarded-For') || $self->tx->remote_address;
 
         if ($ip) {
             # redirect to captcha if too many mailbox requests
