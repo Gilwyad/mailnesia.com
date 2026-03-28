@@ -18,6 +18,14 @@ jobs:
         with:
           perl-version: "5.32"
 
+      - name: print INC
+        run: perl -e 'print join("\n", @INC)'
+        shell: bash
+
+      - name: fail with nonexistent module
+        run: perl -MNonExistentModule -e1
+        shell: bash
+
       - name: Install dependencies
         run: cpanm --installdeps . --skip-satisfied
         shell: bash
