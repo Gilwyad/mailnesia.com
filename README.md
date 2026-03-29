@@ -135,8 +135,27 @@ upon save in Emacs.
 
 ## Testing
 
-Test running website and mail server by sending test emails:
+### End-to-end tests
+#### Description
+Test running website and mail server by sending test emails.
+
+#### Requirements
+All services must be running, as well as Postgres and Redis. Email sending
+requires the `swaks` tool which can be installed with:
+
+    sudo apt-get install swaks -y
+
+#### Execution
+
     tools/test-mailnesia.pl
 
-Execute function tests under t/ (these don't require the website to be up):
+### Unit & function tests
+#### Description
+Execute function tests under t/.
+
+#### Requirements
+These don't require the website to be up, but running Postgres and Redis are necessary.
+
+#### Execution
+
     prove

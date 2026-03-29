@@ -70,10 +70,15 @@ sub nextOne {
     }
 }
 
+my $debugging_mode = 0;
+if ($ARGV[0] and ($ARGV[0] eq '-d' or $ARGV[0] eq '--debug')) {
+    $debugging_mode = 1;
+}
+
 my $email_count=0;
 my $email_bandwidth=0;
 
-my $config = Mailnesia::Config->new;
+my $config = Mailnesia::Config->new($debugging_mode);
 my $mailnesia = Mailnesia->new;
 
 #maximum size the clicker will download
@@ -87,7 +92,6 @@ my $banned_sender_domain = $config->{banned_sender_domain};
 
 #pid file:
 my $pidfile = $config->{pidfile};
-my $debugging_mode;
 
 # do not save email / click logs
 my $logging_disabled = 1;
@@ -110,16 +114,6 @@ my $exit_timer;
 
 # %cookie_jar will contain the cookies to use after redirects.  Once the request is done, cookies are discarded.
 my %cookie_jar ;
-
-
-if ($ARGV[0])
-{
-    $debugging_mode = ($ARGV[0] eq '-d' or $ARGV[0] eq '--debug') ? 1 : 0;
-}
-else
-{
-    $debugging_mode = 0;
-}
 
 my $server_port = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_port_devel} : $config->{smtp_port};
 my $server_ip   = $debugging_mode || $mailnesia->{devel} ? $config->{smtp_host_devel} : $config->{smtp_host};
@@ -395,7 +389,6 @@ drop_privileges('nobody');
 
 print &display_time()." $0 started on port $server_port\n";
 open_log();
-terminate() if $debugging_mode;
 
 AnyEvent->condvar->recv;
 
