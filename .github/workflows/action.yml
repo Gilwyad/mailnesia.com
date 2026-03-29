@@ -18,14 +18,6 @@ jobs:
         with:
           perl-version: "5.32"
 
-      - name: print INC
-        run: perl -e 'print join("\n", @INC)'
-        shell: bash
-
-      - name: fail with nonexistent module
-        run: perl -MNonExistentModule -e1
-        shell: bash
-
       - name: Install dependencies
         run: cpanm --installdeps . --skip-satisfied
         shell: bash
@@ -55,13 +47,16 @@ jobs:
             morbo --listen http://*:3002 ./script/api.pl
             morbo --listen http://*:3003 ./script/rss.pl
             perl ./script/clicker.pl
+            perl ./script/AnyEvent-SMTP-Server.pl -d
 
           wait-on: |
             http://localhost:3000
             http://localhost:3001/mailbox/test
             http://localhost:3002/api/mailbox/test
             http://localhost:3003/rss/test
-          command: perl tools/test-mailnesia.pl
+            tcp:5000
+            tcp:2525
+          command: perl tools/test-mailnesia.pl --dont-start-smtp-server
         env:
           postgres_host: localhost
           postgres_user: mailnesia

@@ -53,6 +53,11 @@ my $parser = XML::LibXML->new();
 
 my $mailbox_to_ban = 'ban-this-mailbox-as-a-test';
 
+my $start_smtp_server = 1;
+if ($ARGV[0] eq "--dont-start-smtp-server") {
+    print "Not starting SMTP server, expecting it to already be running\n";
+    $start_smtp_server = 0;
+}
 # tests:
 
 =head1 webpage tests
@@ -632,59 +637,67 @@ sub visitor_test {
     return 5;
 }
 
-sub email_sending_and_deleting {
-  print_test_category_header( );
 
-  #starting smtp server
-  if (my $pid = fork())
+sub run_email_tests {
+    my $tests;
+    my $wipeTest = scalar @aliases;
+
+    while (my $alias = shift @aliases)
     {
-      #parent, sending email
-      print "waiting for SMTP server to start...\n";
-      sleep 2;
-      my $tests;
-      my $wipeTest = scalar @aliases;
+        $tests += send_mail_test($alias,$global_mailbox,$mailnesia->random_name_for_testing())
+    };
 
-      while (my $alias = shift @aliases)
-      {
-          $tests += send_mail_test($alias,$global_mailbox,$mailnesia->random_name_for_testing())
-      };
+    $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
+    $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
 
-      $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
-      $tests += send_mail_test($mailbox_for_api_test, $mailbox_for_api_test);
+    # test disabled, feature not enabled
+    #      invalid_sender_test() +
 
-      # test disabled, feature not enabled
-      #      invalid_sender_test() +
+    $tests += invalid_recipient_test() +
+        banned_sender_test() +
+        banned_recipient_test() +
+        send_complete_email_test() +
+        test_url_clicker();
 
-      $tests += invalid_recipient_test() +
-      banned_sender_test() +
-      banned_recipient_test() +
-      send_complete_email_test() +
-      test_url_clicker();
-
-      # wipe $global_mailbox if there were alias tests
-      if ($wipeTest) {
+    # wipe $global_mailbox if there were alias tests
+    if ($wipeTest) {
         $tests += wipe_mailbox_test($global_mailbox) ;
-      }
-
-      $tests += check_empty_mailbox("$website_baseurl/mailbox/$global_mailbox");
-
-      kill 15, $pid ;
-      waitpid ( $pid, 0 );
-
-      return $tests;
     }
-  elsif ($pid == 0)
-    {
-      #child, start smtp szerver
-      my $server = "$project_directory/script/AnyEvent-SMTP-Server.pl";
 
-      exec ('/usr/bin/perl', $server, '-d');
-    }
-  else
-    {
-      die "error forking\n";
+    $tests += check_empty_mailbox("$website_baseurl/mailbox/$global_mailbox");
+
+    return $tests;
+}
+
+
+sub email_sending_and_deleting {
+    print_test_category_header( );
+
+    if ($start_smtp_server) {
+        #starting smtp server
+        if (my $pid = fork()) {
+            #parent, sending email
+            print "waiting for SMTP server to start...\n";
+            sleep 2;
+            my $tests = run_email_tests();
+            kill 15, $pid ;
+            waitpid ( $pid, 0 );
+
+            return $tests;
+        } elsif ($pid == 0) {
+            #child, start smtp server
+            my $server = "$project_directory/script/AnyEvent-SMTP-Server.pl";
+
+            exec ('/usr/bin/perl', $server, '-d');
+        } else {
+            die "error forking\n";
+        }
+    } else {
+        print "Skipping starting SMTP server, running email tests assuming server is already running\n";
+        return run_email_tests();
     }
 }
+
 
 =head1 banned recipient tests
 
@@ -1216,10 +1229,13 @@ sub delete_alias {
 }
 
 =head1 mailbox delete tests via api
-Delete all mail that was sent to $mailbox_for_api_test
+Delete all mail that was sent to $mailbox_for_api_test. First delete $email_id, then wipe all mail in the mailbox.
+Check that the API returns the expected responses. Note that this will only work if there are at least two emails
+in the mailbox.
 =cut
 
 sub mailbox_delete_tests_via_api {
+    print_test_category_header();
     my $tests = 0;
     $tests += delete_mail($mailbox_for_api_test, $email_id);
     $tests += delete_mailbox($mailbox_for_api_test);
