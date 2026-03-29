@@ -2,6 +2,8 @@
 
 # ZeroMQ version used is 4.2.1
 
+use FindBin;
+use lib "$FindBin::Bin/../lib/";
 use ZMQ::FFI qw(ZMQ_PUSH ZMQ_PULL);
 use AnyEvent;
 use EV;
