@@ -395,6 +395,7 @@ drop_privileges('nobody');
 
 print &display_time()." $0 started on port $server_port\n";
 open_log();
+terminate() if $debugging_mode;
 
 AnyEvent->condvar->recv;
 
