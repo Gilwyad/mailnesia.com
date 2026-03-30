@@ -1210,7 +1210,7 @@ sub add_alias_to_mailbox_error {
     my $mailbox = shift;
     my $alias = shift;
     my $expected_status_code = shift;
-    my $url = $baseurl . "/api/alias/$mailbox/$alias";
+    my $url = $api_baseurl . "/api/alias/$mailbox/$alias";
     my $m = WWW::Mechanize->new(autocheck=>0);
     my $response = $m->post( $url, content => "" );
     ok(
