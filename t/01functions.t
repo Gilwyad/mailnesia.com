@@ -16,6 +16,52 @@ use warnings;
 
 my $mailnesia = Mailnesia->new();
 my $config    = Mailnesia::Config->new();
+
+my @links_to_click = qw(
+    http://example.com/activate
+    http://example.com/activation
+    http://example.com/register
+    http://example.com/registration
+    http://example.com/regid1
+    http://example.com/reg2
+    http://example.com/validate
+    http://example.com/validation
+    http://example.com/accept
+    http://example.com/aktival
+    http://example.com/regisztracio
+    http://example.com/verify
+    http://example.com/verification
+    http://example.com/invite
+    http://example.com/invitation
+    http://example.com/subscription
+    http://example.com/subscribe
+    http://example.com/signup
+    https://soundcloud.com/emails/1
+    https://mail.google.com/mail/vf-2
+    http://example.com/check
+    http://example.com/act/2
+);
+
+my @links_not_to_click = qw(
+
+    http://example.com/optout
+    http://example.com/deactivate
+    http://example.com/deactivation
+    http://example.com/reject
+    http://example.com/unsubscribe
+    http://example.com/leiratkozas
+    http://example.com/delete
+    http://example.com/cancel
+    http://example.com/block
+    http://example.com/unsub/
+    http://example.com/spam/
+    http://example.com/report/
+    http://example.com/remove/
+    https://sammobile.com/1
+    https://mail.google.com/mail/uf-3
+    http://example.com/reset
+);
+
 my $email     = Mailnesia::Email->new({
     raw_email => q{
         To: <test@mailnesia.com>
@@ -39,6 +85,29 @@ my $email     = Mailnesia::Email->new({
         http://example.com/a/delete.php?q=1&#038;w=2
     }
 });
+
+
+my $email2     = Mailnesia::Email->new({
+    raw_email => qq{
+        To: <test\@mailnesia.com>
+        Date: Mon, 07 Jul 2014 21:50:55 +0900
+        From: <test\@mailnesia.com>
+        Subject: test
+
+        Links not considered for clicking:
+
+        http://example.com
+
+        Links to click:
+
+        @links_to_click
+
+        Links not to click:
+
+        @links_not_to_click
+    }
+});
+
 
 #Mailnesia::Email tests
 is (
@@ -85,6 +154,22 @@ is_deeply (
     [sort ("http://example.com/a/?q=1&#x26;w=2", "http://example.com/a/delete.php?q=1&#x26;w=2")],
     "links not to be clicked correctly displayed"
 );
+
+
+($clicked, $not_clicked) = $email2->links;
+is_deeply (
+    [sort @$clicked],
+    [sort @links_to_click],
+    "links to be clicked correctly identified"
+);
+
+
+is_deeply (
+    [sort @$not_clicked],
+    [sort @links_not_to_click],
+    "links not to be clicked correctly displayed"
+);
+
 
 ok( $mailnesia->get_project_directory(), "get_project_directory" );
 

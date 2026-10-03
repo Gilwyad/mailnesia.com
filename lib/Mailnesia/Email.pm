@@ -53,6 +53,7 @@ define_alias(
 my $click = qr"confirm|
                activat[ei]|
                register|
+               registration|
                regid[^a-z]|
                reg[^a-z]|
                \bvalidat[ei]|
@@ -62,14 +63,13 @@ my $click = qr"confirm|
                verify|
                verification|
                invit[ae]|
-               subscrib|
+               subscri[bp]|
                signup|
                soundcloud.com/emails/|
                mail.google.com/mail/vf-|
                \bcheck\b|
                wqrw/podziekowania\?id=\d+&key=[a-z0-9]+|
-               \bact\b|
-               yify-torrents.com/[a-z0-9]+"ix;
+               \bact\b"ix;
 
 # regex for not clicking links
 my $noclick = qr"opt[^a-z]?out|
@@ -84,7 +84,6 @@ my $noclick = qr"opt[^a-z]?out|
                  [^a-z]spam[^a-z]|
                  [^a-z]report[^a-z]|
                  [^a-z]remove[^a-z]|
-                 \btwitter\.com\b|
                  \bsammobile.com\b|
                  mail.google.com/mail/uf-|
                  reset"ix;
